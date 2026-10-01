@@ -423,13 +423,102 @@ pub fn Color::default() -> Color {
 let parse_cache : Map[String, Color] = Map([])
 
 ///|
+/// Python `str.isspace()` for a single character (also what `\s` matches).
 fn is_py_space(c : Char) -> Bool {
-  c is (' ' | '\t' | '\n' | '\r' | '\u{0b}' | '\u{0c}')
+  match c {
+    ' ' | '\t' | '\n' | '\r' | '\u{0b}' | '\u{0c}' => true
+    '\u{1c}' | '\u{1d}' | '\u{1e}' | '\u{1f}' | '\u{85}' | '\u{a0}' => true
+    '\u{1680}'
+    | '\u{2028}'
+    | '\u{2029}'
+    | '\u{202f}'
+    | '\u{205f}'
+    | '\u{3000}' => true
+    _ => c.to_int() >= 0x2000 && c.to_int() <= 0x200a
+  }
 }
 
 ///|
+/// Python `str.strip()`.
 fn py_strip(s : String) -> String {
-  s.trim(chars=" \t\n\r\u{0b}\u{0c}").to_owned()
+  let chars = s.to_array()
+  let mut start = 0
+  let mut end = chars.length()
+  while start < end && is_py_space(chars[start]) {
+    start += 1
+  }
+  while end > start && is_py_space(chars[end - 1]) {
+    end -= 1
+  }
+  String::from_array(chars[start:end])
+}
+
+///|
+/// The zero of each run of ten Unicode decimal digits (category Nd).
+let decimal_zeros : FixedArray[Int] = [
+  0x30, 0x660, 0x6F0, 0x7C0, 0x966, 0x9E6, 0xA66, 0xAE6, 0xB66, 0xBE6, 0xC66, 0xCE6,
+  0xD66, 0xDE6, 0xE50, 0xED0, 0xF20, 0x1040, 0x1090, 0x17E0, 0x1810, 0x1946, 0x19D0,
+  0x1A80, 0x1A90, 0x1B50, 0x1BB0, 0x1C40, 0x1C50, 0xA620, 0xA8D0, 0xA900, 0xA9D0,
+  0xA9F0, 0xAA50, 0xABF0, 0xFF10, 0x104A0, 0x10D30, 0x10D40, 0x11066, 0x110F0, 0x11136,
+  0x111D0, 0x112F0, 0x11450, 0x114D0, 0x11650, 0x116C0, 0x116D0, 0x116DA, 0x11730,
+  0x118E0, 0x11950, 0x11BF0, 0x11C50, 0x11D50, 0x11DA0, 0x11F50, 0x16130, 0x16A60,
+  0x16AC0, 0x16B50, 0x16D70, 0x1CCF0, 0x1D7CE, 0x1D7D8, 0x1D7E2, 0x1D7EC, 0x1D7F6,
+  0x1E140, 0x1E2F0, 0x1E4F0, 0x1E5F1, 0x1E950, 0x1FBF0,
+]
+
+///|
+/// The value of a Unicode decimal digit (what Python's `\d` matches and
+/// `int()` accepts), or `None`.
+fn decimal_value(c : Char) -> Int? {
+  let n = c.to_int()
+  for zero in decimal_zeros {
+    if n >= zero && n < zero + 10 {
+      return Some(n - zero)
+    }
+  }
+  None
+}
+
+///|
+/// Python `int(s, base)` for bases 10 and 16: surrounding whitespace, an
+/// optional sign and single underscores between digits are allowed.
+fn py_int_base(s : String, base : Int) -> Int? {
+  let chars = py_strip(s).to_array()
+  let mut i = 0
+  let mut negative = false
+  if i < chars.length() && chars[i] is ('+' | '-') {
+    negative = chars[i] == '-'
+    i += 1
+  }
+  if i >= chars.length() {
+    return None
+  }
+  let mut value = 0
+  let mut last_underscore = true
+  while i < chars.length() {
+    let c = chars[i]
+    let digit = match c {
+      '_' if !last_underscore => {
+        last_underscore = true
+        i += 1
+        continue
+      }
+      'a'..='f' if base == 16 => c.to_int() - 'a'.to_int() + 10
+      'A'..='F' if base == 16 => c.to_int() - 'A'.to_int() + 10
+      _ =>
+        match decimal_value(c) {
+          Some(d) => d
+          None => return None
+        }
+    }
+    value = value * base + digit
+    last_underscore = false
+    i += 1
+  }
+  if last_underscore {
+    return None
+  }
+  Some(if negative { -value } else { value })
 }
 
 ///|
@@ -445,13 +534,7 @@ fn all_chars(s : StringView, pred : (Char) -> Bool) -> Bool {
 ///|
 /// Python `int(s)` for decimal strings (surrounding whitespace allowed).
 fn py_int(s : String) -> Int? {
-  let t = py_strip(s)
-  if t == "" || !all_chars(t, c => c >= '0' && c <= '9') {
-    return None
-  }
-  Some(@string.parse_int(t)) catch {
-    _ => None
-  }
+  py_int_base(s, 10)
 }
 
 ///|
@@ -483,7 +566,7 @@ pub fn Color::parse(color : String) -> Color raise ColorParseError {
 
 ///|
 fn parse_color(original_color : String) -> Color raise ColorParseError {
-  let color = py_strip(original_color.to_lower())
+  let color = py_strip(@pystr.lower(original_color))
   if color == "default" {
     return { name: color, type_: Default, number: None, triplet: None, }
   }
@@ -593,8 +676,8 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
 }
 
 ///|
-fn is_unicode_digit(_c : Char) -> Bool {
-  false
+fn is_unicode_digit(c : Char) -> Bool {
+  decimal_value(c) is Some(_)
 }
 
 ///|
@@ -783,13 +866,19 @@ pub fn Color::downgrade(self : Color, system : ColorSystem) -> Color {
 
 ///|
 /// Parse six hex characters in to an RGB triplet.
+///
+/// Aborts on invalid hex digits (upstream raises `ValueError`).
 pub fn parse_rgb_hex(hex_color : String) -> ColorTriplet {
   guard hex_color.length() == 6 else { abort("must be 6 characters") }
-  {
-    red: hex_value(hex_color.view(start_offset=0, end_offset=2)),
-    green: hex_value(hex_color.view(start_offset=2, end_offset=4)),
-    blue: hex_value(hex_color.view(start_offset=4, end_offset=6)),
+  fn component(start : Int) -> Int {
+    let s = hex_color.view(start_offset=start, end_offset=start + 2).to_owned()
+    match py_int_base(s, 16) {
+      Some(v) => v
+      None => abort("invalid literal for int() with base 16: \{py_repr_str(s)}")
+    }
   }
+
+  { red: component(0), green: component(2), blue: component(4), }
 }
 
 ///|

@@ -158,7 +158,7 @@ pub fn Style::new(
       }
     }
   }
-  let link_id = if non_empty(link) is Some(_) || meta is Some(_) {
+  let link_id = if non_empty(link) is Some(_) || meta_truthy(meta) {
     "\{next_link_id()}\{meta_hash(meta)}"
   } else {
     ""
@@ -176,27 +176,6 @@ pub fn Style::new(
     link~,
     link_id~,
     meta~,
-    null~,
-  )
-}
-
-///|
-/// Create a style with attributes given by bit masks (bit 0 = bold, ...).
-fn Style::from_bits(
-  attributes : Int,
-  set_attributes : Int,
-  color? : @color.Color,
-  bgcolor? : @color.Color,
-) -> Style {
-  let null = !(set_attributes != 0 || color is Some(_) || bgcolor is Some(_))
-  make_style(
-    color~,
-    bgcolor~,
-    attributes=attributes & set_attributes,
-    set_attributes~,
-    link=None,
-    link_id="",
-    meta=None,
     null~,
   )
 }
@@ -461,7 +440,7 @@ pub fn Style::repr(self : Style) -> String {
     parts.push("link=\{py_repr(link)}")
   }
   if meta_truthy(self.meta_) {
-    parts.push("meta=\{Json::object(self.meta_.unwrap()).stringify()}")
+    parts.push("meta=\{py_json_repr(Json::object(self.meta_.unwrap()))}")
   }
   "Style(" + parts.join(", ") + ")"
 }
@@ -538,7 +517,7 @@ pub fn Style::normalize(style : String) -> String {
     return s
   }
   let result = Style::parse(style).to_definition() catch {
-    _ => style.trim(chars=" \t\n\r\u{0b}\u{0c}").to_owned().to_lower()
+    _ => @pystr.lower(py_strip(style))
   }
   normalize_cache[style] = result
   result
@@ -632,9 +611,9 @@ fn parse_style(style_definition : String) -> Style raise RichError {
 
   while i < words.length() {
     let original_word = next_word()
-    let word = original_word.to_lower()
+    let word = @pystr.lower(original_word)
     if word == "on" {
-      let word = next_word().to_lower()
+      let word = next_word()
       if word == "" {
         raise StyleSyntaxError("color expected after 'on'")
       }
@@ -646,7 +625,7 @@ fn parse_style(style_definition : String) -> Style raise RichError {
       }
       bgcolor = Some(c)
     } else if word == "not" {
-      let word = next_word().to_lower()
+      let word = next_word()
       match style_attributes.get(word) {
         None =>
           raise StyleSyntaxError(
@@ -950,6 +929,25 @@ pub fn Style::add_opt(self : Style, other : Style?) -> Style {
     None => self
     Some(other) => self + other
   }
+}
+
+///|
+/// Pick the first non-`None` style (upstream `Style.pick_first`).
+pub fn Style::pick_first(
+  values : ArrayView[StyleType?],
+) -> StyleType raise RichError {
+  for value in values {
+    if value is Some(v) {
+      return v
+    }
+  }
+  raise ValueError("expected at least one non-None style")
+}
+
+///|
+/// Upstream `repr(stack)`.
+pub fn StyleStack::repr(self : StyleStack) -> String {
+  "<stylestack [" + self.stack.map(s => s.repr()).join(", ") + "]>"
 }
 
 ///|

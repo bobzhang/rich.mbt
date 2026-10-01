@@ -67,7 +67,7 @@ pub fn escape(markup : String) -> String {
 ///|
 /// An item of parsed markup: text or a tag at a position.
 priv enum MarkupItem {
-  PlainText(Int, String)
+  PlainText(String)
   TagAt(Int, Tag)
 }
 
@@ -82,21 +82,18 @@ fn parse_markup(markup : String) -> Array[MarkupItem] raise {
     let mut start = m.start()
     let end = m.end()
     if start > position {
-      out.push(PlainText(start, py_slice(markup, position, start)))
+      out.push(PlainText(py_slice(markup, position, start)))
     }
     if escapes != "" {
       let backslashes = escapes.length() / 2
       let escaped = escapes.length() % 2
       if backslashes != 0 {
-        out.push(PlainText(start, "\\".repeat(backslashes)))
+        out.push(PlainText("\\".repeat(backslashes)))
         start += backslashes * 2
       }
       if escaped != 0 {
         out.push(
-          PlainText(
-            start,
-            py_slice(full_text, escapes.length(), full_text.length()),
-          ),
+          PlainText(py_slice(full_text, escapes.length(), full_text.length())),
         )
         position = end
         continue
@@ -116,7 +113,7 @@ fn parse_markup(markup : String) -> Array[MarkupItem] raise {
     position = end
   }
   if position < markup.length() {
-    out.push(PlainText(position, py_slice(markup, position, markup.length())))
+    out.push(PlainText(py_slice(markup, position, markup.length())))
   }
   out
 }
@@ -146,7 +143,7 @@ pub fn render_markup(
   let items = parse_markup(markup) catch { e => raise MarkupError("\{e}") }
   for item in items {
     match item {
-      PlainText(_, plain_text) => {
+      PlainText(plain_text) => {
         let plain_text = plain_text.replace_all(old="\\[", new="[")
         text.append_str(
           if emoji {

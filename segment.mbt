@@ -142,7 +142,7 @@ pub impl Debug for Segment with fn to_repr(self) {
 /// The number of terminal cells required to display the text (0 for
 /// control segments).
 pub fn Segment::cell_length(self : Segment) -> Int {
-  if self.is_control() {
+  if self.has_codes() {
     0
   } else {
     @cells.cell_len(self.text)
@@ -152,8 +152,13 @@ pub fn Segment::cell_length(self : Segment) -> Int {
 ///|
 /// Check if the segment contains control codes.
 pub fn Segment::is_control(self : Segment) -> Bool {
-  // upstream checks truthiness of the control sequence in some places and
-  // `is not None` in others; an empty control list is treated as no control
+  self.control is Some(_)
+}
+
+///|
+/// Upstream `bool(segment.control)`: the segment has at least one control
+/// code. Most of the segment helpers test this (rather than `is_control`).
+pub fn Segment::has_codes(self : Segment) -> Bool {
   match self.control {
     Some(c) => !c.is_empty()
     None => false
@@ -161,9 +166,9 @@ pub fn Segment::is_control(self : Segment) -> Bool {
 }
 
 ///|
-/// Upstream `segment.control is not None`.
-fn Segment::has_control(self : Segment) -> Bool {
-  self.control is Some(_)
+/// Upstream `bool(segment)`: the segment contains text.
+pub fn Segment::to_bool(self : Segment) -> Bool {
+  self.text != ""
 }
 
 ///|
@@ -182,24 +187,6 @@ pub fn Segment::split_cells(self : Segment, cut : Int) -> (Segment, Segment) {
     )
   }
   split_cells_slow(self, cut)
-}
-
-///|
-fn char_cell_size_at(text : String, pos : Int) -> (Int, Int) {
-  // (cell size, code unit length) of the character starting at `pos`
-  let c = text.get_char(pos)
-  match c {
-    Some(c) =>
-      (
-        @cells.get_character_cell_size(c),
-        if c.to_int() > 0xFFFF {
-          2
-        } else {
-          1
-        },
-      )
-    None => (@cells.codepoint_cell_size(text[pos].to_int()), 1)
-  }
 }
 
 ///|
@@ -270,7 +257,7 @@ pub fn Segment::apply_style(
   if style is Some(style) && style.to_bool() {
     result = result.map(seg => {
       text: seg.text,
-      style: if seg.is_control() {
+      style: if seg.has_codes() {
         None
       } else {
         Some(style.add_opt(seg.style))
@@ -281,7 +268,7 @@ pub fn Segment::apply_style(
   if post_style is Some(post_style) && post_style.to_bool() {
     result = result.map(seg => {
       text: seg.text,
-      style: if seg.is_control() {
+      style: if seg.has_codes() {
         None
       } else {
         match seg.style {
@@ -301,7 +288,7 @@ pub fn Segment::filter_control(
   segments : Array[Segment],
   is_control? : Bool = false,
 ) -> Array[Segment] {
-  segments.filter(s => s.is_control() == is_control)
+  segments.filter(s => s.has_codes() == is_control)
 }
 
 ///|
@@ -319,7 +306,7 @@ pub fn Segment::split_lines_terminator(
   let lines = []
   let mut line = []
   for segment in segments {
-    if !segment.is_control() && segment.text.contains("\n") {
+    if !segment.has_codes() && segment.text.contains("\n") {
       let mut rest = segment.text
       while rest != "" {
         let (text, new_line, after) = partition(rest, "\n")
@@ -369,7 +356,7 @@ pub fn Segment::split_and_crop_lines(
   let line = []
   let new_line_segment = Segment::line()
   for segment in segments {
-    if !segment.is_control() && segment.text.contains("\n") {
+    if !segment.has_codes() && segment.text.contains("\n") {
       let mut rest = segment.text
       while rest != "" {
         let (text, new_line, after) = partition(rest, "\n")
@@ -430,7 +417,7 @@ pub fn Segment::adjust_line_length(
     line_length = 0
     for segment in line {
       let segment_length = segment.cell_length()
-      if line_length + segment_length < length || segment.is_control() {
+      if line_length + segment_length < length || segment.has_codes() {
         new_line.push(segment)
         line_length += segment_length
       } else {
@@ -450,7 +437,7 @@ pub fn Segment::adjust_line_length(
 pub fn Segment::get_line_length(line : ArrayView[Segment]) -> Int {
   let mut total = 0
   for segment in line {
-    if !segment.is_control() {
+    if !segment.has_codes() {
       total += @cells.cell_len(segment.text)
     }
   }
@@ -580,7 +567,7 @@ pub fn Segment::align_middle(
 fn[T] py_head(xs : Array[T], n : Int) -> Array[T] {
   let len = xs.length()
   let end = if n < 0 { @cmp.maximum(0, len + n) } else { @cmp.minimum(n, len) }
-  xs[0:end].to_array()
+  xs[0:end].to_owned()
 }
 
 ///|
@@ -612,7 +599,7 @@ pub fn Segment::simplify(segments : Array[Segment]) -> Array[Segment] {
   let result = []
   let mut last_segment = first
   for segment in rest {
-    if last_segment.style == segment.style && !segment.is_control() {
+    if last_segment.style == segment.style && !segment.has_codes() {
       last_segment = {
         text: last_segment.text + segment.text,
         style: last_segment.style,
@@ -632,18 +619,16 @@ pub fn Segment::simplify(segments : Array[Segment]) -> Array[Segment] {
 pub fn Segment::strip_links(segments : Array[Segment]) -> Array[Segment] {
   segments.map(segment => {
     match segment.style {
-      _ if segment.is_control() => segment
+      _ if segment.has_codes() => segment
       None => segment
       Some(style) =>
         {
           text: segment.text,
-          style: Some(
-            if style.to_bool() {
-              style.update_link(None)
-            } else {
-              style
-            },
-          ),
+          style: if style.to_bool() {
+            Some(style.update_link(None))
+          } else {
+            None
+          },
           control: None,
         }
     }
@@ -720,7 +705,7 @@ pub fn Segment::divide(
   for seg in segments {
     let mut segment = seg
     while segment.text != "" {
-      let end_pos = if segment.is_control() {
+      let end_pos = if segment.has_codes() {
         pos
       } else {
         pos + @cells.cell_len(segment.text)
@@ -762,4 +747,66 @@ pub fn Segment::divide(
   }
   result.push(split_segments.copy())
   result
+}
+
+///|
+/// A simple renderable to render a list of segments.
+pub struct Segments {
+  segments : Array[Segment]
+  new_lines : Bool
+}
+
+///|
+/// With `new_lines`, a new line is added after each segment.
+pub fn Segments::new(
+  segments : Array[Segment],
+  new_lines? : Bool = false,
+) -> Segments {
+  { segments: segments.copy(), new_lines, }
+}
+
+///|
+pub impl Renderable for Segments with fn rich_console(self, _console, _options) {
+  let out = []
+  for segment in self.segments {
+    out.push(Seg(segment))
+    if self.new_lines {
+      out.push(Seg(Segment::line()))
+    }
+  }
+  out
+}
+
+///|
+/// A renderable to render lines of segments.
+pub struct SegmentLines {
+  lines : Array[Array[Segment]]
+  new_lines : Bool
+}
+
+///|
+/// With `new_lines`, a new line is added after each line.
+pub fn SegmentLines::new(
+  lines : Array[Array[Segment]],
+  new_lines? : Bool = false,
+) -> SegmentLines {
+  { lines: lines.copy(), new_lines, }
+}
+
+///|
+pub impl Renderable for SegmentLines with fn rich_console(
+  self,
+  _console,
+  _options,
+) {
+  let out = []
+  for line in self.lines {
+    for segment in line {
+      out.push(Seg(segment))
+    }
+    if self.new_lines {
+      out.push(Seg(Segment::line()))
+    }
+  }
+  out
 }

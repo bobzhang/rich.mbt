@@ -1525,7 +1525,7 @@ fn Console::render_buffer(self : Console, buffer : Array[Segment]) -> String {
           style.render(text=segment.text, color_system~, legacy_windows~),
         )
       _ =>
-        if !(not_terminal && segment.is_control()) {
+        if !(not_terminal && segment.has_codes()) {
           output.write_string(segment.text)
         }
     }
@@ -1587,7 +1587,7 @@ pub fn Console::export_text(
     }
   } else {
     for segment in self.record_buffer {
-      if !segment.is_control() {
+      if !segment.has_codes() {
         buf.write_string(segment.text)
       }
     }

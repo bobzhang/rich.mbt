@@ -55,8 +55,8 @@ pub struct Lines {
 }
 
 ///|
-pub fn Lines::new(lines : Array[Text]) -> Lines {
-  { lines, }
+pub fn Lines::new(lines : ArrayView[Text]) -> Lines {
+  { lines: lines.to_owned(), }
 }
 
 ///|

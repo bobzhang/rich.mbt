@@ -1,0 +1,36 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/cells"
+
+// Values
+pub fn cell_len(StringView, unicode_version? : String) -> Int
+
+pub fn chop_cells(StringView, Int, unicode_version? : String) -> Array[String]
+
+pub fn codepoint_cell_size(Int, unicode_version? : String) -> Int
+
+pub fn get_character_cell_size(Char, unicode_version? : String) -> Int
+
+pub fn is_single_cell_widths(StringView) -> Bool
+
+pub fn load(unicode_version? : String) -> CellTable
+
+pub fn set_cell_size(StringView, Int, unicode_version? : String) -> String
+
+pub fn split_graphemes(StringView, unicode_version? : String) -> (Array[(Int, Int, Int)], Int)
+
+pub fn split_text(StringView, Int, unicode_version? : String) -> (String, String)
+
+pub fn unicode_versions() -> Array[String]
+
+// Errors
+
+// Types and methods
+pub struct CellTable {
+  unicode_version : String
+  // private fields
+}
+pub fn CellTable::is_narrow_to_wide(Self, Int) -> Bool
+
+// Type aliases
+
+// Traits
