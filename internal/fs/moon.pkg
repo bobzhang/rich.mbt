@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/encoding/utf8",
+}
+
+warnings = "-unused_package"
+
+options(
+  "native-stub": [ "fs_stub.c" ],
+  targets: {
+    "fs_native.mbt": [ "native", "llvm" ],
+    "fs_other.mbt": [ "js", "wasm", "wasm-gc" ],
+  },
+)

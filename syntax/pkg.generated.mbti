@@ -1,0 +1,113 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/syntax"
+
+import {
+  "bobzhang/pygments/lexer",
+  "bobzhang/pygments/styles",
+  "bobzhang/pygments/token",
+  "bobzhang/rich",
+  "bobzhang/rich/color",
+}
+
+// Values
+pub const DEFAULT_THEME : String = "monokai"
+
+pub fn ansi_dark() -> Map[@token.TokenType, @rich.Style]
+
+pub fn ansi_light() -> Map[@token.TokenType, @rich.Style]
+
+pub fn dedent(String) -> String
+
+pub fn expandtabs(String, Int) -> String
+
+pub fn get_theme(String) -> &SyntaxTheme
+
+pub fn splitext(String) -> (String, String)
+
+// Errors
+
+// Types and methods
+pub(all) struct ANSISyntaxTheme {
+  style_map : Map[@token.TokenType, @rich.Style]
+  // private fields
+}
+pub fn ANSISyntaxTheme::new(Map[@token.TokenType, @rich.Style]) -> Self
+pub impl IntoSyntaxTheme for ANSISyntaxTheme
+pub impl SyntaxTheme for ANSISyntaxTheme
+
+pub(all) enum LexerSpec {
+  Name(String)
+  Lexer(@lexer.Lexer)
+}
+pub impl IntoLexer for LexerSpec
+
+pub(all) struct PygmentsSyntaxTheme {
+  mut style_cache : Map[@token.TokenType, @rich.Style]
+  pygments_style : @styles.Style
+  mut background_color : String?
+  mut background_style : @rich.Style
+}
+pub fn PygmentsSyntaxTheme::from_style(@styles.Style) -> Self
+pub fn PygmentsSyntaxTheme::new(String) -> Self
+pub impl IntoSyntaxTheme for PygmentsSyntaxTheme
+pub impl SyntaxTheme for PygmentsSyntaxTheme
+
+pub(all) struct Syntax {
+  mut code : String
+  mut lexer_spec : LexerSpec
+  mut dedent : Bool
+  mut line_numbers : Bool
+  mut start_line : Int
+  mut line_range : (Int?, Int?)?
+  mut highlight_lines : Array[Int]
+  mut code_width : Int?
+  mut tab_size : Int
+  mut word_wrap : Bool
+  mut background_color : String?
+  mut background_style : @rich.Style
+  mut indent_guides : Bool
+  mut padding : (Int, Int, Int, Int)
+  mut theme : &SyntaxTheme
+  stylized_ranges : Array[SyntaxHighlightRange]
+  // private fields
+}
+pub fn Syntax::default_lexer(Self) -> @lexer.Lexer
+pub fn Syntax::from_path(String, lexer? : &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, line_range? : (Int?, Int?), start_line? : Int, highlight_lines? : ArrayView[Int], code_width? : Int, tab_size? : Int, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int]) -> Self raise
+pub fn Syntax::get_line_numbers_color(Self, blend? : Double) -> @color.Color
+pub fn Syntax::get_number_styles(Self, @rich.Console) -> (@rich.Style, @rich.Style, @rich.Style)
+pub fn Syntax::guess_lexer(String, code? : String) -> String
+pub fn Syntax::highlight(Self, String, line_range? : (Int?, Int?)) -> @rich.Text raise
+pub fn Syntax::lexer(Self) -> @lexer.Lexer?
+pub fn Syntax::new(String, &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, start_line? : Int, line_range? : (Int?, Int?), highlight_lines? : ArrayView[Int], code_width? : Int, tab_size? : Int, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int]) -> Self raise
+pub fn Syntax::numbers_column_width(Self) -> Int
+pub fn Syntax::set_padding(Self, ArrayView[Int]) -> Unit raise
+pub fn Syntax::stylize_range(Self, &@rich.IntoStyle, (Int, Int), (Int, Int), style_before? : Bool) -> Unit
+pub impl @rich.Renderable for Syntax
+
+pub(all) struct SyntaxHighlightRange {
+  style : @rich.StyleType
+  start : (Int, Int)
+  end : (Int, Int)
+  style_before : Bool
+}
+
+// Type aliases
+pub type SyntaxPosition = (Int, Int)
+
+// Traits
+pub(open) trait IntoLexer {
+  fn into_lexer_spec(Self) -> LexerSpec
+}
+pub impl IntoLexer for String
+pub impl IntoLexer for @lexer.Lexer
+
+pub(open) trait IntoSyntaxTheme {
+  fn into_syntax_theme(Self) -> &SyntaxTheme
+}
+pub impl IntoSyntaxTheme for String
+pub impl IntoSyntaxTheme for &SyntaxTheme
+
+pub(open) trait SyntaxTheme {
+  fn get_style_for_token(Self, @token.TokenType) -> @rich.Style
+  fn get_background_style(Self) -> @rich.Style
+}
