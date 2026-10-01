@@ -94,11 +94,26 @@ pub fn Column::flexible(self : Column) -> Bool {
 /// Things accepted as table headers: strings and columns.
 pub(open) trait IntoColumn {
   fn into_column(Self) -> Column
+  /// Convert to a column of a table whose `highlight` setting is given.
+  /// Upstream adds string headers with `add_column(header=...)`, so they
+  /// inherit the table's `highlight`; `Column`s are used as they are.
+  fn into_table_column(Self, highlight~ : Bool) -> Column = _
+}
+
+///|
+impl IntoColumn with fn into_table_column(self, highlight~) {
+  ignore(highlight)
+  self.into_column()
 }
 
 ///|
 pub impl IntoColumn for String with fn into_column(self) {
   Column::new(header=self)
+}
+
+///|
+pub impl IntoColumn for String with fn into_table_column(self, highlight~) {
+  Column::new(header=self, highlight~)
 }
 
 ///|
@@ -229,7 +244,7 @@ pub fn Table::new(
     row_styles: row_styles.map(s => s.into_style_type()),
   }
   for header in headers {
-    let column = header.into_column()
+    let column = header.into_table_column(highlight~)
     column.index = table.columns.length()
     table.columns.push(column)
   }

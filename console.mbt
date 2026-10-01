@@ -101,6 +101,11 @@ pub impl ConsoleFile for StringIO with fn isatty(self) {
 pub struct NullFile {}
 
 ///|
+pub fn NullFile::new() -> NullFile {
+  NullFile::{ }
+}
+
+///|
 pub impl ConsoleFile for NullFile with fn write(_self, _text) {
   ()
 }
@@ -1632,45 +1637,6 @@ pub let console_html_format : String =
   #|</body>
   #|</html>
   #|
-
-///|
-/// Python `str.format` with named fields (`{name}`, `{{`, `}}`).
-pub fn py_format(template : String, fields : Map[String, String]) -> String {
-  let buf = StringBuilder()
-  let n = template.length()
-  let mut i = 0
-  while i < n {
-    let c = template[i]
-    if c == '{' {
-      if i + 1 < n && template[i + 1] == '{' {
-        buf.write_char('{')
-        i += 2
-        continue
-      }
-      match template.view(start_offset=i).find("}") {
-        Some(j) => {
-          let name = py_slice(template, i + 1, i + j)
-          match fields.get(name) {
-            Some(v) => buf.write_string(v)
-            None => buf.write_string(py_slice(template, i, i + j + 1))
-          }
-          i += j + 1
-        }
-        None => {
-          buf.write_char('{')
-          i += 1
-        }
-      }
-    } else if c == '}' && i + 1 < n && template[i + 1] == '}' {
-      buf.write_char('}')
-      i += 2
-    } else {
-      buf.write_char(c.to_int().unsafe_to_char())
-      i += 1
-    }
-  }
-  buf.to_string()
-}
 
 ///|
 /// Python `html.escape(text)`.
