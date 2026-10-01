@@ -813,7 +813,7 @@ pub fn Style::clear_meta_and_links(self : Style) -> Style {
     link_id="",
     meta=None,
     null=false,
-    definition=self.definition,
+    // the cached definition mentions the link: do not reuse it (upstream does)
   )
   for k, v in self.ansi_cache {
     style.ansi_cache[k] = v
@@ -833,7 +833,7 @@ pub fn Style::update_link(self : Style, link : String?) -> Style {
     link_id=if non_empty(link) is Some(_) { "\{next_link_id()}" } else { "" },
     meta=self.meta_,
     null=false,
-    definition=self.definition,
+    // the cached definition mentions the link: do not reuse it (upstream does)
   )
   for k, v in self.ansi_cache {
     style.ansi_cache[k] = v
