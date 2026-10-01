@@ -1,4 +1,4 @@
-// Port of tests/test_tools.py (`ratio_distribute`) and tests/test_pick.py.
+// Port of tests/test_tools.py and tests/test_pick.py.
 
 ///|
 test "test_ratio_distribute" {
@@ -22,4 +22,40 @@ test "test_pick_bool" {
   assert_eq(@rich.pick_bool([None, None]), false)
   assert_eq(@rich.pick_bool([None, None, Some(false), Some(true)]), false)
   assert_eq(@rich.pick_bool([None, None, Some(true), Some(false)]), true)
+}
+
+///|
+test "test_loop_first" {
+  let empty : Array[String] = []
+  assert_eq(@rich.loop_first(empty), [])
+  assert_eq(@rich.loop_first(["apples", "oranges", "pears", "lemons"]), [
+    (true, "apples"),
+    (false, "oranges"),
+    (false, "pears"),
+    (false, "lemons"),
+  ])
+}
+
+///|
+test "test_loop_last" {
+  let empty : Array[String] = []
+  assert_eq(@rich.loop_last(empty), [])
+  assert_eq(@rich.loop_last(["apples", "oranges", "pears", "lemons"]), [
+    (false, "apples"),
+    (false, "oranges"),
+    (false, "pears"),
+    (true, "lemons"),
+  ])
+}
+
+///|
+test "test_loop_first_last" {
+  let empty : Array[String] = []
+  assert_eq(@rich.loop_first_last(empty), [])
+  assert_eq(@rich.loop_first_last(["apples", "oranges", "pears", "lemons"]), [
+    (true, false, "apples"),
+    (false, false, "oranges"),
+    (false, false, "pears"),
+    (false, true, "lemons"),
+  ])
 }

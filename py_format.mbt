@@ -53,7 +53,7 @@ fn py_format_spec(value : String, spec : String) -> String {
   }
   let value_chars : Array[Char] = value.iter().collect()
   let value_chars = match precision {
-    Some(p) if p < value_chars.length() => value_chars[0:p].to_array()
+    Some(p) if p < value_chars.length() => value_chars[0:p].to_owned()
     _ => value_chars
   }
   let text = String::from_array(value_chars)

@@ -141,7 +141,7 @@ pub fn ratio_reduce(
     total_ratio += r
   }
   if total_ratio == 0 {
-    return values.to_array()
+    return values.to_owned()
   }
   let mut total_remaining = total
   let result = []
@@ -177,7 +177,7 @@ pub fn ratio_distribute(
   let ratios = match minimums {
     Some(m) if m.length() != 0 =>
       ratios.mapi((i, r) => if m[i] != 0 { r } else { 0 })
-    _ => ratios.to_array()
+    _ => ratios.to_owned()
   }
   let mut total_ratio = 0
   for r in ratios {

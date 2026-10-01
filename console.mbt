@@ -490,11 +490,9 @@ pub fn Console::exit_buffer(self : Console) -> Unit raise {
 /// Run `f` with output buffered (upstream `with console:`).
 pub fn Console::buffered(self : Console, f : () -> Unit raise) -> Unit raise {
   self.enter_buffer()
-  f() catch {
-    e => {
-      self.exit_buffer()
-      raise e
-    }
+  {
+    errdefer self.exit_buffer()
+    f()
   }
   self.exit_buffer()
 }
@@ -550,12 +548,12 @@ pub fn Console::end_capture(self : Console) -> String raise {
 /// Capture the output of `f` instead of writing it to the console.
 pub fn Console::capture(self : Console, f : () -> Unit raise) -> String raise {
   self.begin_capture()
-  f() catch {
-    e => {
+  {
+    errdefer {
       self.buffer.clear()
       self.buffer_index -= 1
-      raise e
     }
+    f()
   }
   self.end_capture()
 }
@@ -585,11 +583,9 @@ pub fn Console::use_theme(
   inherit_styles? : Bool = true,
 ) -> Unit raise {
   self.push_theme(theme, inherit_styles~)
-  f() catch {
-    e => {
-      self.pop_theme()
-      raise e
-    }
+  {
+    errdefer self.pop_theme()
+    f()
   }
   self.pop_theme()
 }
@@ -886,11 +882,9 @@ pub fn Console::screen(
 ) -> Unit raise {
   let context = self.screen_context(hide_cursor~, style?)
   context.enter()
-  f(context) catch {
-    e => {
-      context.exit()
-      raise e
-    }
+  {
+    errdefer context.exit()
+    f(context)
   }
   context.exit()
 }
@@ -966,7 +960,7 @@ pub fn Console::render_lines(
   if render_options.height is Some(h) {
     let h = @cmp.maximum(0, h)
     if lines.length() > h {
-      lines = lines[0:h].to_array()
+      lines = lines[0:h].to_owned()
     }
     let extra_lines = h - lines.length()
     if extra_lines > 0 {
@@ -1295,7 +1289,8 @@ pub fn Console::print_many(
   }
   let render_hooks = self.render_hooks.copy()
   self.enter_buffer()
-  try {
+  {
+    errdefer self.exit_buffer()
     let mut renderables = self.collect_renderables(
       objects,
       sep,
@@ -1359,11 +1354,6 @@ pub fn Console::print_many(
       }
     } else {
       self.buffer.append(new_segments)
-    }
-  } catch {
-    e => {
-      self.exit_buffer()
-      raise e
     }
   }
   self.exit_buffer()
@@ -1476,7 +1466,7 @@ fn parse_source_loc(loc : SourceLoc) -> (String, Int) {
   let s = loc.to_string()
   let parts : Array[String] = s.split(":").map(p => p.to_owned()).collect()
   if parts.length() >= 4 {
-    let path = parts[0:parts.length() - 3].to_array().join(":")
+    let path = parts[0:parts.length() - 3].to_owned().join(":")
     (path, parse_int_or(parts[parts.length() - 3], 0))
   } else {
     (s, 0)
@@ -1505,7 +1495,8 @@ pub fn Console::log_many(
   }
   let render_hooks = self.render_hooks.copy()
   self.enter_buffer()
-  try {
+  {
+    errdefer self.exit_buffer()
     let mut renderables = self.collect_renderables(
       objects,
       sep,
@@ -1550,11 +1541,6 @@ pub fn Console::log_many(
         pad=false,
       ) {
       self.buffer.append(line)
-    }
-  } catch {
-    e => {
-      self.exit_buffer()
-      raise e
     }
   }
   self.exit_buffer()
@@ -1831,12 +1817,12 @@ pub fn Console::pager(
     None => SystemPager::new()
   }
   self.enter_buffer()
-  f() catch {
-    e => {
+  {
+    errdefer {
       self.buffer.clear()
       self.buffer_index -= 1
-      raise e
     }
+    f()
   }
   let mut buffer = self.buffer.copy()
   if !styles {

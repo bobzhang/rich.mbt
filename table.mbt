@@ -424,7 +424,7 @@ pub fn Table::add_row(
   style? : &IntoStyle,
   end_section? : Bool = false,
 ) -> Unit {
-  let cells : Array[&Renderable] = renderables.to_array()
+  let cells : Array[&Renderable] = renderables.to_owned()
   while cells.length() < self.columns.length() {
     cells.push("")
   }

@@ -7,7 +7,6 @@ import {
   "bobzhang/rich/internal/term",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
-  "moonbitlang/core/json",
   "moonbitlang/core/env",
   "moonbitlang/core/bigint",
   "moonbitlang/core/double",

@@ -535,8 +535,48 @@ test "test_export_svg_specified_unique_id" {
   assert_eq(svg, expected)
 }
 
-// test_save_svg / test_save_text / test_save_html: the save_* functions
-// write `export_*` to a file; covered by the export tests.
+///|
+fn temp_path(name : String) -> String {
+  let dir = match @env.get_env_var("TMPDIR") {
+    Some(d) if d != "" => d
+    _ => "/tmp"
+  }
+  let dir = if dir.has_suffix("/") { dir } else { dir + "/" }
+  dir + "rich_mbt_\{name}"
+}
+
+///|
+#cfg(any(target="native", target="llvm"))
+test "test_save_svg" {
+  let console = record_console()
+  console.print(
+    "[b red on blue reverse]foo[/] [blink][link=https://example.org]Click[/link]",
+  )
+  let export_path = temp_path("example.svg")
+  console.save_svg(export_path)
+  assert_eq(@term.read_file(export_path), Some(expected_svg))
+}
+
+///|
+#cfg(any(target="native", target="llvm"))
+test "test_save_text" {
+  let console = record_console()
+  console.print("foo")
+  let export_path = temp_path("rich.txt")
+  console.save_text(export_path)
+  assert_eq(@term.read_file(export_path), Some("foo\n"))
+}
+
+///|
+#cfg(any(target="native", target="llvm"))
+test "test_save_html" {
+  let expected = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">foo\n</code></pre>\n</body>\n</html>\n"
+  let console = record_console()
+  console.print("foo")
+  let export_path = temp_path("example.html")
+  console.save_html(export_path)
+  assert_eq(@term.read_file(export_path), Some(expected))
+}
 
 ///|
 test "test_no_wrap" {
