@@ -1,0 +1,8 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/pretty",
+  "bobzhang/pygments/pystr",
+}
+
+warnings = "-implicit_impl_as_method"

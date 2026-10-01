@@ -1,0 +1,19 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/scope"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/pretty",
+}
+
+// Values
+pub fn render_scope(Map[String, &@pretty.PrettyRepr], title? : &@rich.IntoText, sort_keys? : Bool, indent_guides? : Bool, max_length? : Int, max_string? : Int, max_depth? : Int, overflow? : @rich.OverflowMethod) -> @panel.Panel raise
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits
