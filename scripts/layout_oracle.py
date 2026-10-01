@@ -775,6 +775,74 @@ body = (mbt_console(50) + "  let inner = {\n" + mbt_table(inner).replace("\n  ",
         + "  console.print(outer)\n")
 cases.append(("nested tables", body, file.getvalue()))
 
+# --- console statements -----------------------------------------------------
+# (python statements, MoonBit statements, console kwargs)
+
+STATEMENTS = [
+    ("out", 'console.out("a [b]b[/b]", "c", sep="|", end="<\n")',
+     'console.out_many(["a [b]b[/b]", "c"], sep="|", end="<\\n")', {}),
+    ("out style highlight", 'console.out("1 2 3 \'x\'", style="italic", highlight=True)',
+     'console.out("1 2 3 \'x\'", style="italic", highlight=true)', {}),
+    ("line", 'console.print("a"); console.line(3); console.print("b")',
+     'console.print("a"); console.line(count=3); console.print("b")', {}),
+    ("rule styled", 'console.rule("[i]Title", characters="=", style="red", align="left")',
+     'console.rule(title="[i]Title", characters="=", style="red", align=Left)', {}),
+    ("tab size", 'console.print("a\\tb\\tc")', 'console.print("a\\tb\\tc")', {"tab_size": 4}),
+    ("console markup off", 'console.print("[b]x[/b] :smile:")', 'console.print("[b]x[/b] :smile:")',
+     {"markup": False}),
+    ("console emoji off", 'console.print("[b]x[/b] :smile:")', 'console.print("[b]x[/b] :smile:")',
+     {"emoji": False}),
+    ("console highlight off", 'console.print("1 2 \'s\'")', 'console.print("1 2 \'s\'")',
+     {"highlight": False}),
+    ("console style many", 'console.print("a", "b"); console.print(Rule("r"))',
+     'console.print_many(["a", "b"]); console.print(@rich.Rule::new(title="r"))',
+     {"style": "on blue"}),
+    ("text object options",
+     'console.print(Text("The quick brown fox jumps over the lazy dog", justify="right", overflow="ellipsis", no_wrap=True, end="|\\n"))',
+     'console.print(@rich.Text::new(text="The quick brown fox jumps over the lazy dog", justify=Right, overflow=Ellipsis, no_wrap=true, end="|\\n"))',
+     {}),
+    ("text wrap full",
+     'console.print(Text("The quick brown fox jumps over the lazy dog " * 3, justify="full"))',
+     'console.print(@rich.Text::new(text="The quick brown fox jumps over the lazy dog ".repeat(3), justify=Full))',
+     {}),
+    ("print text and table",
+     'console.print("before", Table("x"), "after", sep="+")',
+     'console.print_many(["before", @rich.Table::new(headers=["x"]), "after"], sep="+")',
+     {}),
+    ("print width justify full",
+     'console.print("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do", width=20, justify="full")',
+     'console.print("Lorem ipsum dolor sit amet consectetur adipiscing elit sed do", width=20, justify=Full)',
+     {}),
+    ("table soft wrap",
+     'console.print(Table("a very long header indeed"), soft_wrap=True)',
+     'console.print(@rich.Table::new(headers=["a very long header indeed"]), soft_wrap=true)',
+     {}),
+    ("control in print",
+     'console.print("x"); console.control(Control.move_to_column(2)); console.print("y")',
+     'console.print("x"); console.control([@rich.Control::move_to_column(2)]); console.print("y")',
+     {}),
+    ("bell and title",
+     'console.bell(); console.set_window_title("t"); console.print("z")',
+     'console.bell(); console.set_window_title("t") |> ignore; console.print("z")',
+     {}),
+    ("emoji renderable",
+     'console.print(Emoji("smile"), Emoji("thumbs_up", style="red"))',
+     'console.print_many([@rich.Emoji::new("smile"), @rich.Emoji::new("thumbs_up", style="red")])',
+     {}),
+]
+
+from rich.control import Control
+from rich.emoji import Emoji
+
+for name, py_stmt, mbt_stmt, ckw in STATEMENTS:
+    console, file = make_console(30, **ckw)
+    exec(py_stmt.replace("\n", "\\n"), {"console": console, "Rule": Rule, "Text": Text, "Table": Table,
+                   "Control": Control, "Emoji": Emoji})
+    body = mbt_console(30, **ckw)
+    for stmt in mbt_stmt.split("; "):
+        body += f"  {stmt}\n"
+    cases.append((f"console {name}", body, file.getvalue()))
+
 # --- exports --------------------------------------------------------------
 
 from rich.terminal_theme import MONOKAI, DEFAULT_TERMINAL_THEME, SVG_EXPORT_THEME

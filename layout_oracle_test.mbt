@@ -10224,6 +10224,326 @@ test "oracle nested tables" {
 }
 
 ///|
+test "oracle console out" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.out_many(["a [b]b[/b]", "c"], sep="|", end="<\n")
+  assert_eq(
+    file.getvalue(),
+    "a \u{1b}[1m[\u{1b}[0mb\u{1b}[1m]\u{1b}[0mb\u{1b}[1m[\u{1b}[0m\u{1b}[35m/\u{1b}[0m\u{1b}[95mb\u{1b}[0m\u{1b}[1m]\u{1b}[0m|c<\n",
+  )
+}
+
+///|
+test "oracle console out style highlight" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.out("1 2 3 'x'", style="italic", highlight=true)
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[1;36m1\u{1b}[0m\u{1b}[3m \u{1b}[0m\u{1b}[1;36m2\u{1b}[0m\u{1b}[3m \u{1b}[0m\u{1b}[1;36m3\u{1b}[0m\u{1b}[3m \u{1b}[0m\u{1b}[32m'x'\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle console line" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print("a")
+  console.line(count=3)
+  console.print("b")
+  assert_eq(file.getvalue(), "a\n\n\n\nb\n")
+}
+
+///|
+test "oracle console rule styled" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.rule(title="[i]Title", characters="=", style="red", align=Left)
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[3mTitle\u{1b}[0m \u{1b}[31m========================\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle console tab size" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    tab_size=4,
+  )
+  console.print("a\tb\tc")
+  assert_eq(file.getvalue(), "a   b   c\n")
+}
+
+///|
+test "oracle console console markup off" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    markup=false,
+  )
+  console.print("[b]x[/b] :smile:")
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[1m[\u{1b}[0mb\u{1b}[1m]\u{1b}[0mx\u{1b}[1m[\u{1b}[0m\u{1b}[35m/\u{1b}[0m\u{1b}[95mb\u{1b}[0m\u{1b}[1m]\u{1b}[0m 😄\n",
+  )
+}
+
+///|
+test "oracle console console emoji off" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    emoji=false,
+  )
+  console.print("[b]x[/b] :smile:")
+  assert_eq(file.getvalue(), "\u{1b}[1mx\u{1b}[0m :smile:\n")
+}
+
+///|
+test "oracle console console highlight off" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    highlight=false,
+  )
+  console.print("1 2 's'")
+  assert_eq(file.getvalue(), "1 2 's'\n")
+}
+
+///|
+test "oracle console console style many" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    style="on blue",
+  )
+  console.print_many(["a", "b"])
+  console.print(@rich.Rule::new(title="r"))
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[44ma b\u{1b}[0m\n\u{1b}[92;44m───────────── \u{1b}[0m\u{1b}[44mr\u{1b}[0m\u{1b}[92;44m ──────────────\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle console text object options" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Text::new(
+      text="The quick brown fox jumps over the lazy dog",
+      justify=Right,
+      overflow=Ellipsis,
+      no_wrap=true,
+      end="|\n",
+    ),
+  )
+  assert_eq(file.getvalue(), "The quick brown fox jumps over\nthe lazy dog\n")
+}
+
+///|
+test "oracle console text wrap full" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Text::new(
+      text="The quick brown fox jumps over the lazy dog ".repeat(3),
+      justify=Full,
+    ),
+  )
+  assert_eq(
+    file.getvalue(),
+    "The quick brown fox jumps over\nthe lazy dog The quick brown \nfox jumps over the lazy dog \nThe quick brown fox jumps over\nthe lazy dog \n",
+  )
+}
+
+///|
+test "oracle console print text and table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print_many(
+    ["before", @rich.Table::new(headers=["x"]), "after"],
+    sep="+",
+  )
+  assert_eq(
+    file.getvalue(),
+    "before\n┏━━━┓\n┃\u{1b}[1m \u{1b}[0m\u{1b}[1mx\u{1b}[0m\u{1b}[1m \u{1b}[0m┃\n┡━━━┩\n└───┘\nafter\n",
+  )
+}
+
+///|
+test "oracle console print width justify full" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    "Lorem ipsum dolor sit amet consectetur adipiscing elit sed do",
+    width=20,
+    justify=Full,
+  )
+  assert_eq(
+    file.getvalue(),
+    "Lorem  ipsum   dolor\nsit amet consectetur\nadipiscing elit  sed\ndo\n",
+  )
+}
+
+///|
+test "oracle console table soft wrap" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Table::new(headers=["a very long header indeed"]),
+    soft_wrap=true,
+  )
+  assert_eq(
+    file.getvalue(),
+    "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃\u{1b}[1m \u{1b}[0m\u{1b}[1ma very long header indeed\u{1b}[0m\u{1b}[1m \u{1b}[0m┃\n┡━━━━━━━━━━━━━━━━━━━━━━━━━━━┩\n└───────────────────────────┘\n",
+  )
+}
+
+///|
+test "oracle console control in print" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print("x")
+  console.control([@rich.Control::move_to_column(2)])
+  console.print("y")
+  assert_eq(file.getvalue(), "x\n\u{1b}[3Gy\n")
+}
+
+///|
+test "oracle console bell and title" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.bell()
+  console.set_window_title("t") |> ignore
+  console.print("z")
+  assert_eq(file.getvalue(), "\u{7}\u{1b}]0;t\u{7}z\n")
+}
+
+///|
+test "oracle console emoji renderable" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print_many([
+    @rich.Emoji::new("smile"),
+    @rich.Emoji::new("thumbs_up", style="red"),
+  ])
+  assert_eq(file.getvalue(), "😄\u{1b}[31m👍\u{1b}[0m")
+}
+
+///|
 test "oracle export_text styles 40" {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
