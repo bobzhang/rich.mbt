@@ -15,4 +15,8 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
+import {
+  "bobzhang/rich/panel",
+} for "test"
+
 warnings = "-implicit_impl_as_method"

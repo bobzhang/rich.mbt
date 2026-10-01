@@ -336,6 +336,21 @@ fn json_encode_string(s : String, ensure_ascii : Bool) -> String {
 }
 
 ///|
+/// Compare strings like Python: lexicographically by code point.
+fn py_str_compare(a : String, b : String) -> Int {
+  let ai = a.iter()
+  let bi = b.iter()
+  for ;; {
+    match (ai.next(), bi.next()) {
+      (None, None) => return 0
+      (None, Some(_)) => return -1
+      (Some(_), None) => return 1
+      (Some(x), Some(y)) => if x != y { return x.to_int().compare(y.to_int()) }
+    }
+  }
+}
+
+///|
 /// Python `json.dumps`. `indent` is the number of spaces (None for a
 /// single line); `sort_keys` sorts object keys.
 pub fn JsonValue::dumps(
@@ -393,7 +408,7 @@ pub fn JsonValue::dumps(
         }
         let items = if sort_keys {
           let sorted = items.copy()
-          stable_sort_by(sorted, (a, b) => a.0.compare(b.0))
+          stable_sort_by(sorted, (a, b) => py_str_compare(a.0, b.0))
           sorted
         } else {
           items

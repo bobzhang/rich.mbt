@@ -274,6 +274,8 @@ pub(all) struct Console {
 /// `color_system` is `Some("auto")` (detect), `Some("standard")`,
 /// `Some("256")`, `Some("truecolor")`, `Some("windows")`, or `None` for no
 /// color. `environ` replaces the process environment (for testing).
+/// `log_time_formatter` (upstream: a callable `log_time_format`) formats
+/// the time of `log` instead of `log_time_format`.
 pub fn Console::new(
   color_system? : String? = Some("auto"),
   force_terminal? : Bool,
@@ -297,6 +299,7 @@ pub fn Console::new(
   log_time? : Bool = true,
   log_path? : Bool = true,
   log_time_format? : String = "[%X]",
+  log_time_formatter? : (Double) -> Text,
   highlighter? : &Highlighter,
   legacy_windows? : Bool,
   safe_box? : Bool = true,
@@ -365,6 +368,7 @@ pub fn Console::new(
       show_time=log_time,
       show_path=log_path,
       time_format=log_time_format,
+      time_formatter?=log_time_formatter,
     ),
     buffer: [],
     buffer_index: 0,
@@ -807,34 +811,88 @@ pub fn Console::set_window_title(self : Console, title : String) -> Bool raise {
 }
 
 ///|
-/// Run `f` in the alternate screen (upstream `with console.screen():`).
+/// A context that enables the alternate screen (upstream `ScreenContext`,
+/// returned by `console.screen()`).
+pub struct ScreenContext {
+  console : Console
+  hide_cursor : Bool
+  screen : Screen
+  priv mut changed : Bool
+}
+
+///|
+/// Create a screen context; call `enter` / `exit`, or use `Console::screen`.
+pub fn Console::screen_context(
+  self : Console,
+  hide_cursor? : Bool = true,
+  style? : &IntoStyle,
+) -> ScreenContext {
+  {
+    console: self,
+    hide_cursor,
+    screen: Screen::new([], style=style_or_empty(style)),
+    changed: false,
+  }
+}
+
+///|
+/// Update the screen with new renderables (and / or a new style).
+pub fn ScreenContext::update(
+  self : ScreenContext,
+  renderables? : Array[&Renderable] = [],
+  style? : &IntoStyle,
+) -> Unit raise {
+  if renderables.length() > 0 {
+    self.screen.renderable = if renderables.length() > 1 {
+      (Group::new(renderables) : &Renderable)
+    } else {
+      renderables[0]
+    }
+  }
+  if style is Some(style) {
+    self.screen.style = Some(style.into_style_type())
+  }
+  self.console.print(self.screen, end="")
+}
+
+///|
+/// Enable the alternate screen (and hide the cursor).
+pub fn ScreenContext::enter(self : ScreenContext) -> Unit raise {
+  self.changed = self.console.set_alt_screen(enable=true)
+  if self.changed && self.hide_cursor {
+    self.console.show_cursor(show=false) |> ignore
+  }
+}
+
+///|
+/// Restore the normal screen (and the cursor).
+pub fn ScreenContext::exit(self : ScreenContext) -> Unit raise {
+  if self.changed {
+    self.console.set_alt_screen(enable=false) |> ignore
+    if self.hide_cursor {
+      self.console.show_cursor(show=true) |> ignore
+    }
+  }
+}
+
+///|
+/// Run `f` in the alternate screen (upstream `with console.screen() as
+/// screen:`).
 pub fn Console::screen(
   self : Console,
-  f : () -> Unit raise,
+  f : (ScreenContext) -> Unit raise,
   hide_cursor? : Bool = true,
   style? : &IntoStyle,
 ) -> Unit raise {
-  ignore(style)
-  let changed = self.set_alt_screen(enable=true)
-  if changed && hide_cursor {
-    self.show_cursor(show=false) |> ignore
-  }
-  fn restore() raise {
-    if changed {
-      self.set_alt_screen(enable=false) |> ignore
-      if hide_cursor {
-        self.show_cursor(show=true) |> ignore
-      }
-    }
-  }
-
-  f() catch {
+  let context = self.screen_context(hide_cursor~, style?)
+  context.enter()
+  f(context) catch {
     e => {
-      restore()
+      context.exit()
       raise e
     }
   }
-  restore()
+  context.exit()
 }
 
 ///|
@@ -1125,8 +1183,23 @@ pub fn Console::out(
   style? : &IntoStyle,
   highlight? : Bool,
 ) -> Unit raise {
+  self.out_many([text], end~, style?, highlight?)
+}
+
+///|
+/// Low-level output of several strings joined with `sep` (upstream
+/// `out(*objects, sep=...)`).
+pub fn Console::out_many(
+  self : Console,
+  objects : ArrayView[String],
+  sep? : String = " ",
+  end? : String = "\n",
+  style? : &IntoStyle,
+  highlight? : Bool,
+) -> Unit raise {
+  let raw_output = objects.iter().join(sep)
   self.print(
-    text,
+    raw_output,
     style?,
     highlight?,
     emoji=false,

@@ -329,8 +329,8 @@ pub(all) struct Region {
 ///|
 /// A renderable that fills the terminal screen and crops excess.
 pub struct Screen {
-  renderable : &Renderable
-  style : StyleType?
+  mut renderable : &Renderable
+  mut style : StyleType?
   application_mode : Bool
 }
 
