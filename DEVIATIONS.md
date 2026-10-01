@@ -499,3 +499,42 @@ time-throttled refreshes (DESIGN.md §7):
 * `NoEmoji` is the `RichError::NoEmoji` constructor.
 * `Highlighter.__call__` is `&Highlighter::apply`; `test_wrong_type`
   (TypeError for a non-text argument) has no equivalent.
+
+## markdown
+
+* Parsing uses `moonbit-community/cmark` (strict CommonMark mode) instead
+  of markdown-it-py. An adapter (`markdown/adapter_*.mbt`) converts its AST
+  into the flattened markdown-it token stream Rich walks (`parse_tokens`,
+  `Token`, exposed for inspection), emulating markdown-it where it differs
+  from cmark: GFM tables (markdown-it's table rule applied to paragraph
+  lines, including tables that start where cmark saw a list / heading /
+  quote, setext headings holding a table, terminators), `~~strike~~` (the
+  markdown-it delimiter algorithm on the token stream), link
+  normalization (`normalizeLink`, `normalizeLinkText` with mdurl and
+  punycode) and `validateLink`, markdown-it's raw HTML and autolink
+  patterns, link label case folding, a link reference definition being a
+  block of its own, raw fence info strings, empty text tokens around
+  `strong`. The renderer itself is a literal port.
+* Remaining parse differences (8 of the 652 CommonMark spec examples; all
+  cmark bugs):
+  * emphasis "rule of 3" is not implemented (`*foo**bar*`,
+    `*foo**bar**baz*`, spec 410, 411, 414, 428);
+  * Unicode symbols (e.g. `$`, `£`, `€`) are not punctuation for
+    emphasis flanking (CommonMark 0.31, spec 353);
+  * `<!-->` / `<!--->` are not HTML comments (CommonMark 0.31, spec 625);
+  * a link reference definition followed by text after its title is
+    still accepted (spec 208, 209).
+* Other known differences (rare): strikethrough delimiters cannot pair
+  across emphasis boundaries (`~~a *b~~ c*`), markdown-it pairs them on
+  the flat token stream; a line indented by 4+ spaces starting with a list
+  marker that lazily continues a block quote paragraph (markdown-it ends
+  the quote); the table-before-other-blocks rule is not applied inside
+  list items; a link definition line swallowed as a table row by
+  markdown-it still defines its label.
+* An unbalanced `</kbd>` raises `StyleStackError` (upstream: `IndexError`
+  from the style stack).
+* Elements are private: upstream's `Markdown.elements` class mapping
+  (customization by subclassing) is not available.
+* `test_inline_code_in_table_cells`: the upstream expectation predates
+  Pygments lexing `print` as `Name.Builtin`; upstream's own test fails with
+  the oracle's Pygments, the port expects the current (green) colour.
