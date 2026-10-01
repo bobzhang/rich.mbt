@@ -796,7 +796,8 @@ pub fn Text::rstrip(self : Text) -> Unit {
 ///|
 /// Remove whitespace beyond a certain width at the end of the text.
 pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
-  let text_length = self.length_
+  // upstream compares the length in code points with `size` (in cells)
+  let text_length = self.plain().char_length()
   if text_length > size {
     let excess = text_length - size
     let plain = self.plain()
