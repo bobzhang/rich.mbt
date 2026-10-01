@@ -215,3 +215,34 @@ test "color triplet" {
   )
   assert_eq(@color.ColorTriplet::new(0, 255, 0).normalized(), (0.0, 1.0, 0.0))
 }
+
+///|
+test "parse unicode whitespace and digits (oracle)" {
+  fn p(s : String) -> String {
+    (@color.Color::parse(s) catch { e => abort(e.to_string()) }).to_string()
+  }
+
+  inspect(p(" red "), content="Color('red', ColorType.STANDARD, number=1)")
+  inspect(
+    p("\u{3000}red\u{3000}"),
+    content="Color('red', ColorType.STANDARD, number=1)",
+  )
+  assert_eq(
+    p("rgb(\u{661},\u{662},\u{663})"),
+    "Color('rgb(\u{661},\u{662},\u{663})', ColorType.TRUECOLOR, triplet=ColorTriplet(red=1, green=2, blue=3))",
+  )
+  inspect(
+    p("RGB(1, 2 ,3)"),
+    content="Color('rgb(1, 2 ,3)', ColorType.TRUECOLOR, triplet=ColorTriplet(red=1, green=2, blue=3))",
+  )
+  inspect(
+    p("#FF0000"),
+    content="Color('#ff0000', ColorType.TRUECOLOR, triplet=ColorTriplet(red=255, green=0, blue=0))",
+  )
+  assert_eq(@color.parse_rgb_hex(" f+f00"), @color.ColorTriplet::new(15, 15, 0))
+}
+
+///|
+test "panic parse_rgb_hex invalid (upstream ValueError)" {
+  ignore(@color.parse_rgb_hex("gg0000"))
+}

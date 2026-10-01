@@ -1,6 +1,6 @@
 import {
-  "moonbitlang/core/string",
   "moonbitlang/core/cmp",
+  "bobzhang/pygments/pystr",
 }
 
 warnings = "-implicit_impl_as_method"

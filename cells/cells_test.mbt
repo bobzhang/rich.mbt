@@ -161,6 +161,19 @@ test "nerd font, zwj, non printable" {
 }
 
 ///|
+test "chop_cells zero or negative width" {
+  // upstream: wide characters give ['', 'あ', 'い', 'う'], negative widths
+  // give [] for single-cell text
+  assert_eq(@cells.chop_cells("あいう", 0), ["", "あ", "い", "う"])
+  assert_eq(@cells.chop_cells("abc", -1), [])
+}
+
+///|
+test "panic chop_cells zero width (upstream ValueError)" {
+  ignore(@cells.chop_cells("abc", 0))
+}
+
+///|
 test "unicode versions" {
   assert_eq(@cells.load(unicode_version="latest").unicode_version, "17.0.0")
   assert_eq(@cells.load(unicode_version="4").unicode_version, "4.1.0")

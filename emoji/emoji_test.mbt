@@ -14,4 +14,6 @@ test "replace" {
       #|"😃️"
     ),
   )
+  // names are lower-cased with Python's (Unicode) `str.lower`
+  inspect(@emoji.replace(":CURAÇAO: :Smiley:"), content="🇨🇼 😃")
 }

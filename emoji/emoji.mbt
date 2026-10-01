@@ -43,7 +43,7 @@ pub fn replace(text : String, default_variant? : String) -> String {
   emoji_re.replace_all(text, m => {
     let emoji_code = m.group(1).unwrap_or("")
     let emoji_name = m.group(2).unwrap_or("")
-    match emoji_codes.get(emoji_name.to_lower()) {
+    match emoji_codes.get(@pystr.lower(emoji_name)) {
       Some(e) => {
         let variant = match m.group(3) {
           Some(v) => variant_code(v).unwrap_or(default_variant_code)

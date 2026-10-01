@@ -227,7 +227,9 @@ pub impl Eq for Text with fn equal(self, other) {
 /// Concatenate (upstream `text + other`).
 pub impl Add for Text with fn add(self, other) {
   let result = self.copy()
-  result.append_text(other) |> ignore
+  if other.length_ != 0 {
+    result.append_text(other) |> ignore
+  }
   result
 }
 
@@ -361,8 +363,8 @@ fn[T] stable_sort_by(xs : Array[T], cmp : (T, T) -> Int) -> Unit {
     return
   }
   let mid = n / 2
-  let left = xs[0:mid].to_array()
-  let right = xs[mid:n].to_array()
+  let left = xs[0:mid].to_owned()
+  let right = xs[mid:n].to_owned()
   stable_sort_by(left, cmp)
   stable_sort_by(right, cmp)
   let mut i = 0
@@ -465,7 +467,9 @@ pub impl TextPart for String with fn append_to(self, text) {
 
 ///|
 pub impl TextPart for Text with fn append_to(self, text) {
-  text.append_text(self) |> ignore
+  if self.length_ != 0 {
+    text.append_text(self) |> ignore
+  }
 }
 
 ///|
@@ -792,7 +796,8 @@ pub fn Text::rstrip(self : Text) -> Unit {
 ///|
 /// Remove whitespace beyond a certain width at the end of the text.
 pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
-  let text_length = self.length_
+  // upstream compares the length in code points with `size` (in cells)
+  let text_length = self.plain().char_length()
   if text_length > size {
     let excess = text_length - size
     let plain = self.plain()
@@ -830,8 +835,8 @@ pub impl Renderable for Text with fn rich_console(self, console, options) {
     None => console.tab_size
     Some(t) => t
   }
-  let justify = self.justify.or(options.justify.unwrap_or(Default))
-  let overflow = self.overflow.or(options.overflow.unwrap_or(Fold))
+  let justify = self.justify.unwrap_or(options.justify.unwrap_or(Default))
+  let overflow = self.overflow.unwrap_or(options.overflow.unwrap_or(Fold))
   let lines = self.wrap(
     console,
     options.max_width,
@@ -1084,7 +1089,7 @@ pub fn Text::truncate(
   overflow? : OverflowMethod,
   pad? : Bool = false,
 ) -> Unit {
-  let overflow = overflow.or(self.overflow.unwrap_or(Fold))
+  let overflow = overflow.unwrap_or(self.overflow.unwrap_or(Fold))
   if overflow != Ignore {
     let length = @cells.cell_len(self.plain())
     if length > max_width {
@@ -1131,22 +1136,44 @@ fn Text::trim_spans(self : Text) -> Unit {
 /// Pad left and right with a given number of characters.
 pub fn Text::pad(self : Text, count : Int, character? : Char = ' ') -> Unit {
   if count != 0 {
-    let pad_characters = String::make(count, character)
+    let pad_characters = py_char_repeat(character, count)
     self.set_plain(pad_characters + self.plain() + pad_characters)
-    self.spans_ = self.spans_.map(span => span.move(count))
+    let shift = count * char_utf16_len(character)
+    self.spans_ = self.spans_.map(span => span.move(shift))
   }
 }
 
 ///|
-/// Pad the left with a given character.
+/// Python `character * count` (empty for negative counts).
+fn py_char_repeat(character : Char, count : Int) -> String {
+  if count <= 0 {
+    ""
+  } else {
+    String::make(count, character)
+  }
+}
+
+///|
+fn char_utf16_len(c : Char) -> Int {
+  if c.to_int() > 0xFFFF {
+    2
+  } else {
+    1
+  }
+}
+
+///|
+/// Pad the left with a given character. As upstream, a negative `count`
+/// adds nothing but still moves the spans.
 pub fn Text::pad_left(
   self : Text,
   count : Int,
   character? : Char = ' ',
 ) -> Unit {
   if count != 0 {
-    self.set_plain(String::make(count, character) + self.plain())
-    self.spans_ = self.spans_.map(span => span.move(count))
+    self.set_plain(py_char_repeat(character, count) + self.plain())
+    let shift = count * char_utf16_len(character)
+    self.spans_ = self.spans_.map(span => span.move(shift))
   }
 }
 
@@ -1158,7 +1185,7 @@ pub fn Text::pad_right(
   character? : Char = ' ',
 ) -> Unit {
   if count != 0 {
-    self.set_plain(self.plain() + String::make(count, character))
+    self.set_plain(self.plain() + py_char_repeat(character, count))
   }
 }
 
@@ -1217,6 +1244,9 @@ pub fn Text::append(
   match text.into_text_type() {
     Str(s) => self.append_str(s, style?)
     Text(t) => {
+      if t.length_ == 0 {
+        return self
+      }
       if style is Some(_) {
         raise ValueError("style must not be set when appending Text instance")
       }
@@ -1226,12 +1256,10 @@ pub fn Text::append(
 }
 
 ///|
-/// Append another Text instance.
+/// Append another Text instance. Unlike `append`, an empty Text with a
+/// style adds an empty span (as upstream).
 pub fn Text::append_text(self : Text, text : Text) -> Text {
   let text_length = self.length_
-  if text.length_ == 0 {
-    return self
-  }
   if text.style.to_bool() {
     self.spans_.push({
       start: text_length,
@@ -1461,8 +1489,8 @@ pub fn Text::wrap(
   tab_size? : Int = 8,
   no_wrap? : Bool,
 ) -> Lines raise {
-  let wrap_justify = justify.or(self.justify.unwrap_or(Default))
-  let wrap_overflow = overflow.or(self.overflow.unwrap_or(Fold))
+  let wrap_justify = justify.unwrap_or(self.justify.unwrap_or(Default))
+  let wrap_overflow = overflow.unwrap_or(self.overflow.unwrap_or(Fold))
   let no_wrap = pick_bool([no_wrap, self.no_wrap, Some(false)]) ||
     overflow is Some(Ignore)
   let lines = Lines::new([])
@@ -1553,6 +1581,23 @@ pub fn Text::detect_indentation(self : Text) -> Int {
 }
 
 ///|
+/// The UTF-16 offset of the `n`th code point of `s` (clamped to the end).
+fn utf16_offset_of_codepoint(s : String, n : Int) -> Int {
+  let mut offset = 0
+  let mut count = 0
+  while count < n && offset < s.length() {
+    let c = s[offset].to_int()
+    offset += if c >= 0xD800 && c <= 0xDBFF && offset + 1 < s.length() {
+      2
+    } else {
+      1
+    }
+    count += 1
+  }
+  offset
+}
+
+///|
 /// Add indent guide lines to text.
 pub fn Text::with_indent_guides(
   self : Text,
@@ -1587,9 +1632,9 @@ pub fn Text::with_indent_guides(
     let remaining_space = n % indent_size
     let new_indent = indent_line.repeat(full_indents) +
       " ".repeat(remaining_space)
-    line.set_plain(
-      new_indent + py_slice(plain, new_indent.length(), plain.length()),
-    )
+    // upstream slices the line by the (code point) length of the new indent
+    let skip = utf16_offset_of_codepoint(plain, new_indent.char_length())
+    line.set_plain(new_indent + py_slice(plain, skip, plain.length()))
     line.stylize(style, start=0, end=new_indent.length())
     if blank_lines != 0 {
       for _ in 0..<blank_lines {

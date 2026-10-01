@@ -283,3 +283,30 @@ pub fn py_group_thousands(s : String) -> String {
   }
   sign + buf.to_string() + tail
 }
+
+///|
+/// Python `repr()` of a JSON value interpreted as the Python value it
+/// came from (dicts, lists, str, int/float, True/False/None). Integral
+/// numbers are shown as ints.
+pub fn py_json_repr(value : Json) -> String {
+  match value {
+    Null => "None"
+    True => "True"
+    False => "False"
+    Number(n, ..) =>
+      if n == n.floor() && n.abs() < 1.0e16 {
+        n.to_int64().to_string()
+      } else {
+        py_float_repr(n)
+      }
+    String(s) => py_repr(s)
+    Array(items) => "[" + items.map(py_json_repr).join(", ") + "]"
+    Object(m) => {
+      let parts = []
+      for k, v in m {
+        parts.push(py_repr(k) + ": " + py_json_repr(v))
+      }
+      "{" + parts.join(", ") + "}"
+    }
+  }
+}

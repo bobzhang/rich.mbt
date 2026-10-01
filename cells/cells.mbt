@@ -453,8 +453,15 @@ pub fn chop_cells(
   unicode_version? : String = "auto",
 ) -> Array[String] {
   if is_single_cell_widths(text) {
+    // Python `range(0, len(text), width)`
+    if width == 0 {
+      abort("range() arg 3 must not be zero")
+    }
     let n = text.length()
     let lines = []
+    if width < 0 {
+      return lines
+    }
     let mut index = 0
     while index < n {
       lines.push(slice(text, index, @cmp.minimum(index + width, n)))
