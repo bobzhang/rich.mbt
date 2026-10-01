@@ -239,3 +239,41 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   invalid `background_color` or padding, like upstream's constructor.
 * `dedent` follows Python 3.14's `textwrap.dedent`.
 * The `python -m rich.syntax` command line is not ported.
+
+## traceback
+
+* MoonBit has no runtime frames or exception objects, so there is no
+  automatic capture: `Traceback.extract`, `Traceback.from_exception`,
+  `Traceback()` without a trace and `install` (sys.excepthook / IPython)
+  are not ported. Callers build a `Trace` (`Trace`, `Stack`, `Frame`,
+  `SyntaxErrorInfo` = upstream `_SyntaxError`) or load one from
+  Python-like data with `Trace::from_json` (the `dataclasses.asdict` shape;
+  each local is a `pretty.Node` dict or a repr string;
+  `last_instruction` is `[[line, column], [line, column]]`). What
+  `extract` does while walking frames — `_rich_traceback_omit` /
+  `_rich_traceback_guard`, hiding dunder/sunder locals, `pretty.traverse`
+  with `locals_max_*` — is the caller's job (`@pretty.traverse` builds the
+  nodes); the options are kept on `Traceback` for parity.
+  `Trace::from_error` / `print_error` wrap a MoonBit `Error` value as a
+  frame-less stack.
+* Source lines come from an injectable `source_reader` (upstream
+  `linecache.getlines`; default: the file system on native, nothing
+  elsewhere) and file existence from `path_exists` (upstream
+  `os.path.exists`; defaults to "the reader returns `Some`" when a reader is
+  given, else the file system).
+* `Console.print_exception` is `@traceback.print_exception(console, trace,
+  ...)`.
+* `suppress` takes paths only (no modules); they are normalized like
+  `os.path.normpath(os.path.abspath(path))` using `@env.current_dir()`.
+* The constructor argument `locals_overlow` (upstream typo) is
+  `locals_overflow`; `_guess_lexer` is public as `Traceback::guess_lexer`
+  and treats any lexer lookup error as "text".
+* Upstream pushes a theme of `pygments.*` / `repr.*` / `scope.*` styles
+  while building (not rendering) the output, which has no effect; it is not
+  reproduced.
+* `last_instruction` columns are UTF-16 offsets.
+* Skipped upstream tests (exception capture only): `test_no_exception`,
+  `test_rich_traceback_omit_optional_local_flag`,
+  `test_traceback_finely_grained_missing`, `test_recursive_exception`. The
+  other tests are ported with the Trace data the Python test produces; 37
+  differential cases (`scripts/traceback_oracle.py`) compare full output.

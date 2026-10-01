@@ -1,0 +1,91 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/traceback"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/pretty",
+  "bobzhang/rich/syntax",
+}
+
+// Values
+pub const LOCALS_MAX_LENGTH : Int = 10
+
+pub const LOCALS_MAX_STRING : Int = 80
+
+pub fn print_error(@rich.Console, Error, exc_type? : String, width? : Int?) -> Unit raise
+
+pub fn print_exception(@rich.Console, Trace, width? : Int?, extra_lines? : Int, theme? : &@syntax.IntoSyntaxTheme, word_wrap? : Bool, show_locals? : Bool, suppress? : ArrayView[String], max_frames? : Int, source_reader? : (String) -> String?) -> Unit raise
+
+// Errors
+
+// Types and methods
+pub(all) struct Frame {
+  filename : String
+  lineno : Int
+  name : String
+  line : String
+  locals : Map[String, @pretty.Node]?
+  last_instruction : ((Int, Int), (Int, Int))?
+}
+pub fn Frame::new(String, Int, String, line? : String, locals? : Map[String, @pretty.Node], last_instruction? : ((Int, Int), (Int, Int))) -> Self
+pub impl ToJson for Frame
+
+pub(all) struct Stack {
+  exc_type : String
+  exc_value : String
+  syntax_error : SyntaxErrorInfo?
+  is_cause : Bool
+  frames : Array[Frame]
+  notes : Array[String]
+  is_group : Bool
+  exceptions : Array[Trace]
+}
+pub fn Stack::new(String, String, syntax_error? : SyntaxErrorInfo, is_cause? : Bool, frames? : Array[Frame], notes? : Array[String], is_group? : Bool, exceptions? : Array[Trace]) -> Self
+pub impl ToJson for Stack
+
+pub(all) struct SyntaxErrorInfo {
+  offset : Int
+  filename : String
+  line : String
+  lineno : Int
+  msg : String
+  notes : Array[String]
+}
+pub fn SyntaxErrorInfo::new(offset~ : Int, filename~ : String, line~ : String, lineno~ : Int, msg~ : String, notes? : Array[String]) -> Self
+pub impl ToJson for SyntaxErrorInfo
+
+pub(all) struct Trace {
+  stacks : Array[Stack]
+}
+pub fn Trace::from_error(Error, exc_type? : String, frames? : Array[Frame]) -> Self
+pub fn Trace::from_json(Json) -> Self raise @rich.RichError
+pub fn Trace::new(Array[Stack]) -> Self
+pub impl ToJson for Trace
+
+pub(all) struct Traceback {
+  mut trace : Trace
+  mut width : Int?
+  mut code_width : Int?
+  mut extra_lines : Int
+  mut theme : &@syntax.SyntaxTheme
+  mut word_wrap : Bool
+  mut show_locals : Bool
+  mut indent_guides : Bool
+  mut locals_max_length : Int
+  mut locals_max_string : Int
+  mut locals_max_depth : Int?
+  mut locals_hide_dunder : Bool
+  mut locals_hide_sunder : Bool
+  mut locals_overflow : @rich.OverflowMethod?
+  mut suppress : Array[String]
+  mut max_frames : Int
+  mut source_reader : (String) -> String?
+  mut path_exists : (String) -> Bool
+}
+pub fn Traceback::guess_lexer(String, String) -> String raise @rich.RichError
+pub fn Traceback::new(Trace, width? : Int?, code_width? : Int?, extra_lines? : Int, theme? : &@syntax.IntoSyntaxTheme, word_wrap? : Bool, show_locals? : Bool, locals_max_length? : Int, locals_max_string? : Int, locals_max_depth? : Int, locals_hide_dunder? : Bool, locals_hide_sunder? : Bool, locals_overflow? : @rich.OverflowMethod, indent_guides? : Bool, suppress? : ArrayView[String], max_frames? : Int, source_reader? : (String) -> String?, path_exists? : (String) -> Bool) -> Self
+pub impl @rich.Renderable for Traceback
+
+// Type aliases
+
+// Traits
