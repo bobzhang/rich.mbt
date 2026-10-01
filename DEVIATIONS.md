@@ -44,3 +44,55 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
 
 * `JSON::from_data` takes a MoonBit `Json`; numbers without a textual
   representation are printed as integers when integral.
+
+## columns
+
+* `Columns::new(renderables, ...)` takes the renderables as a required
+  positional array (upstream: optional iterable, default empty); pass `[]`
+  for an empty `Columns`.
+* An explicit `width` larger than the available width (zero columns)
+  raises `@rich.ValueError` at render time (upstream: `ValueError` from
+  `range()`).
+
+## tree
+
+* `Tree::add(highlight=None)` inherits the parent's `highlight` (upstream
+  `highlight: Optional[bool] = False`); the parameter is `highlight? : Bool?`.
+* `ASCII_GUIDES` / `TREE_GUIDES` are the package values `ascii_guides` /
+  `tree_guides` (not class attributes, so they cannot be overridden per
+  subclass).
+
+## bar
+
+* `size`, `begin` and `end` are `Double`s. `Bar::repr` prints integral
+  values without a fractional part (`Bar(100, 11, 62)`), so
+  `Bar(100.0, ...)` reprs as `Bar(100, ...)` where Python would print
+  `100.0`.
+* `color` / `bgcolor` accept a `String` or a `@color.Color` (trait
+  `IntoColor`); `Bar::new` raises `ColorParseError` for an invalid color
+  definition (upstream raises when the style is rendered).
+
+## layout
+
+* `Layout::split`, `split_row`, `split_column` and `add_split` take an
+  array of `&IntoLayout` (implemented for `Layout`, `String`, `Text`,
+  `TextType` and `Panel`); wrap any other renderable with
+  `Layout::new(renderable=...)`.
+* `Layout::split(splitter=...)` takes `&IntoSplitter` (a splitter name
+  `String`, `RowSplitter` or `ColumnSplitter`); a custom `Splitter` must
+  also implement `IntoSplitter`. `Layout.splitters` is the function
+  `splitter_by_name`.
+* `layout[name]` raises `LayoutError::KeyError` (upstream `KeyError`);
+  `NoSplitter` is a constructor of `LayoutError` rather than a subclass.
+* Without threads there is no lock: `update`/`refresh_screen` are plain
+  methods.
+* `Layout::renderable` returns an internal placeholder when no renderable
+  was given (or it was an empty string / empty `Text`), like upstream; a
+  `None` content cannot be set with `update`.
+* The tree view and placeholder use a built-in pretty repr of `Layout`
+  (`Layout::pretty_repr`, same output as `rich.pretty.pretty_repr` for a
+  layout) instead of the generic `Pretty` renderable.
+* `refresh_screen` on a layout that has not been rendered raises
+  `LayoutError::KeyError` (upstream `KeyError` from the render map).
+* A layout whose children are all invisible recurses forever, as upstream
+  (which raises `RecursionError`).
