@@ -95,3 +95,65 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   `LayoutError::KeyError` (upstream `KeyError` from the render map).
 * A layout whose children are all invisible recurses forever, as upstream
   (which raises `RecursionError`).
+## prompt
+
+* `PromptBase[PromptType]` is a generic struct `PromptBase[T]`; the upstream
+  subclasses are namespaces whose `new` returns `PromptBase[String]`
+  (`Prompt`), `PromptBase[Int]` (`IntPrompt`), `PromptBase[Double]`
+  (`FloatPrompt`) and `PromptBase[Bool]` (`Confirm`), and whose `ask` is the
+  upstream classmethod. Class attributes (`response_type`,
+  `validate_error_message`, `illegal_choice_message`, `prompt_suffix`,
+  `choices`) are fields; overridable methods are optional function fields
+  (`render_default_fn`, `process_response_fn`, `pre_prompt_fn`,
+  `get_input`). `convert_response` is the base `process_response`, so an
+  override can call it (upstream `super().process_response`).
+* `__call__` is `call(default?, stream?)`. `default` must have the response
+  type (upstream accepts any value and only displays it when it is a `str`
+  or of the response type; `...` is "no default" → `None`).
+* The prompt text is a positional argument without a default (pass `""`).
+* Input is injectable: `get_input?` (an `InputFn`, i.e.
+  `(Console, Text, password, InputStream?) -> String raise`, defaulting to
+  `@prompt.get_input`, which calls `Console::input`). `stream` is an
+  `InputStream` (a readable string, like `io.StringIO`): lines keep their
+  newline and the end of the stream reads as `""`, as with
+  `TextIO.readline`. With `password=true` and a stream, the line is read from
+  the stream with the newline removed (upstream passes the stream to
+  `getpass`, which uses it for output and reads from the terminal).
+* `IntPrompt` parses with Python `int()` rules (sign, whitespace, `_`
+  separators, base 10) but rejects values that do not fit an `Int`.
+  `FloatPrompt` uses `@string.parse_double` (Python `float()` syntax incl.
+  `inf`/`nan`/`_`). The default of a `FloatPrompt` is displayed with Python
+  float repr (`(1.0)`).
+* `PromptError` (the base class of `InvalidResponse`) is not ported.
+
+## logging
+
+* There is no Python `logging` module: `RichHandler` renders `LogRecord`
+  structs (name, level, already-interpolated `msg`, `pathname`, `lineno`,
+  `func_name`, `created`, optional `exc_text` / `stack_info`). Upstream
+  `extra={"markup": ..., "highlighter": ...}` are the record fields `markup`
+  and `highlighter` (`highlighter: None` → pass a `@rich.NullHighlighter`);
+  other extra attributes are strings in `extra`.
+* A small `Formatter` replaces `logging.Formatter` (`%`-style only:
+  `%(attr)[flags][width][.precision]conv` with conversions `s r d i f e g`,
+  `%%`; `asctime` uses `datefmt` or `%Y-%m-%d %H:%M:%S,mmm` in local time).
+  Unknown attributes raise `ValueError` at format time (Python `KeyError`).
+  Attributes about threads/processes/`relativeCreated` are not available.
+* A minimal `Logger` (level, handlers, `debug`/`info`/`warning`/`error`/
+  `critical`/`exception`/`log`) creates records with the caller's MoonBit
+  source location as `pathname`/`lineno`; no logger hierarchy, propagation,
+  filters or `basicConfig`. `RichHandler::handle` checks the handler level
+  (Python checks it in `Logger.callHandlers`).
+* Rich tracebacks: MoonBit has no exception objects with frames, so the
+  record carries an optional `traceback` renderable (e.g. a
+  `@traceback.Traceback` built by the caller); with `rich_tracebacks=true` it
+  is rendered below the message instead of the formatted `exc_text`. The
+  `tracebacks_*` and `locals_*` options are therefore not handler
+  options (configure the traceback renderable instead).
+* `log_time_format` is a `strftime` string; a callable is passed as
+  `log_time_formatter` (receives seconds since the epoch, not a
+  `datetime`).
+* `emit` raises render errors instead of calling `handleError`; the
+  `NullFile` (pythonw) special case is not ported.
+* Skipped upstream test: `test_stderr_and_stdout_are_none` (pythonw /
+  `NullFile`). `test_exception*` use a stand-in traceback renderable.
