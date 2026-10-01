@@ -1,0 +1,10 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/demo",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/internal/term",
+}
+
+pkgtype(kind: "executable")
+
+warnings = "-implicit_impl_as_method"

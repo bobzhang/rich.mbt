@@ -1,0 +1,13 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/color",
+  "bobzhang/rich/pretty",
+  "bobzhang/rich/syntax",
+  "bobzhang/rich/markdown",
+}
+
+warnings = "-implicit_impl_as_method"
+
+import {
+  "bobzhang/pygments/regex",
+} for "test"
