@@ -1,0 +1,7 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/color",
+  "moonbitlang/core/cmp",
+}
+
+warnings = "-implicit_impl_as_method"
