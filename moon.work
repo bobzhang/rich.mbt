@@ -1,0 +1,4 @@
+members = [
+  ".",
+  "../pygments.mbt",
+]

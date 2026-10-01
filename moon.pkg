@@ -1,0 +1,17 @@
+import {
+  "bobzhang/rich/cells",
+  "bobzhang/rich/color",
+  "bobzhang/pygments/regex",
+  "bobzhang/pygments/pystr",
+  "bobzhang/rich/emoji",
+  "bobzhang/rich/internal/term",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/string",
+  "moonbitlang/core/json",
+  "moonbitlang/core/env",
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/double",
+  "moonbitlang/core/debug",
+}
+
+warnings = "-implicit_impl_as_method"
