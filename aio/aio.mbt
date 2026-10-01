@@ -7,21 +7,36 @@
 // by the synchronous `update`/`advance`/`tick` path, as without this package.
 
 ///|
-/// Refresh `live` every `1 / refresh_per_second` seconds while `body`
-/// runs (upstream `_RefreshThread`). `live` must already be started.
+/// Refresh `live` from a timer while `body` runs (upstream
+/// `_RefreshThread`). `live` must already be started.
+///
+/// * As upstream, no timer runs for a display that does not auto refresh or
+///   that is nested in another live display (the outermost display owns
+///   refreshing).
+/// * The timer shares the throttle of update-driven refresh (`tick`): a
+///   refresh is skipped if the display was refreshed less than
+///   `1 / refresh_per_second` seconds ago.
+/// * As upstream's refresh thread, a failing timer refresh stops the timer
+///   but does not interrupt `body`.
 async fn[X] with_refresher(live : @live.Live, body : async () -> X) -> X {
   @async.with_task_group(group => {
-    if live.auto_refresh {
+    if live.auto_refresh && !live.is_nested() {
       let interval_ms = @cmp.maximum(
         1,
         (1000.0 / live.refresh_per_second).to_int(),
       )
-      group.spawn_bg(no_wait=true, () => {
+      group.spawn_bg(no_wait=true, allow_failure=true, () => {
         for ;; {
-          @async.sleep(interval_ms)
-          if live.is_started() {
-            live.refresh()
+          let wait = live.time_until_refresh()
+          if wait > 0.0005 {
+            @async.sleep(@cmp.maximum(1, (wait * 1000.0).ceil().to_int()))
+            continue
           }
+          if !live.is_started() {
+            break
+          }
+          live.refresh()
+          @async.sleep(interval_ms)
         }
       })
     }
@@ -92,6 +107,10 @@ pub async fn[T] track(
     for item in items {
       body(item)
       progress.advance(task)
+      if !progress.live.auto_refresh {
+        // upstream's non-threaded `track` refreshes after every item
+        progress.refresh()
+      }
     }
   })
 }

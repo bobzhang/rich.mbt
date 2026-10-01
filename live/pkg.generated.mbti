@@ -21,6 +21,7 @@ pub(all) struct Live {
 }
 pub fn Live::enter(Self) -> Unit raise
 pub fn Live::get_renderable(Self) -> &@rich.Renderable raise
+pub fn Live::is_nested(Self) -> Bool
 pub fn Live::is_started(Self) -> Bool
 pub fn Live::live_render(Self) -> LiveRender
 pub fn Live::new(renderable? : &@rich.Renderable, console? : @rich.Console, screen? : Bool, auto_refresh? : Bool, refresh_per_second? : Double, transient? : Bool, redirect_stdout? : Bool, redirect_stderr? : Bool, vertical_overflow? : VerticalOverflowMethod, get_renderable? : () -> &@rich.Renderable raise) -> Self
@@ -30,6 +31,7 @@ pub fn Live::run(Self, () -> Unit raise) -> Unit raise
 pub fn Live::start(Self, refresh? : Bool) -> Unit raise
 pub fn Live::stop(Self) -> Unit raise
 pub fn Live::tick(Self) -> Unit raise
+pub fn Live::time_until_refresh(Self) -> Double
 pub fn Live::update(Self, &@rich.Renderable, refresh? : Bool) -> Unit raise
 pub impl @rich.RenderHook for Live
 

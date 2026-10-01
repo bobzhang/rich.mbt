@@ -28,6 +28,8 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   systems renders with the wrong codes (upstream bug). rich.mbt caches per
   color system.
 * Meta data is a `Map[String, Json]` (upstream pickles arbitrary values).
+  It is deep-copied on construction and compared by its canonical JSON text
+  (key order and number spelling matter, as upstream's pickled bytes do).
   `repr` shows it as a Python dict (integral numbers as ints, arrays as
   lists).
 * Link ids are generated from a counter seeded with the clock.
@@ -302,7 +304,13 @@ time-throttled refreshes (DESIGN.md §7):
 * `Progress::track` with auto refresh advances the task at most every
   `update_period` seconds (console clock) and ends with
   `update(completed=<iterations>, refresh=True)`, like the track thread.
-* No `moonbitlang/async` helper for periodic refresh is provided.
+* Timer-driven refresh is provided by the `aio` package (native,
+  `moonbitlang/async`): `@aio.run_live`/`run_progress`/`run_status` start a
+  refresh task like upstream's refresh thread. As upstream, no timer runs
+  for nested displays or without `auto_refresh`; the timer shares the
+  throttle of update-driven refresh; a failing timer refresh stops the timer
+  without interrupting the body. The runtime is cooperative: refreshes
+  happen while the body suspends.
 
 ## spinner
 

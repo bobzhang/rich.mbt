@@ -112,7 +112,8 @@ cloned at `.repos/rich`) to MoonBit. Module `bobzhang/rich`.
    refresh interval has elapsed (throttled by `refresh_per_second`), plus
    `refresh()` and `start()/stop()`; spinner frames are computed from the
    clock at render time as upstream. A native-only async helper
-   (`moonbitlang/async`) can drive periodic refresh for long blocking work.
+   (`moonbitlang/async`) can drive periodic refresh for long blocking work:
+   implemented as the `aio` package (`@aio.run_live` and friends).
 
 8. **Python-runtime modules.**
    * `pretty`: an open trait `PrettyRepr` producing the upstream `Node` tree;

@@ -109,6 +109,31 @@ pub fn Live::is_started(self : Live) -> Bool {
 }
 
 ///|
+/// Whether this display was started inside another live display on the
+/// same console (it is then rendered by the outermost display, which also
+/// owns refreshing).
+pub fn Live::is_nested(self : Live) -> Bool {
+  self.nested
+}
+
+///|
+/// Seconds until an automatic refresh is due (0 if due now), shared by
+/// update-driven refresh (`tick`) and timer-driven refresh (`@aio`).
+pub fn Live::time_until_refresh(self : Live) -> Double {
+  match self.last_refresh {
+    None => 0.0
+    Some(last) => {
+      let wait = 1.0 / self.refresh_per_second - (self.now() - last)
+      if wait > 0.0 {
+        wait
+      } else {
+        0.0
+      }
+    }
+  }
+}
+
+///|
 /// The renderable to display (from `get_renderable` if given), or `""`.
 pub fn Live::get_renderable(self : Live) -> &@rich.Renderable raise {
   let renderable = match self.get_renderable_ {

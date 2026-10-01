@@ -97,7 +97,8 @@ fn Formatter::lookup(
 }
 
 ///|
-/// Format a field with a `%` conversion (`s`, `r`, `d`, `i`, `f`, ...).
+/// Format a field with a `%` conversion (`s`, `r`, `a`, `d`, `i`, `u`,
+/// `f`, `F`, `e`, `E`, `g`, `G`) following Python's printf-style rules.
 fn format_field(
   value : FieldValue,
   flags : String,
@@ -105,78 +106,118 @@ fn format_field(
   precision : Int?,
   conversion : Char,
 ) -> String {
-  let body = match (conversion, value) {
-    ('s', S(s)) | ('a', S(s)) =>
-      match precision {
-        Some(p) if p < s.length() => s.view(end_offset=p).to_owned()
-        _ => s
-      }
-    ('r', S(s)) => {
-      let r = @rich.py_repr(s)
-      match precision {
-        Some(p) if p < r.length() => r.view(end_offset=p).to_owned()
-        _ => r
-      }
-    }
-    ('d' | 'i' | 'u', F(d)) => d.to_int().to_string()
-    ('d' | 'i' | 'u', I(n)) => n.to_string()
-    ('f' | 'F', F(d)) => @rich.py_format_fixed(d, precision.unwrap_or(6))
-    ('f' | 'F', I(n)) =>
-      @rich.py_format_fixed(n.to_double(), precision.unwrap_or(6))
-    ('e', F(d)) => @rich.py_format_exp(d, precision.unwrap_or(6))
-    ('E', F(d)) => @rich.py_format_exp(d, precision.unwrap_or(6), upper=true)
-    ('e', I(n)) => @rich.py_format_exp(n.to_double(), precision.unwrap_or(6))
-    ('E', I(n)) =>
-      @rich.py_format_exp(n.to_double(), precision.unwrap_or(6), upper=true)
-    ('g' | 'G', F(d)) =>
-      @rich.py_format_general(
-        d,
-        precision=precision.unwrap_or(6),
-        upper=conversion == 'G',
-        alternate=flags.contains("#"),
-      )
-    ('g' | 'G', I(n)) =>
-      @rich.py_format_general(
-        n.to_double(),
-        precision=precision.unwrap_or(6),
-        upper=conversion == 'G',
-        alternate=flags.contains("#"),
-      )
-    (_, I(n)) => n.to_string()
-    (_, F(d)) => @rich.py_float_repr(d)
-    (_, S(s)) => s
+  let left = flags.contains("-")
+  let alternate = flags.contains("#")
+  let numeric_conversion = conversion
+    is ('d' | 'i' | 'u' | 'f' | 'F' | 'e' | 'E' | 'g' | 'G')
+  let number : Double? = match value {
+    I(n) => Some(n.to_double())
+    F(d) => Some(d)
+    S(_) => None
   }
-  let numeric = !(value is S(_)) ||
-    conversion is ('d' | 'i' | 'u' | 'f' | 'F' | 'e' | 'E' | 'g' | 'G')
-  let body = if numeric && !(value is S(_)) && !body.has_prefix("-") {
-    if flags.contains("+") {
-      "+" + body
-    } else if flags.contains(" ") {
-      " " + body
-    } else {
-      body
-    }
-  } else {
-    body
-  }
-  match width {
-    Some(w) if w > body.length() => {
-      let pad = w - body.length()
-      if flags.contains("-") {
-        body + " ".repeat(pad)
-      } else if flags.contains("0") && !(value is S(_)) {
-        if body.has_prefix("-") || body.has_prefix("+") {
-          body.view(end_offset=1).to_owned() +
-          "0".repeat(pad) +
-          body.view(start_offset=1).to_owned()
-        } else {
-          "0".repeat(pad) + body
+  match (numeric_conversion, number) {
+    (true, Some(d)) => {
+      // digits without the sign
+      // floats keep the sign of the value (even when rounding to 0, as
+      // in "-0"); integer conversions use the truncated integer
+      let negative = match conversion {
+        'd' | 'i' | 'u' =>
+          match value {
+            I(n) => n < 0
+            _ => d.abs().floor() >= 1.0 && d < 0.0
+          }
+        _ => d < 0.0 || (d == 0.0 && 1.0 / d < 0.0)
+      }
+      let magnitude = d.abs()
+      let digits = match conversion {
+        'd' | 'i' | 'u' => {
+          let n = match value {
+            I(n) => n.abs().to_string()
+            _ => magnitude.floor().to_int64().to_string()
+          }
+          match precision {
+            Some(p) if p > n.length() => "0".repeat(p - n.length()) + n
+            _ => n
+          }
         }
+        'f' | 'F' => {
+          let r = @rich.py_format_fixed(magnitude, precision.unwrap_or(6))
+          if alternate && !r.contains(".") {
+            r + "."
+          } else {
+            r
+          }
+        }
+        'e' | 'E' => {
+          let r = @rich.py_format_exp(
+            magnitude,
+            precision.unwrap_or(6),
+            upper=conversion == 'E',
+          )
+          if alternate && !r.contains(".") {
+            match r.find(if conversion == 'E' { "E" } else { "e" }) {
+              Some(i) =>
+                r.view(end_offset=i).to_owned() +
+                "." +
+                r.view(start_offset=i).to_owned()
+              None => r
+            }
+          } else {
+            r
+          }
+        }
+        _ =>
+          @rich.py_format_general(
+            magnitude,
+            precision=precision.unwrap_or(6),
+            upper=conversion == 'G',
+            alternate~,
+          )
+      }
+      let sign = if negative {
+        "-"
+      } else if flags.contains("+") {
+        "+"
+      } else if flags.contains(" ") {
+        " "
       } else {
-        " ".repeat(pad) + body
+        ""
+      }
+      let total = sign.length() + digits.length()
+      match width {
+        Some(w) if w > total =>
+          if left {
+            sign + digits + " ".repeat(w - total)
+          } else if flags.contains("0") {
+            sign + "0".repeat(w - total) + digits
+          } else {
+            " ".repeat(w - total) + sign + digits
+          }
+        _ => sign + digits
       }
     }
-    _ => body
+    _ => {
+      let text = match (conversion, value) {
+        ('r', S(s)) => @rich.py_repr(s)
+        ('a', S(s)) => @pystr.ascii(s)
+        (_, S(s)) => s
+        (_, I(n)) => n.to_string()
+        (_, F(d)) => @rich.py_float_repr(d)
+      }
+      let text = match precision {
+        Some(p) if p < text.length() => text.view(end_offset=p).to_owned()
+        _ => text
+      }
+      match width {
+        Some(w) if w > text.length() =>
+          if left {
+            text + " ".repeat(w - text.length())
+          } else {
+            " ".repeat(w - text.length()) + text
+          }
+        _ => text
+      }
+    }
   }
 }
 
