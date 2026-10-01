@@ -14,7 +14,7 @@ fn round1(d : Double) -> String {
 
 ///|
 fn run() -> Unit raise {
-  let test_card = @demo.make_test_card()
+  let test_card = @card.make_test_card()
   // render once to a string to warm caches, then time a second render
   let console = @rich.Console::new(
     file=@rich.StringIO::new(),

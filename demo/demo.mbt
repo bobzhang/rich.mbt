@@ -105,16 +105,7 @@ let code : String =
   #|    yield True, previous_value
 
 ///|
-let markdown_example : String =
-  #|# Markdown
-  #|
-  #|Supports much of the *markdown* __syntax__!
-  #|
-  #|- Headers
-  #|- Basic formatting: **bold**, *italic*, `code`
-  #|- Block quotes
-  #|- Lists, and more...
-  #|
+let markdown_example : String = "# Markdown\n\nSupports much of the *markdown* __syntax__!\n\n- Headers\n- Basic formatting: **bold**, *italic*, `code`\n- Block quotes\n- Lists, and more...\n    "
 
 ///|
 /// Get a renderable that demonstrates a number of features.

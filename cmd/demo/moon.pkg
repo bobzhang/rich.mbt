@@ -1,6 +1,6 @@
 import {
   "bobzhang/rich",
-  "bobzhang/rich/demo",
+  "bobzhang/rich/demo" @card,
   "bobzhang/rich/panel",
   "bobzhang/rich/internal/term",
 }

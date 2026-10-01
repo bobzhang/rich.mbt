@@ -46,7 +46,13 @@ test "render" {
   let top = layout["top"]
   let panel = @panel.Panel::new("foo")
   top.update(panel)
-  assert_true(physical_equal(top.renderable(), (panel : &@rich.Renderable)))
+  // upstream: `top.renderable is panel` (trait objects are re-boxed on some
+  // backends, so compare the rendering instead of identity)
+  let console = @rich.Console::new(width=20, file=@rich.StringIO::new())
+  assert_eq(
+    console.capture(() => console.print(top.renderable())),
+    console.capture(() => console.print(panel)),
+  )
   layout["bottom"].split_row([
     @layout.Layout::new(name="left"),
     @layout.Layout::new(name="right"),
