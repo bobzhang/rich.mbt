@@ -69,8 +69,7 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   `Bar(100.0, ...)` reprs as `Bar(100, ...)` where Python would print
   `100.0`.
 * `color` / `bgcolor` accept a `String` or a `@color.Color` (trait
-  `IntoColor`); `Bar::new` raises `ColorParseError` for an invalid color
-  definition (upstream raises when the style is rendered).
+  `IntoColor`).
 
 ## layout
 
