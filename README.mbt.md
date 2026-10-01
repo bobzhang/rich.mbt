@@ -40,7 +40,9 @@ test "print markup and a table" {
 ```mbt nocheck
 ///|
 fn main {
-  @rich.print("[bold red]alert![/] Something happened") catch { _ => () }
+  @rich.print("[bold red]alert![/] Something happened") catch {
+    _ => ()
+  }
 }
 ```
 
@@ -55,7 +57,13 @@ fn main raise {
   let tree = @tree.Tree::new("Rich Tree")
   tree.add("foo").add("bar") |> ignore
   console.print(tree)
-  console.print(@syntax.Syntax::new("def f(x):\n    return x + 1", "python", line_numbers=true))
+  console.print(
+    @syntax.Syntax::new(
+      "def f(x):\n    return x + 1",
+      "python",
+      line_numbers=true,
+    ),
+  )
   console.print(@markdown.Markdown::new("# Title\n\n* one\n* **two**"))
   let data : Json = { "numbers": [1, 2, 3], "ok": true }
   console.print(@pretty.Pretty::new(data))

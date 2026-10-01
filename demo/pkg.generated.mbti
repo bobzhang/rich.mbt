@@ -1,0 +1,22 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/demo"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub fn hls_to_rgb(Double, Double, Double) -> (Double, Double, Double)
+
+pub fn make_test_card() -> @rich.Table raise
+
+// Errors
+
+// Types and methods
+pub struct ColorBox {
+}
+pub impl @rich.Renderable for ColorBox
+
+// Type aliases
+
+// Traits

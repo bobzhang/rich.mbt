@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/internal/term"
+
+// Values
+pub fn flush_fd(Int) -> Unit
+
+pub fn isatty(Int) -> Bool
+
+pub fn monotonic() -> Double
+
+pub fn pipe_to(String, String) -> Bool
+
+pub fn read_file(String) -> String?
+
+pub fn read_line(echo? : Bool) -> String?
+
+pub fn sleep(Double) -> Unit
+
+pub fn strftime(String, Double) -> String
+
+pub fn terminal_size(Int) -> (Int, Int)?
+
+pub fn time() -> Double
+
+pub fn write_fd(Int, String) -> Bool
+
+pub fn write_file(String, String) -> Bool
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/tree"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub let ascii_guides : (String, String, String, String)
+
+pub let tree_guides : Array[(String, String, String, String)]
+
+// Errors
+
+// Types and methods
+pub(all) struct Tree {
+  mut label : &@rich.Renderable
+  mut style : @rich.StyleType
+  mut guide_style : @rich.StyleType
+  children : Array[Tree]
+  mut expanded : Bool
+  mut highlight : Bool
+  mut hide_root : Bool
+}
+pub fn Tree::add(Self, &@rich.Renderable, style? : &@rich.IntoStyle, guide_style? : &@rich.IntoStyle, expanded? : Bool, highlight? : Bool?) -> Self
+pub fn Tree::new(&@rich.Renderable, style? : &@rich.IntoStyle, guide_style? : &@rich.IntoStyle, expanded? : Bool, highlight? : Bool, hide_root? : Bool) -> Self
+pub impl @rich.Renderable for Tree
+
+// Type aliases
+pub type GuideType = (String, String, String, String)
+
+// Traits

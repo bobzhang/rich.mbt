@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/spinner"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub fn spinner_names() -> Array[String]
+
+// Errors
+
+// Types and methods
+pub(all) struct Spinner {
+  mut text : &@rich.Renderable
+  name : String
+  frames : Array[String]
+  interval : Double
+  mut start_time : Double?
+  mut style : @rich.StyleType?
+  mut speed : Double
+  mut frame_no_offset : Double
+  // private fields
+}
+pub fn Spinner::new(String, text? : &@rich.Renderable, style? : &@rich.IntoStyle, speed? : Double) -> Self raise @rich.RichError
+pub fn Spinner::render(Self, Double) -> &@rich.Renderable
+pub fn Spinner::update(Self, text? : &@rich.Renderable, style? : &@rich.IntoStyle, speed? : Double) -> Unit raise @rich.RichError
+pub impl @rich.Renderable for Spinner
+
+// Type aliases
+
+// Traits

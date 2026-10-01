@@ -1,0 +1,35 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/panel"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Panel {
+  mut renderable : &@rich.Renderable
+  mut box_ : @rich.Box
+  mut title : @rich.TextType?
+  mut title_align : @rich.AlignMethod
+  mut subtitle : @rich.TextType?
+  mut subtitle_align : @rich.AlignMethod
+  mut safe_box : Bool?
+  mut expand : Bool
+  mut style : @rich.StyleType
+  mut border_style : @rich.StyleType
+  mut width : Int?
+  mut height : Int?
+  mut padding : Array[Int]
+  mut highlight : Bool
+}
+pub fn Panel::fit(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int, height? : Int, padding? : ArrayView[Int], highlight? : Bool) -> Self
+pub fn Panel::new(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, expand? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int, height? : Int, padding? : ArrayView[Int], highlight? : Bool) -> Self
+pub impl @rich.Renderable for Panel
+
+// Type aliases
+
+// Traits

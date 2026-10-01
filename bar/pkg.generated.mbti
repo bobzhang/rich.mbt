@@ -1,0 +1,33 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/bar"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/color",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Bar {
+  mut size : Double
+  mut begin : Double
+  mut end : Double
+  mut width : Int?
+  mut style : @rich.Style
+}
+pub fn Bar::new(Double, Double, Double, width? : Int, color? : &IntoColor, bgcolor? : &IntoColor) -> Self raise @color.ColorParseError
+pub fn Bar::repr(Self) -> String
+pub impl @rich.Renderable for Bar
+pub impl Show for Bar
+
+// Type aliases
+
+// Traits
+pub(open) trait IntoColor {
+  fn into_color(Self) -> @color.Color raise @color.ColorParseError
+}
+pub impl IntoColor for String
+pub impl IntoColor for @color.Color

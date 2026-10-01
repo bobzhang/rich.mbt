@@ -1,0 +1,1033 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich"
+
+import {
+  "bobzhang/pygments/regex",
+  "bobzhang/rich/color",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn adler32(Bytes) -> UInt
+
+pub let box_ascii : Box
+
+pub let box_ascii2 : Box
+
+pub let box_ascii_double_head : Box
+
+pub let box_double : Box
+
+pub let box_double_edge : Box
+
+pub let box_heavy : Box
+
+pub let box_heavy_edge : Box
+
+pub let box_heavy_head : Box
+
+pub let box_horizontals : Box
+
+pub let box_markdown : Box
+
+pub let box_minimal : Box
+
+pub let box_minimal_double_head : Box
+
+pub let box_minimal_heavy_head : Box
+
+pub let box_rounded : Box
+
+pub let box_simple : Box
+
+pub let box_simple_head : Box
+
+pub let box_simple_heavy : Box
+
+pub let box_square : Box
+
+pub let box_square_double_head : Box
+
+pub fn color_to_text(@color.Color) -> Text
+
+pub fn compile_regex(String, flags? : Int) -> @regex.Regex raise @regex.RegexError
+
+pub let console_html_format : String
+
+pub let console_svg_format : String
+
+pub fn default_styles() -> Map[String, Style]
+
+pub let default_theme : Theme
+
+pub fn divide_line(String, Int, fold? : Bool) -> Array[Int]
+
+pub fn escape(String) -> String
+
+pub fn escape_control_codes(String) -> String
+
+pub fn filesize_decimal(Int64, precision? : Int, separator? : String) -> String
+
+pub fn get_console() -> Console
+
+pub fn html_escape(String) -> String
+
+pub fn literal_eval(String) -> PyValue raise RichError
+
+pub fn[T] loop_first(ArrayView[T]) -> Array[(Bool, T)]
+
+pub fn[T] loop_first_last(ArrayView[T]) -> Array[(Bool, Bool, T)]
+
+pub fn[T] loop_last(ArrayView[T]) -> Array[(Bool, T)]
+
+pub fn measure_renderables(Console, ConsoleOptions, ArrayView[&Renderable]) -> Measurement raise
+
+pub fn palette_to_table(@color.Palette) -> Table raise RichError
+
+pub fn parse_markup(String) -> Array[MarkupItem]
+
+pub fn pick_bool(Array[Bool?]) -> Bool
+
+pub fn pick_unit_and_suffix(Int64, Array[String], Int64) -> (Int64, String)
+
+pub fn print(&Renderable, end? : String, file? : &ConsoleFile) -> Unit raise
+
+pub fn print_json(json? : String, data? : Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+
+pub fn print_many(ArrayView[&Renderable], sep? : String, end? : String, file? : &ConsoleFile) -> Unit raise
+
+pub fn py_float_repr(Double) -> String
+
+pub fn py_format(String, Map[String, String]) -> String
+
+pub fn py_format_fixed(Double, Int) -> String
+
+pub fn py_format_g(Double) -> String
+
+pub fn py_group_thousands(String) -> String
+
+pub fn py_json_repr(Json) -> String
+
+pub fn py_repr(String) -> String
+
+pub fn ratio_distribute(Int, ArrayView[Int], minimums? : ArrayView[Int]) -> Array[Int]
+
+pub fn ratio_reduce(Int, ArrayView[Int], ArrayView[Int], ArrayView[Int]) -> Array[Int]
+
+pub fn ratio_resolve(Int, ArrayView[Edge]) -> Array[Int]
+
+pub fn reconfigure(Console) -> Unit
+
+pub fn regex_escape(String) -> String
+
+pub fn render_markup(String, style? : StyleType, emoji? : Bool, emoji_variant? : EmojiVariant) -> Text raise RichError
+
+pub fn segments_to_items(Array[Segment]) -> Array[RenderItem]
+
+pub fn strip_control_codes(String) -> String
+
+pub fn unpack_padding(ArrayView[Int]) -> (Int, Int, Int, Int) raise RichError
+
+pub fn words(String) -> Array[(Int, Int, String)]
+
+// Errors
+pub(all) suberror RichError {
+  StyleSyntaxError(String)
+  MissingStyle(String)
+  StyleStackError(String)
+  NotRenderableError(String)
+  MarkupError(String)
+  LiveError(String)
+  NoAltScreen(String)
+  WriteError(String)
+  NoEmoji(String)
+  ValueError(String)
+} derive(@debug.Debug)
+pub impl Show for RichError
+
+// Types and methods
+pub struct Align {
+  renderable : &Renderable
+  align : AlignMethod
+  style : StyleType?
+  vertical : VerticalAlignMethod?
+  pad : Bool
+  width : Int?
+  height : Int?
+}
+pub fn Align::center(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
+pub fn Align::left(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
+pub fn Align::new(&Renderable, AlignMethod, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
+pub fn Align::right(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
+pub impl Renderable for Align
+
+pub(all) enum AlignMethod {
+  Left
+  Center
+  Right
+} derive(Eq, Hash, @debug.Debug)
+pub fn AlignMethod::to_string(Self) -> String
+
+pub struct AnsiDecoder {
+  // private fields
+}
+pub fn AnsiDecoder::decode(Self, String) -> Array[Text]
+pub fn AnsiDecoder::decode_line(Self, String) -> Text
+pub fn AnsiDecoder::new() -> Self
+
+pub struct Box {
+  name : String
+  box_ : String
+  ascii : Bool
+  top_left : String
+  top : String
+  top_divider : String
+  top_right : String
+  head_left : String
+  head_vertical : String
+  head_right : String
+  head_row_left : String
+  head_row_horizontal : String
+  head_row_cross : String
+  head_row_right : String
+  mid_left : String
+  mid_vertical : String
+  mid_right : String
+  row_left : String
+  row_horizontal : String
+  row_cross : String
+  row_right : String
+  foot_row_left : String
+  foot_row_horizontal : String
+  foot_row_cross : String
+  foot_row_right : String
+  foot_left : String
+  foot_vertical : String
+  foot_right : String
+  bottom_left : String
+  bottom : String
+  bottom_divider : String
+  bottom_right : String
+} derive(Eq, @debug.Debug)
+pub fn Box::get_bottom(Self, ArrayView[Int]) -> String
+pub fn Box::get_plain_headed_box(Self) -> Self
+pub fn Box::get_row(Self, ArrayView[Int], level? : RowLevel, edge? : Bool) -> String
+pub fn Box::get_top(Self, ArrayView[Int]) -> String
+pub fn Box::new(String, ascii? : Bool, name? : String) -> Self raise RichError
+pub fn Box::repr(Self) -> String
+pub fn Box::substitute(Self, ConsoleOptions, safe? : Bool) -> Self
+pub impl Show for Box
+
+pub(all) struct Column {
+  mut header : &Renderable
+  mut footer : &Renderable
+  mut header_style : StyleType
+  mut footer_style : StyleType
+  mut style : StyleType
+  mut justify : JustifyMethod
+  mut vertical : VerticalAlignMethod
+  mut overflow : OverflowMethod
+  mut width : Int?
+  mut min_width : Int?
+  mut max_width : Int?
+  mut ratio : Int?
+  mut no_wrap : Bool
+  mut highlight : Bool
+  // private fields
+}
+pub fn Column::cells(Self) -> Array[&Renderable]
+pub fn Column::copy(Self) -> Self
+pub fn Column::flexible(Self) -> Bool
+pub fn Column::new(header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int, min_width? : Int, max_width? : Int, ratio? : Int, no_wrap? : Bool, highlight? : Bool) -> Self
+pub impl IntoColumn for Column
+
+pub(all) struct Console {
+  mut stderr : Bool
+  mut quiet : Bool
+  mut tab_size : Int
+  mut record : Bool
+  mut soft_wrap : Bool
+  mut legacy_windows : Bool
+  mut safe_box : Bool
+  mut no_color : Bool
+  mut is_interactive : Bool
+  is_jupyter : Bool
+  mut style : StyleType?
+  mut highlighter : &Highlighter
+  mut get_datetime : () -> Double
+  mut get_time : () -> Double
+  // private fields
+}
+pub fn Console::begin_capture(Self) -> Unit
+pub fn Console::bell(Self) -> Unit raise
+pub fn Console::buffered(Self, () -> Unit raise) -> Unit raise
+pub fn Console::capture(Self, () -> Unit raise) -> String raise
+pub fn Console::clear(Self, home? : Bool) -> Unit raise
+pub fn Console::clear_live(Self) -> Unit
+pub fn Console::color_system(Self) -> String?
+pub fn Console::color_system_enum(Self) -> @color.ColorSystem?
+pub fn Console::control(Self, ArrayView[Control]) -> Unit raise
+pub fn Console::encoding(Self) -> String
+pub fn Console::end_capture(Self) -> String raise
+pub fn Console::enter_buffer(Self) -> Unit
+pub fn Console::exit_buffer(Self) -> Unit raise
+pub fn Console::export_html(Self, theme? : @color.TerminalTheme, clear? : Bool, code_format? : String, inline_styles? : Bool) -> String
+pub fn Console::export_svg(Self, title? : String, theme? : @color.TerminalTheme, clear? : Bool, code_format? : String, font_aspect_ratio? : Double, unique_id? : String) -> String
+pub fn Console::export_text(Self, clear? : Bool, styles? : Bool) -> String
+pub fn Console::file(Self) -> &ConsoleFile
+pub fn Console::get_style(Self, &IntoStyle, default? : StyleType) -> Style raise RichError
+pub fn Console::height(Self) -> Int
+pub fn Console::input(Self, prompt? : &IntoText, markup? : Bool, emoji? : Bool, password? : Bool) -> String raise
+pub fn Console::is_alt_screen(Self) -> Bool
+pub fn Console::is_dumb_terminal(Self) -> Bool
+pub fn Console::is_terminal(Self) -> Bool
+pub fn Console::line(Self, count? : Int) -> Unit raise
+pub fn Console::live_stack(Self) -> Array[Int]
+#callsite(autofill(loc))
+pub fn Console::log(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, emoji? : Bool, markup? : Bool, highlight? : Bool, loc~ : SourceLoc) -> Unit raise
+#callsite(autofill(loc))
+pub fn Console::log_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, emoji? : Bool, markup? : Bool, highlight? : Bool, loc~ : SourceLoc) -> Unit raise
+pub fn Console::measure(Self, &Renderable, options? : ConsoleOptions) -> Measurement raise
+pub fn Console::new(color_system? : String?, force_terminal? : Bool, force_jupyter? : Bool, force_interactive? : Bool, soft_wrap? : Bool, theme? : Theme, stderr? : Bool, file? : &ConsoleFile, quiet? : Bool, width? : Int, height? : Int, style? : &IntoStyle, no_color? : Bool, tab_size? : Int, record? : Bool, markup? : Bool, emoji? : Bool, emoji_variant? : EmojiVariant, highlight? : Bool, log_time? : Bool, log_path? : Bool, log_time_format? : String, log_time_formatter? : (Double) -> Text, highlighter? : &Highlighter, legacy_windows? : Bool, safe_box? : Bool, get_datetime? : () -> Double, get_time? : () -> Double, environ? : Map[String, String]) -> Self raise RichError
+pub fn Console::options(Self) -> ConsoleOptions
+pub fn Console::out(Self, String, end? : String, style? : &IntoStyle, highlight? : Bool) -> Unit raise
+pub fn Console::out_many(Self, ArrayView[String], sep? : String, end? : String, style? : &IntoStyle, highlight? : Bool) -> Unit raise
+pub fn Console::pager(Self, () -> Unit raise, pager? : &Pager, styles? : Bool, links? : Bool) -> Unit raise
+pub fn Console::pop_render_hook(Self) -> Unit
+pub fn Console::pop_theme(Self) -> Unit raise RichError
+pub fn Console::print(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
+pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn Console::print_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
+pub fn Console::push_render_hook(Self, &RenderHook) -> Unit
+pub fn Console::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
+pub fn Console::render(Self, &Renderable, options? : ConsoleOptions) -> Array[Segment] raise
+pub fn Console::render_lines(Self, &Renderable, options? : ConsoleOptions, style? : Style, pad? : Bool, new_lines? : Bool) -> Array[Array[Segment]] raise
+pub fn Console::render_str(Self, String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, emoji? : Bool?, markup? : Bool?, highlight? : Bool?, highlighter? : &Highlighter) -> Text raise
+pub fn Console::repr(Self) -> String
+pub fn Console::rule(Self, title? : &IntoText, characters? : String, style? : &IntoStyle, align? : AlignMethod) -> Unit raise
+pub fn Console::save_html(Self, String, theme? : @color.TerminalTheme, clear? : Bool, code_format? : String, inline_styles? : Bool) -> Unit raise
+pub fn Console::save_svg(Self, String, title? : String, theme? : @color.TerminalTheme, clear? : Bool, code_format? : String, font_aspect_ratio? : Double, unique_id? : String) -> Unit raise
+pub fn Console::save_text(Self, String, clear? : Bool, styles? : Bool) -> Unit raise
+pub fn Console::screen(Self, (ScreenContext) -> Unit raise, hide_cursor? : Bool, style? : &IntoStyle) -> Unit raise
+pub fn Console::screen_context(Self, hide_cursor? : Bool, style? : &IntoStyle) -> ScreenContext
+pub fn Console::set_alt_screen(Self, enable? : Bool) -> Bool raise
+pub fn Console::set_file(Self, &ConsoleFile) -> Unit
+pub fn Console::set_height(Self, Int) -> Unit
+pub fn Console::set_live(Self, Int) -> Bool
+pub fn Console::set_size(Self, Int, Int) -> Unit
+pub fn Console::set_width(Self, Int) -> Unit
+pub fn Console::set_window_title(Self, String) -> Bool raise
+pub fn Console::show_cursor(Self, show? : Bool) -> Bool raise
+pub fn Console::size(Self) -> ConsoleDimensions
+pub fn Console::update_screen(Self, &Renderable, region? : Region, options? : ConsoleOptions) -> Unit raise
+pub fn Console::update_screen_lines(Self, Array[Array[Segment]], x? : Int, y? : Int) -> Unit raise
+pub fn Console::use_theme(Self, Theme, () -> Unit raise, inherit_styles? : Bool) -> Unit raise
+pub fn Console::width(Self) -> Int
+
+pub(all) struct ConsoleDimensions {
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ConsoleOptions {
+  mut size : ConsoleDimensions
+  mut legacy_windows : Bool
+  mut min_width : Int
+  mut max_width : Int
+  mut is_terminal : Bool
+  mut encoding : String
+  mut max_height : Int
+  mut justify : JustifyMethod?
+  mut overflow : OverflowMethod?
+  mut no_wrap : Bool?
+  mut highlight : Bool?
+  mut markup : Bool?
+  mut height : Int?
+}
+pub fn ConsoleOptions::ascii_only(Self) -> Bool
+pub fn ConsoleOptions::copy(Self) -> Self
+pub fn ConsoleOptions::reset_height(Self) -> Self
+pub fn ConsoleOptions::update(Self, width? : Int, min_width? : Int, max_width? : Int, justify? : JustifyMethod?, overflow? : OverflowMethod?, no_wrap? : Bool?, highlight? : Bool?, markup? : Bool?, height? : Int?) -> Self
+pub fn ConsoleOptions::update_dimensions(Self, Int, Int) -> Self
+pub fn ConsoleOptions::update_height(Self, Int) -> Self
+pub fn ConsoleOptions::update_width(Self, Int) -> Self
+
+pub struct Constrain {
+  renderable : &Renderable
+  width : Int?
+}
+pub fn Constrain::new(&Renderable, width? : Int?) -> Self
+pub impl Renderable for Constrain
+
+pub struct Control {
+  segment : Segment
+}
+pub fn Control::alt_screen(Bool) -> Self
+pub fn Control::bell() -> Self
+pub fn Control::clear() -> Self
+pub fn Control::home() -> Self
+pub fn Control::move_(x? : Int, y? : Int) -> Self
+pub fn Control::move_to(Int, Int) -> Self
+pub fn Control::move_to_column(Int, y? : Int) -> Self
+pub fn Control::new(Array[ControlCode]) -> Self
+pub fn Control::show_cursor(Bool) -> Self
+pub fn Control::title(String) -> Self
+pub impl Renderable for Control
+pub impl Show for Control
+
+pub(all) enum ControlCode {
+  Code(ControlType)
+  CodeInt(ControlType, Int)
+  CodeStr(ControlType, String)
+  CodeXY(ControlType, Int, Int)
+} derive(Eq, Hash, @debug.Debug)
+
+pub(all) enum ControlType {
+  Bell
+  CarriageReturn
+  Home
+  Clear
+  ShowCursor
+  HideCursor
+  EnableAltScreen
+  DisableAltScreen
+  CursorUp
+  CursorDown
+  CursorForward
+  CursorBackward
+  CursorMoveToColumn
+  CursorMoveTo
+  EraseInLine
+  SetWindowTitle
+} derive(Eq, Hash, @debug.Debug)
+pub fn ControlType::to_int(Self) -> Int
+
+pub(all) struct Edge {
+  size : Int?
+  ratio : Int
+  minimum_size : Int
+} derive(Eq, @debug.Debug)
+
+pub struct Emoji {
+  name : String
+  style : StyleType
+  variant : EmojiVariant?
+  // private fields
+}
+pub fn Emoji::new(String, style? : &IntoStyle, variant? : EmojiVariant) -> Self raise RichError
+pub fn Emoji::replace(String) -> String
+pub fn Emoji::repr(Self) -> String
+pub impl Renderable for Emoji
+pub impl Show for Emoji
+pub impl @debug.Debug for Emoji
+
+pub(all) enum EmojiVariant {
+  Emoji
+  Text
+} derive(Eq, @debug.Debug)
+pub fn EmojiVariant::to_string(Self) -> String
+
+pub struct Group {
+  renderables : Array[&Renderable]
+  fit : Bool
+}
+pub fn Group::new(Array[&Renderable], fit? : Bool) -> Self
+pub impl Renderable for Group
+
+pub struct ISO8601Highlighter {
+  // private fields
+}
+pub fn ISO8601Highlighter::new() -> Self
+pub impl Highlighter for ISO8601Highlighter
+
+pub struct JSON {
+  text : Text
+}
+pub fn JSON::from_data(Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_value(JsonValue, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::new(String, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub impl Renderable for JSON
+
+pub struct JSONHighlighter {
+}
+pub fn JSONHighlighter::new() -> Self
+pub impl Highlighter for JSONHighlighter
+
+pub(all) enum JsonValue {
+  JNull
+  JBool(Bool)
+  JInt(String)
+  JFloat(Double)
+  JString(String)
+  JArray(Array[JsonValue])
+  JObject(Array[(String, JsonValue)])
+} derive(Eq, @debug.Debug)
+pub fn JsonValue::dumps(Self, indent? : Int?, ensure_ascii? : Bool, sort_keys? : Bool) -> String
+pub fn JsonValue::from_json(Json) -> Self
+pub fn JsonValue::parse(String) -> Self raise RichError
+
+pub(all) enum JustifyMethod {
+  Default
+  Left
+  Center
+  Right
+  Full
+} derive(Eq, Hash, @debug.Debug)
+pub fn JustifyMethod::parse(String) -> Self?
+pub fn JustifyMethod::to_string(Self) -> String
+
+pub struct Lines {
+  lines : Array[Text]
+}
+pub fn Lines::append(Self, Text) -> Unit
+pub fn Lines::extend_(Self, ArrayView[Text]) -> Unit
+pub fn Lines::get(Self, Int) -> Text
+pub fn Lines::iter(Self) -> Iter[Text]
+pub fn Lines::justify(Self, Console, Int, justify? : JustifyMethod, overflow? : OverflowMethod) -> Unit raise
+pub fn Lines::length(Self) -> Int
+pub fn Lines::new(ArrayView[Text]) -> Self
+pub fn Lines::pop(Self) -> Text?
+pub fn Lines::repr(Self) -> String
+pub fn Lines::set(Self, Int, Text) -> Unit
+pub impl Renderable for Lines
+
+pub struct LogRender {
+  show_time : Bool
+  show_level : Bool
+  show_path : Bool
+  time_format : String
+  time_formatter : ((Double) -> Text)?
+  omit_repeated_times : Bool
+  level_width : Int?
+  // private fields
+}
+pub fn LogRender::new(show_time? : Bool, show_level? : Bool, show_path? : Bool, time_format? : String, time_formatter? : (Double) -> Text, omit_repeated_times? : Bool, level_width? : Int?) -> Self
+pub fn LogRender::render(Self, Console, Array[&Renderable], log_time? : Double, time_format? : String, level? : &IntoText, path? : String, line_no? : Int, link_path? : String) -> Table raise
+
+pub(all) enum MarkupItem {
+  PlainText(Int, String)
+  TagAt(Int, Tag)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Measurement {
+  minimum : Int
+  maximum : Int
+} derive(Eq, @debug.Debug)
+pub fn Measurement::clamp(Self, min_width? : Int, max_width? : Int) -> Self
+pub fn Measurement::get(Console, ConsoleOptions, &Renderable) -> Self raise
+pub fn Measurement::new(Int, Int) -> Self
+pub fn Measurement::normalize(Self) -> Self
+pub fn Measurement::span(Self) -> Int
+pub fn Measurement::with_maximum(Self, Int) -> Self
+pub fn Measurement::with_minimum(Self, Int) -> Self
+pub impl Show for Measurement
+
+pub struct NewLine {
+  count : Int
+}
+pub fn NewLine::new(count? : Int) -> Self
+pub impl Renderable for NewLine
+
+pub struct NullFile {
+}
+pub fn NullFile::new() -> Self
+pub impl ConsoleFile for NullFile
+
+pub struct NullHighlighter {
+}
+pub fn NullHighlighter::new() -> Self
+pub impl Highlighter for NullHighlighter
+
+pub(all) enum OverflowMethod {
+  Fold
+  Crop
+  Ellipsis
+  Ignore
+} derive(Eq, Hash, @debug.Debug)
+pub fn OverflowMethod::parse(String) -> Self?
+pub fn OverflowMethod::to_string(Self) -> String
+
+pub struct Padding {
+  renderable : &Renderable
+  top : Int
+  right : Int
+  bottom : Int
+  left : Int
+  style : StyleType
+  expand : Bool
+}
+pub fn Padding::indent(&Renderable, Int) -> Self
+pub fn Padding::new(&Renderable, pad? : ArrayView[Int], style? : &IntoStyle, expand? : Bool) -> Self raise RichError
+pub fn Padding::repr(Self) -> String
+pub impl Renderable for Padding
+
+pub(all) enum PyValue {
+  PyNone
+  PyBool(Bool)
+  PyInt(Int64)
+  PyFloat(Double)
+  PyStr(String)
+  PyBytes(String)
+  PyTuple(Array[PyValue])
+  PyList(Array[PyValue])
+  PySet(Array[PyValue])
+  PyDict(Array[(PyValue, PyValue)])
+} derive(Eq, @debug.Debug)
+pub fn PyValue::repr(Self) -> String
+pub impl ToJson for PyValue
+
+pub struct RegexHighlighter {
+  highlights : Array[@regex.Regex]
+  base_style : String
+}
+pub fn RegexHighlighter::new(Array[String], base_style? : String) -> Self raise @regex.RegexError
+pub impl Highlighter for RegexHighlighter
+
+pub(all) struct Region {
+  x : Int
+  y : Int
+  width : Int
+  height : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum RenderItem {
+  Seg(Segment)
+  Child(&Renderable)
+}
+
+pub struct Renderables {
+  renderables : Array[&Renderable]
+}
+pub fn Renderables::append(Self, &Renderable) -> Unit
+pub fn Renderables::new(renderables? : Array[&Renderable]) -> Self
+pub impl Renderable for Renderables
+
+pub struct ReprHighlighter {
+  // private fields
+}
+pub fn ReprHighlighter::new() -> Self
+pub impl Highlighter for ReprHighlighter
+
+pub(all) struct Row {
+  mut style : StyleType?
+  mut end_section : Bool
+}
+
+pub(all) enum RowLevel {
+  Head
+  Row
+  Foot
+  Mid
+} derive(Eq, @debug.Debug)
+
+pub struct Rule {
+  title : TextType
+  characters : String
+  style : StyleType
+  end : String
+  align : AlignMethod
+}
+pub fn Rule::new(title? : &IntoText, characters? : String, style? : &IntoStyle, end? : String, align? : AlignMethod) -> Self raise RichError
+pub fn Rule::repr(Self) -> String
+pub impl Renderable for Rule
+
+pub struct Screen {
+  mut renderable : &Renderable
+  mut style : StyleType?
+  application_mode : Bool
+}
+pub fn Screen::new(Array[&Renderable], style? : &IntoStyle, application_mode? : Bool) -> Self
+pub impl Renderable for Screen
+
+pub struct ScreenContext {
+  console : Console
+  hide_cursor : Bool
+  screen : Screen
+  // private fields
+}
+pub fn ScreenContext::enter(Self) -> Unit raise
+pub fn ScreenContext::exit(Self) -> Unit raise
+pub fn ScreenContext::update(Self, renderables? : Array[&Renderable], style? : &IntoStyle) -> Unit raise
+
+pub struct ScreenUpdate {
+  lines : Array[Array[Segment]]
+  x : Int
+  y : Int
+}
+pub fn ScreenUpdate::new(Array[Array[Segment]], Int, Int) -> Self
+pub impl Renderable for ScreenUpdate
+
+pub(all) struct Segment {
+  text : String
+  style : Style?
+  control : Array[ControlCode]?
+} derive(Eq)
+pub fn Segment::adjust_line_length(Array[Self], Int, style? : Style, pad? : Bool) -> Array[Self]
+pub fn Segment::align_bottom(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::align_middle(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::align_top(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::apply_style(Array[Self], style? : Style, post_style? : Style) -> Array[Self]
+pub fn Segment::cell_length(Self) -> Int
+pub fn Segment::divide(Array[Self], Array[Int]) -> Array[Array[Self]]
+pub fn Segment::filter_control(Array[Self], is_control? : Bool) -> Array[Self]
+pub fn Segment::get_line_length(ArrayView[Self]) -> Int
+pub fn Segment::get_shape(Array[Array[Self]]) -> (Int, Int)
+pub fn Segment::has_codes(Self) -> Bool
+pub fn Segment::is_control(Self) -> Bool
+pub fn Segment::line() -> Self
+pub fn Segment::new(String, style? : Style, control? : Array[ControlCode]) -> Self
+pub fn Segment::remove_color(Array[Self]) -> Array[Self]
+pub fn Segment::repr(Self) -> String
+pub fn Segment::set_shape(Array[Array[Self]], Int, height? : Int, style? : Style, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::simplify(Array[Self]) -> Array[Self]
+pub fn Segment::split_and_crop_lines(Array[Self], Int, style? : Style, pad? : Bool, include_new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::split_cells(Self, Int) -> (Self, Self)
+pub fn Segment::split_lines(Array[Self]) -> Array[Array[Self]]
+pub fn Segment::split_lines_terminator(Array[Self]) -> Array[(Array[Self], Bool)]
+pub fn Segment::strip_links(Array[Self]) -> Array[Self]
+pub fn Segment::strip_styles(Array[Self]) -> Array[Self]
+pub fn Segment::to_bool(Self) -> Bool
+pub impl Show for Segment
+pub impl @debug.Debug for Segment
+
+pub struct SegmentLines {
+  lines : Array[Array[Segment]]
+  new_lines : Bool
+}
+pub fn SegmentLines::new(Array[Array[Segment]], new_lines? : Bool) -> Self
+pub impl Renderable for SegmentLines
+
+pub struct Segments {
+  segments : Array[Segment]
+  new_lines : Bool
+}
+pub fn Segments::new(Array[Segment], new_lines? : Bool) -> Self
+pub impl Renderable for Segments
+
+pub(all) struct Span {
+  start : Int
+  end : Int
+  style : StyleType
+} derive(Eq, Hash)
+pub fn Span::extend_(Self, Int) -> Self
+pub fn Span::move_(Self, Int) -> Self
+pub fn Span::new(Int, Int, &IntoStyle) -> Self
+pub fn Span::right_crop(Self, Int) -> Self
+pub fn Span::split(Self, Int) -> (Self, Self?)
+pub fn Span::to_bool(Self) -> Bool
+pub impl Show for Span
+pub impl @debug.Debug for Span
+
+pub struct StdStream {
+  fd : Int
+}
+pub fn StdStream::stderr() -> Self
+pub fn StdStream::stdout() -> Self
+pub impl ConsoleFile for StdStream
+
+pub struct StringIO {
+  // private fields
+}
+pub fn StringIO::getvalue(Self) -> String
+pub fn StringIO::new(isatty? : Bool) -> Self
+pub fn StringIO::reset(Self) -> Unit
+pub impl ConsoleFile for StringIO
+
+pub struct Style {
+  // private fields
+}
+pub fn Style::add_opt(Self, Self?) -> Self
+pub fn Style::background_style(Self) -> Self
+pub fn Style::bgcolor(Self) -> @color.Color?
+pub fn Style::blink(Self) -> Bool?
+pub fn Style::blink2(Self) -> Bool?
+pub fn Style::bold(Self) -> Bool?
+pub fn Style::chain(Array[Self]) -> Self
+pub fn Style::clear_meta_and_links(Self) -> Self
+pub fn Style::color(Self) -> @color.Color?
+pub fn Style::combine(ArrayView[Self]) -> Self
+pub fn Style::conceal(Self) -> Bool?
+pub fn Style::copy(Self) -> Self
+pub fn Style::dim(Self) -> Bool?
+pub fn Style::encircle(Self) -> Bool?
+pub fn Style::frame(Self) -> Bool?
+pub fn Style::from_color(color? : @color.Color, bgcolor? : @color.Color) -> Self
+pub fn Style::from_meta(Map[String, Json]?) -> Self
+pub fn Style::get_html_style(Self, theme? : @color.TerminalTheme) -> String
+pub fn Style::is_null(Self) -> Bool
+pub fn Style::italic(Self) -> Bool?
+pub fn Style::link(Self) -> String?
+pub fn Style::link_id(Self) -> String
+pub fn Style::meta(Self) -> Map[String, Json]
+pub fn Style::new(color? : @color.Color, bgcolor? : @color.Color, bold? : Bool, dim? : Bool, italic? : Bool, underline? : Bool, blink? : Bool, blink2? : Bool, reverse? : Bool, conceal? : Bool, strike? : Bool, underline2? : Bool, frame? : Bool, encircle? : Bool, overline? : Bool, link? : String, meta? : Map[String, Json]) -> Self
+pub fn Style::normalize(String) -> String
+pub fn Style::null() -> Self
+pub fn Style::on(meta? : Map[String, Json], handlers? : Map[String, Json]) -> Self
+pub fn Style::overline(Self) -> Bool?
+pub fn Style::parse(String) -> Self raise RichError
+pub fn Style::pick_first(ArrayView[StyleType?]) -> StyleType raise RichError
+pub fn Style::render(Self, text? : String, color_system? : @color.ColorSystem?, legacy_windows? : Bool) -> String
+pub fn Style::repr(Self) -> String
+pub fn Style::reverse(Self) -> Bool?
+pub fn Style::strike(Self) -> Bool?
+pub fn Style::to_bool(Self) -> Bool
+pub fn Style::to_definition(Self) -> String
+pub fn Style::transparent_background(Self) -> Bool
+pub fn Style::underline(Self) -> Bool?
+pub fn Style::underline2(Self) -> Bool?
+pub fn Style::update_link(Self, String?) -> Self
+pub fn Style::without_color(Self) -> Self
+pub impl IntoStyle for Style
+pub impl Add for Style
+pub impl Eq for Style
+pub impl Hash for Style
+pub impl Show for Style
+
+pub struct StyleStack {
+  // private fields
+}
+pub fn StyleStack::current(Self) -> Style
+pub fn StyleStack::new(Style) -> Self
+pub fn StyleStack::pop(Self) -> Style
+pub fn StyleStack::push(Self, Style) -> Unit
+pub fn StyleStack::repr(Self) -> String
+
+pub(all) enum StyleType {
+  Def(String)
+  Style(Style)
+} derive(Eq, Hash)
+pub fn StyleType::repr(Self) -> String
+pub fn StyleType::to_bool(Self) -> Bool
+pub impl IntoStyle for StyleType
+pub impl Show for StyleType
+pub impl @debug.Debug for StyleType
+
+pub struct Styled {
+  renderable : &Renderable
+  style : StyleType
+}
+pub fn Styled::new(&Renderable, &IntoStyle) -> Self
+pub impl Renderable for Styled
+
+pub struct SystemPager {
+  command : String?
+}
+pub fn SystemPager::new(command? : String) -> Self
+pub impl Pager for SystemPager
+
+pub(all) struct Table {
+  columns : Array[Column]
+  rows : Array[Row]
+  mut title : TextType?
+  mut caption : TextType?
+  mut width : Int?
+  mut min_width : Int?
+  mut box_ : Box?
+  mut safe_box : Bool?
+  mut pad_edge : Bool
+  mut show_header : Bool
+  mut show_footer : Bool
+  mut show_edge : Bool
+  mut show_lines : Bool
+  mut leading : Int
+  mut collapse_padding : Bool
+  mut style : StyleType
+  mut header_style : StyleType
+  mut footer_style : StyleType
+  mut border_style : StyleType?
+  mut title_style : StyleType?
+  mut caption_style : StyleType?
+  mut title_justify : JustifyMethod
+  mut caption_justify : JustifyMethod
+  mut highlight : Bool
+  mut row_styles : Array[StyleType]
+  // private fields
+}
+pub fn Table::add_column(Self, header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, highlight? : Bool, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int, min_width? : Int, max_width? : Int, ratio? : Int, no_wrap? : Bool) -> Unit
+pub fn Table::add_row(Self, ArrayView[&Renderable], style? : &IntoStyle, end_section? : Bool) -> Unit
+pub fn Table::add_section(Self) -> Unit
+pub fn Table::expand(Self) -> Bool
+pub fn Table::get_row_style(Self, Console, Int) -> Style raise
+pub fn Table::grid(headers? : Array[&IntoColumn], padding? : ArrayView[Int], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool) -> Self raise RichError
+pub fn Table::new(headers? : Array[&IntoColumn], title? : &IntoText, caption? : &IntoText, width? : Int, min_width? : Int, box_? : Box, no_box? : Bool, safe_box? : Bool, padding? : ArrayView[Int], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool, show_header? : Bool, show_footer? : Bool, show_edge? : Bool, show_lines? : Bool, leading? : Int, style? : &IntoStyle, row_styles? : Array[&IntoStyle], header_style? : &IntoStyle, footer_style? : &IntoStyle, border_style? : &IntoStyle, title_style? : &IntoStyle, caption_style? : &IntoStyle, title_justify? : JustifyMethod, caption_justify? : JustifyMethod, highlight? : Bool) -> Self raise RichError
+pub fn Table::padding(Self) -> (Int, Int, Int, Int)
+pub fn Table::row_count(Self) -> Int
+pub fn Table::set_expand(Self, Bool) -> Unit
+pub fn Table::set_padding(Self, ArrayView[Int]) -> Unit raise RichError
+pub impl Renderable for Table
+
+pub(all) struct Tag {
+  name : String
+  parameters : String?
+} derive(Eq, @debug.Debug)
+pub fn Tag::markup(Self) -> String
+pub impl Show for Tag
+
+pub(all) struct Text {
+  mut style : StyleType
+  mut justify : JustifyMethod?
+  mut overflow : OverflowMethod?
+  mut no_wrap : Bool?
+  mut end : String
+  mut tab_size : Int?
+  // private fields
+}
+pub fn Text::align(Self, AlignMethod, Int, character? : Char) -> Unit
+pub fn Text::append(Self, &IntoText, style? : &IntoStyle) -> Self raise RichError
+pub fn Text::append_str(Self, String, style? : &IntoStyle) -> Self
+pub fn Text::append_text(Self, Self) -> Self
+pub fn Text::append_tokens(Self, ArrayView[(String, StyleType?)]) -> Self
+pub fn Text::apply_meta(Self, Map[String, Json], start? : Int, end? : Int) -> Unit
+pub fn Text::assemble(ArrayView[&TextPart], style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int, meta? : Map[String, Json]) -> Self
+pub fn Text::at(Self, Int) -> Self
+pub fn Text::blank_copy(Self, plain? : String) -> Self
+pub fn Text::cell_len(Self) -> Int
+pub fn Text::concat(Self, &IntoText) -> Self
+pub fn Text::contains(Self, &IntoText) -> Bool
+pub fn Text::copy(Self) -> Self
+pub fn Text::copy_styles(Self, Self) -> Unit
+pub fn Text::detect_indentation(Self) -> Int
+pub fn Text::divide(Self, ArrayView[Int]) -> Lines
+pub fn Text::expand_tabs(Self, tab_size? : Int) -> Unit
+pub fn Text::extend_style(Self, Int) -> Unit
+pub fn Text::fit(Self, Int) -> Lines
+pub fn Text::from_ansi(String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int) -> Self
+pub fn Text::from_markup(String, style? : &IntoStyle, emoji? : Bool, emoji_variant? : EmojiVariant, justify? : JustifyMethod, overflow? : OverflowMethod, end? : String) -> Self raise RichError
+pub fn Text::get_style_at_offset(Self, Console, Int) -> Style raise
+pub fn Text::highlight_pattern(Self, String, style? : &IntoStyle, style_prefix? : String) -> Int raise @regex.RegexError
+pub fn Text::highlight_regex(Self, @regex.Regex, style? : &IntoStyle, style_fn? : (String) -> StyleType?, style_prefix? : String) -> Int raise @regex.RegexError
+pub fn Text::highlight_words(Self, ArrayView[String], &IntoStyle, case_sensitive? : Bool) -> Int raise @regex.RegexError
+pub fn Text::join(Self, ArrayView[Self]) -> Self
+pub fn Text::length(Self) -> Int
+pub fn Text::markup(Self) -> String
+pub fn Text::new(text? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int, spans? : Array[Span]) -> Self
+pub fn Text::on(Self, meta? : Map[String, Json], handlers? : Map[String, Json]) -> Self
+pub fn Text::pad(Self, Int, character? : Char) -> Unit
+pub fn Text::pad_left(Self, Int, character? : Char) -> Unit
+pub fn Text::pad_right(Self, Int, character? : Char) -> Unit
+pub fn Text::plain(Self) -> String
+pub fn Text::remove_suffix(Self, String) -> Unit
+pub fn Text::render(Self, Console, end? : String) -> Array[Segment] raise
+pub fn Text::repr(Self) -> String
+pub fn Text::right_crop(Self, amount? : Int) -> Unit
+pub fn Text::rstrip(Self) -> Unit
+pub fn Text::rstrip_end(Self, Int) -> Unit
+pub fn Text::set_length(Self, Int) -> Unit
+pub fn Text::set_plain(Self, String) -> Unit
+pub fn Text::set_spans(Self, Array[Span]) -> Unit
+pub fn Text::slice(Self, start? : Int, stop? : Int) -> Self
+pub fn Text::spans(Self) -> Array[Span]
+pub fn Text::split(Self, separator? : String, include_separator? : Bool, allow_blank? : Bool) -> Lines
+pub fn Text::styled(String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod) -> Self
+pub fn Text::stylize(Self, &IntoStyle, start? : Int, end? : Int) -> Unit
+pub fn Text::stylize_before(Self, &IntoStyle, start? : Int, end? : Int) -> Unit
+pub fn Text::to_bool(Self) -> Bool
+pub fn Text::truncate(Self, Int, overflow? : OverflowMethod, pad? : Bool) -> Unit
+pub fn Text::with_indent_guides(Self, indent_size? : Int, character? : String, style? : &IntoStyle) -> Self
+pub fn Text::wrap(Self, Console, Int, justify? : JustifyMethod, overflow? : OverflowMethod, tab_size? : Int, no_wrap? : Bool) -> Lines raise
+pub impl IntoText for Text
+pub impl Renderable for Text
+pub impl TextPart for Text
+pub impl Add for Text
+pub impl Eq for Text
+pub impl Show for Text
+pub impl @debug.Debug for Text
+
+pub(all) enum TextKind {
+  NotText
+  Str(String)
+  Text(Text)
+}
+
+pub(all) enum TextType {
+  Str(String)
+  Text(Text)
+}
+pub fn TextType::plain(Self) -> String
+pub fn TextType::to_bool(Self) -> Bool
+pub impl IntoText for TextType
+pub impl Renderable for TextType
+
+pub struct Theme {
+  styles : Map[String, Style]
+}
+pub fn Theme::config(Self) -> String
+pub fn Theme::from_config(String, inherit_styles? : Bool) -> Self raise RichError
+pub fn Theme::new(styles? : Map[String, &IntoStyle], inherit_styles? : Bool) -> Self raise RichError
+
+pub struct ThemeStack {
+  // private fields
+}
+pub fn ThemeStack::get(Self, String) -> Style?
+pub fn ThemeStack::new(Theme) -> Self
+pub fn ThemeStack::pop_theme(Self) -> Unit raise RichError
+pub fn ThemeStack::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
+
+pub(all) enum VerticalAlignMethod {
+  Top
+  Middle
+  Bottom
+} derive(Eq, Hash, @debug.Debug)
+pub fn VerticalAlignMethod::to_string(Self) -> String
+
+pub struct VerticalCenter {
+  renderable : &Renderable
+  style : StyleType?
+}
+pub fn VerticalCenter::new(&Renderable, style? : &IntoStyle) -> Self
+pub impl Renderable for VerticalCenter
+
+// Type aliases
+
+// Traits
+pub(open) trait ConsoleFile {
+  fn write(Self, String) -> Unit raise
+  fn flush(Self) -> Unit raise = _
+  fn isatty(Self) -> Bool = _
+  fn encoding(Self) -> String = _
+}
+
+pub(open) trait Highlighter {
+  fn highlight(Self, Text) -> Unit raise
+}
+pub fn &Highlighter::apply(Self, &IntoText) -> Text raise
+
+pub(open) trait IntoColumn {
+  fn into_column(Self) -> Column
+  fn into_table_column(Self, highlight~ : Bool) -> Column = _
+}
+pub impl IntoColumn for String
+
+pub(open) trait IntoStyle {
+  fn into_style_type(Self) -> StyleType
+}
+pub impl IntoStyle for String
+
+pub(open) trait IntoText {
+  fn into_text_type(Self) -> TextType
+}
+pub impl IntoText for String
+
+pub(open) trait Pager {
+  fn show(Self, String) -> Unit raise
+}
+
+pub(open) trait RenderHook {
+  fn process_renderables(Self, Array[&Renderable]) -> Array[&Renderable] raise
+}
+
+pub(open) trait Renderable {
+  fn rich_console(Self, Console, ConsoleOptions) -> Array[RenderItem] raise
+  fn rich_measure(Self, Console, ConsoleOptions) -> Measurement? raise = _
+  fn text_kind(Self) -> TextKind = _
+  fn vertical_align(Self) -> VerticalAlignMethod? = _
+}
+pub impl Renderable for String
+pub impl Renderable for @color.Color
+pub impl Renderable for @color.Palette
+
+pub(open) trait TextPart {
+  fn append_to(Self, Text) -> Unit
+}
+pub impl TextPart for String
+pub impl[S : IntoStyle] TextPart for (String, S)

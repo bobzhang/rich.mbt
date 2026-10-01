@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/progress_bar"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub let pulse_size : Int
+
+// Errors
+
+// Types and methods
+pub(all) struct ProgressBar {
+  mut total : Double?
+  mut completed : Double
+  mut width : Int?
+  mut pulse : Bool
+  mut style : @rich.StyleType
+  mut complete_style : @rich.StyleType
+  mut finished_style : @rich.StyleType
+  mut pulse_style : @rich.StyleType
+  mut animation_time : Double?
+}
+pub fn ProgressBar::get_pulse_segments(Self, @rich.Style, @rich.Style, String?, Bool, ascii? : Bool) -> Array[@rich.Segment]
+pub fn ProgressBar::new(total? : Double?, completed? : Double, width? : Int, pulse? : Bool, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, animation_time? : Double) -> Self
+pub fn ProgressBar::percentage_completed(Self) -> Double?
+pub fn ProgressBar::repr(Self) -> String
+pub fn ProgressBar::update(Self, Double, total? : Double) -> Unit
+pub impl @rich.Renderable for ProgressBar
+
+// Type aliases
+
+// Traits

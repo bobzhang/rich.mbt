@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/columns"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Columns {
+  renderables : Array[&@rich.Renderable]
+  mut width : Int?
+  mut padding : Array[Int]
+  mut expand : Bool
+  mut equal : Bool
+  mut column_first : Bool
+  mut right_to_left : Bool
+  mut align : @rich.AlignMethod?
+  mut title : @rich.TextType?
+}
+pub fn Columns::add_renderable(Self, &@rich.Renderable) -> Unit
+pub fn Columns::new(ArrayView[&@rich.Renderable], padding? : ArrayView[Int], width? : Int, expand? : Bool, equal? : Bool, column_first? : Bool, right_to_left? : Bool, align? : @rich.AlignMethod, title? : &@rich.IntoText) -> Self
+pub impl @rich.Renderable for Columns
+
+// Type aliases
+
+// Traits

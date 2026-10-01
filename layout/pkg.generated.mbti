@@ -1,0 +1,93 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/layout"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/tree",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn splitter_by_name(String) -> &Splitter raise LayoutError
+
+// Errors
+pub(all) suberror LayoutError {
+  LayoutError(String)
+  NoSplitter(String)
+  KeyError(String)
+} derive(@debug.Debug)
+pub impl Show for LayoutError
+
+// Types and methods
+pub struct ColumnSplitter {
+}
+pub fn ColumnSplitter::new() -> Self
+pub impl IntoSplitter for ColumnSplitter
+pub impl Splitter for ColumnSplitter
+
+pub struct Layout {
+  mut size : Int?
+  mut minimum_size : Int
+  mut ratio : Int
+  mut name : String?
+  mut visible : Bool
+  mut splitter : &Splitter
+  // private fields
+}
+pub fn Layout::add_split(Self, ArrayView[&IntoLayout]) -> Unit
+#alias("_[_]")
+pub fn Layout::at(Self, String) -> Self raise LayoutError
+pub fn Layout::children(Self) -> Array[Self]
+pub fn Layout::get(Self, String) -> Self?
+pub fn Layout::map(Self) -> Map[Self, LayoutRender]
+pub fn Layout::new(renderable? : &@rich.Renderable, name? : String, size? : Int, minimum_size? : Int, ratio? : Int, visible? : Bool) -> Self
+pub fn Layout::pretty_repr(Self, max_width? : Int, indent_size? : Int) -> String
+pub fn Layout::refresh_screen(Self, @rich.Console, String) -> Unit raise
+pub fn Layout::render(Self, @rich.Console, @rich.ConsoleOptions) -> Map[Self, LayoutRender] raise
+pub fn Layout::renderable(Self) -> &@rich.Renderable
+pub fn Layout::repr(Self) -> String
+pub fn Layout::split(Self, ArrayView[&IntoLayout], splitter? : &IntoSplitter) -> Unit raise LayoutError
+pub fn Layout::split_column(Self, ArrayView[&IntoLayout]) -> Unit
+pub fn Layout::split_row(Self, ArrayView[&IntoLayout]) -> Unit
+pub fn Layout::tree(Self) -> @tree.Tree raise
+pub fn Layout::unsplit(Self) -> Unit
+pub fn Layout::update(Self, &@rich.Renderable) -> Unit
+pub impl @rich.Renderable for Layout
+pub impl IntoLayout for Layout
+pub impl Eq for Layout
+pub impl Hash for Layout
+pub impl Show for Layout
+
+pub(all) struct LayoutRender {
+  region : @rich.Region
+  render : Array[Array[@rich.Segment]]
+}
+
+pub struct RowSplitter {
+}
+pub fn RowSplitter::new() -> Self
+pub impl IntoSplitter for RowSplitter
+pub impl Splitter for RowSplitter
+
+// Type aliases
+
+// Traits
+pub(open) trait IntoLayout {
+  fn into_layout(Self) -> Layout
+}
+pub impl IntoLayout for String
+pub impl IntoLayout for @rich.Text
+pub impl IntoLayout for @rich.TextType
+pub impl IntoLayout for @panel.Panel
+
+pub(open) trait IntoSplitter {
+  fn into_splitter(Self) -> &Splitter raise LayoutError
+}
+pub impl IntoSplitter for String
+
+pub(open) trait Splitter {
+  fn name(Self) -> String
+  fn get_tree_icon(Self) -> String
+  fn divide(Self, Array[Layout], @rich.Region) -> Array[(Layout, @rich.Region)]
+}

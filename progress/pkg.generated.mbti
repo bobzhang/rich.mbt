@@ -1,0 +1,205 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/progress"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/live",
+  "bobzhang/rich/progress_bar",
+  "bobzhang/rich/spinner",
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn format_task(String, Task) -> String raise @rich.RichError
+
+pub fn[T] track(Iter[T], (T) -> Unit raise, description? : String, total? : Double, completed? : Double, auto_refresh? : Bool, console? : @rich.Console, transient? : Bool, get_time? : () -> Double, refresh_per_second? : Double, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, update_period? : Double, disable? : Bool, show_speed? : Bool) -> Unit raise
+
+// Errors
+
+// Types and methods
+pub(all) struct BarColumn {
+  mut bar_width : Int?
+  mut style : @rich.StyleType
+  mut complete_style : @rich.StyleType
+  mut finished_style : @rich.StyleType
+  mut pulse_style : @rich.StyleType
+  state : ColumnState
+}
+pub fn BarColumn::new(bar_width? : Int?, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, table_column? : @rich.Column) -> Self
+pub fn BarColumn::render(Self, Task) -> @progress_bar.ProgressBar
+pub impl ProgressColumn for BarColumn
+
+pub(all) struct ColumnState {
+  mut max_refresh : Double?
+  // private fields
+}
+pub fn ColumnState::new(table_column? : @rich.Column, max_refresh? : Double) -> Self
+
+pub(all) struct DownloadColumn {
+  mut binary_units : Bool
+  state : ColumnState
+}
+pub fn DownloadColumn::new(binary_units? : Bool, table_column? : @rich.Column) -> Self
+pub fn DownloadColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for DownloadColumn
+
+pub(all) struct FileSizeColumn {
+  state : ColumnState
+}
+pub fn FileSizeColumn::new(table_column? : @rich.Column) -> Self
+pub fn FileSizeColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for FileSizeColumn
+
+pub(all) struct MofNCompleteColumn {
+  mut separator : String
+  state : ColumnState
+}
+pub fn MofNCompleteColumn::new(separator? : String, table_column? : @rich.Column) -> Self
+pub fn MofNCompleteColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for MofNCompleteColumn
+
+pub(all) struct Progress {
+  columns : Array[&ProgressColumn]
+  mut speed_estimate_period : Double
+  mut disable : Bool
+  mut expand : Bool
+  live : @live.Live
+  get_time : () -> Double
+  // private fields
+}
+pub fn Progress::add_task(Self, String, start? : Bool, total? : Double?, completed? : Double, visible? : Bool, fields? : Map[String, Json]) -> Int raise
+pub fn Progress::advance(Self, Int, advance? : Double) -> Unit raise
+pub fn Progress::console(Self) -> @rich.Console
+pub fn Progress::finished(Self) -> Bool
+pub fn Progress::get_default_columns() -> Array[&ProgressColumn]
+pub fn Progress::get_renderable(Self) -> &@rich.Renderable raise
+pub fn Progress::get_renderables(Self) -> Array[&@rich.Renderable] raise
+pub fn Progress::get_task(Self, Int) -> Task raise @rich.RichError
+pub fn Progress::make_tasks_table(Self, Array[Task]) -> @rich.Table raise
+pub fn Progress::new(columns? : Array[&ProgressColumn], console? : @rich.Console, auto_refresh? : Bool, refresh_per_second? : Double, speed_estimate_period? : Double, transient? : Bool, redirect_stdout? : Bool, redirect_stderr? : Bool, get_time? : () -> Double, disable? : Bool, expand? : Bool) -> Self
+pub fn Progress::refresh(Self) -> Unit raise
+pub fn Progress::remove_task(Self, Int) -> Unit
+pub fn Progress::reset(Self, Int, start? : Bool, total? : Double, completed? : Double, visible? : Bool, description? : String, fields? : Map[String, Json]) -> Unit raise
+pub fn Progress::run(Self, () -> Unit raise) -> Unit raise
+pub fn Progress::start(Self) -> Unit raise
+pub fn Progress::start_task(Self, Int) -> Unit raise
+pub fn Progress::stop(Self) -> Unit raise
+pub fn Progress::stop_task(Self, Int) -> Unit raise
+pub fn Progress::task_ids(Self) -> Array[Int]
+pub fn Progress::tasks(Self) -> Array[Task]
+pub fn[T] Progress::track(Self, Iter[T], (T) -> Unit raise, total? : Double, completed? : Double, task_id? : Int, description? : String, update_period? : Double) -> Unit raise
+pub fn Progress::update(Self, Int, total? : Double, completed? : Double, advance? : Double, description? : String, visible? : Bool, refresh? : Bool, fields? : Map[String, Json]) -> Unit raise
+pub impl @rich.Renderable for Progress
+
+pub(all) struct ProgressSample {
+  timestamp : Double
+  completed : Double
+} derive(Eq, @debug.Debug)
+
+pub(all) struct RenderableColumn {
+  mut renderable : &@rich.Renderable
+  state : ColumnState
+}
+pub fn RenderableColumn::new(renderable? : &@rich.Renderable, table_column? : @rich.Column) -> Self
+pub impl ProgressColumn for RenderableColumn
+
+pub(all) struct SpinnerColumn {
+  mut spinner : @spinner.Spinner
+  mut finished_text : @rich.Text
+  state : ColumnState
+}
+pub fn SpinnerColumn::new(spinner_name? : String, style? : &@rich.IntoStyle, speed? : Double, finished_text? : &@rich.IntoText, table_column? : @rich.Column) -> Self raise @rich.RichError
+pub fn SpinnerColumn::set_spinner(Self, String, spinner_style? : &@rich.IntoStyle, speed? : Double) -> Unit raise @rich.RichError
+pub impl ProgressColumn for SpinnerColumn
+
+pub(all) struct Task {
+  id : Int
+  mut description : String
+  mut total : Double?
+  mut completed : Double
+  mut finished_time : Double?
+  mut visible : Bool
+  mut fields : Map[String, Json]
+  mut start_time : Double?
+  mut stop_time : Double?
+  mut finished_speed : Double?
+  // private fields
+}
+pub fn Task::elapsed(Self) -> Double?
+pub fn Task::finished(Self) -> Bool
+pub fn Task::get_time(Self) -> Double
+pub fn Task::new(Int, String, Double?, Double, get_time~ : () -> Double, finished_time? : Double, visible? : Bool, fields? : Map[String, Json]) -> Self
+pub fn Task::percentage(Self) -> Double
+pub fn Task::remaining(Self) -> Double?
+pub fn Task::samples(Self) -> Array[ProgressSample]
+pub fn Task::speed(Self) -> Double?
+pub fn Task::started(Self) -> Bool
+pub fn Task::time_remaining(Self) -> Double?
+
+pub(all) struct TaskProgressColumn {
+  mut text_format : String
+  mut text_format_no_percentage : String
+  mut justify : @rich.JustifyMethod
+  mut style : @rich.StyleType
+  mut markup : Bool
+  mut highlighter : &@rich.Highlighter?
+  mut show_speed : Bool
+  state : ColumnState
+}
+pub fn TaskProgressColumn::new(text_format? : String, text_format_no_percentage? : String, style? : &@rich.IntoStyle, justify? : @rich.JustifyMethod, markup? : Bool, highlighter? : &@rich.Highlighter, table_column? : @rich.Column, show_speed? : Bool) -> Self
+pub fn TaskProgressColumn::render(Self, Task) -> @rich.Text raise
+pub fn TaskProgressColumn::render_speed(Double?) -> @rich.Text
+pub impl ProgressColumn for TaskProgressColumn
+
+pub(all) struct TextColumn {
+  mut text_format : String
+  mut justify : @rich.JustifyMethod
+  mut style : @rich.StyleType
+  mut markup : Bool
+  mut highlighter : &@rich.Highlighter?
+  state : ColumnState
+}
+pub fn TextColumn::new(String, style? : &@rich.IntoStyle, justify? : @rich.JustifyMethod, markup? : Bool, highlighter? : &@rich.Highlighter, table_column? : @rich.Column) -> Self
+pub fn TextColumn::render(Self, Task) -> @rich.Text raise
+pub impl ProgressColumn for TextColumn
+
+pub(all) struct TimeElapsedColumn {
+  state : ColumnState
+}
+pub fn TimeElapsedColumn::new(table_column? : @rich.Column) -> Self
+pub fn TimeElapsedColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for TimeElapsedColumn
+
+pub(all) struct TimeRemainingColumn {
+  mut compact : Bool
+  mut elapsed_when_finished : Bool
+  state : ColumnState
+}
+pub fn TimeRemainingColumn::new(compact? : Bool, elapsed_when_finished? : Bool, table_column? : @rich.Column) -> Self
+pub fn TimeRemainingColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for TimeRemainingColumn
+
+pub(all) struct TotalFileSizeColumn {
+  state : ColumnState
+}
+pub fn TotalFileSizeColumn::new(table_column? : @rich.Column) -> Self
+pub fn TotalFileSizeColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for TotalFileSizeColumn
+
+pub(all) struct TransferSpeedColumn {
+  state : ColumnState
+}
+pub fn TransferSpeedColumn::new(table_column? : @rich.Column) -> Self
+pub fn TransferSpeedColumn::render(Self, Task) -> @rich.Text
+pub impl ProgressColumn for TransferSpeedColumn
+
+// Type aliases
+
+// Traits
+pub(open) trait ProgressColumn {
+  fn render(Self, Task) -> &@rich.Renderable raise
+  fn column_state(Self) -> ColumnState
+  fn get_table_column(Self) -> @rich.Column = _
+  fn call(Self, Task) -> &@rich.Renderable raise = _
+}
+pub impl ProgressColumn for String

@@ -1,0 +1,59 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/live"
+
+import {
+  "bobzhang/rich",
+  "moonbitlang/core/debug",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Live {
+  console : @rich.Console
+  mut auto_refresh : Bool
+  mut transient : Bool
+  mut refresh_per_second : Double
+  mut vertical_overflow : VerticalOverflowMethod
+  // private fields
+}
+pub fn Live::enter(Self) -> Unit raise
+pub fn Live::get_renderable(Self) -> &@rich.Renderable raise
+pub fn Live::is_started(Self) -> Bool
+pub fn Live::live_render(Self) -> LiveRender
+pub fn Live::new(renderable? : &@rich.Renderable, console? : @rich.Console, screen? : Bool, auto_refresh? : Bool, refresh_per_second? : Double, transient? : Bool, redirect_stdout? : Bool, redirect_stderr? : Bool, vertical_overflow? : VerticalOverflowMethod, get_renderable? : () -> &@rich.Renderable raise) -> Self
+pub fn Live::refresh(Self) -> Unit raise
+pub fn Live::renderable(Self) -> &@rich.Renderable raise
+pub fn Live::run(Self, () -> Unit raise) -> Unit raise
+pub fn Live::start(Self, refresh? : Bool) -> Unit raise
+pub fn Live::stop(Self) -> Unit raise
+pub fn Live::tick(Self) -> Unit raise
+pub fn Live::update(Self, &@rich.Renderable, refresh? : Bool) -> Unit raise
+pub impl @rich.RenderHook for Live
+
+pub(all) struct LiveRender {
+  mut renderable : &@rich.Renderable
+  mut style : @rich.StyleType
+  mut vertical_overflow : VerticalOverflowMethod
+  mut shape : (Int, Int)?
+}
+pub fn LiveRender::last_render_height(Self) -> Int
+pub fn LiveRender::new(&@rich.Renderable, style? : &@rich.IntoStyle, vertical_overflow? : VerticalOverflowMethod) -> Self
+pub fn LiveRender::position_cursor(Self) -> @rich.Control
+pub fn LiveRender::restore_cursor(Self) -> @rich.Control
+pub fn LiveRender::set_renderable(Self, &@rich.Renderable) -> Unit
+pub impl @rich.Renderable for LiveRender
+
+pub(all) enum VerticalOverflowMethod {
+  Crop
+  Ellipsis
+  Visible
+} derive(Eq, @debug.Debug)
+pub fn VerticalOverflowMethod::parse(String) -> Self?
+pub fn VerticalOverflowMethod::to_string(Self) -> String
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,34 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/status"
+
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/live",
+  "bobzhang/rich/spinner",
+}
+
+// Values
+
+// Errors
+
+// Types and methods
+pub(all) struct Status {
+  mut status : &@rich.Renderable
+  mut spinner_style : @rich.StyleType
+  mut speed : Double
+  // private fields
+}
+pub fn Status::console(Self) -> @rich.Console
+pub fn Status::live(Self) -> @live.Live
+pub fn Status::new(&@rich.Renderable, console? : @rich.Console, spinner? : String, spinner_style? : &@rich.IntoStyle, speed? : Double, refresh_per_second? : Double) -> Self raise @rich.RichError
+pub fn Status::renderable(Self) -> @spinner.Spinner
+pub fn Status::run(Self, () -> Unit raise) -> Unit raise
+pub fn Status::start(Self) -> Unit raise
+pub fn Status::stop(Self) -> Unit raise
+pub fn Status::tick(Self) -> Unit raise
+pub fn Status::update(Self, status? : &@rich.Renderable, spinner? : String, spinner_style? : &@rich.IntoStyle, speed? : Double) -> Unit raise
+pub impl @rich.Renderable for Status
+
+// Type aliases
+
+// Traits
