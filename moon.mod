@@ -15,5 +15,5 @@ description = "A port of Rich (rich text and beautiful formatting in the termina
 preferred_target = "native"
 
 import {
-  "bobzhang/pygments@0.2.2",
+  "bobzhang/pygments@0.2.3",
 }
