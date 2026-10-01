@@ -75,7 +75,7 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   raise), `test_brokenpipeerror` (runs `python -m rich`). The parametrized
   `test_force_color` is shadowed by a second definition upstream and never
   runs, so only the second one is ported.
-* Pending: `test_status` needs the `status` package.
+* `test_status` (only an `isinstance` check) is covered by `status/` tests: `@status.Status::new(..., console=)` replaces `console.status(...)`.
 
 ## log
 
