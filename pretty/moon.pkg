@@ -1,0 +1,17 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/cells",
+  "bobzhang/pygments/pystr",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/deque",
+  "moonbitlang/core/set",
+  "moonbitlang/core/hashmap",
+  "moonbitlang/core/hashset",
+  "moonbitlang/core/cmp",
+}
+
+warnings = "-implicit_impl_as_method"
+
+import {
+  "moonbitlang/core/json",
+} for "test"

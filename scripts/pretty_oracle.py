@@ -1,0 +1,230 @@
+"""Generate pretty/oracle_test.mbt: differential tests for the pretty
+printer, with expected output computed by upstream Rich.
+
+Each case pairs a Python value with a MoonBit expression building the
+equivalent value (helpers live in pretty/oracle_types_test.mbt).
+
+Run with the oracle interpreter from the repository root:
+
+    /path/to/.venv/bin/python scripts/pretty_oracle.py > pretty/oracle_test.mbt && moon fmt
+"""
+
+import io
+import json
+from collections import deque
+from dataclasses import dataclass, field
+from typing import Any, List
+
+import rich.repr
+from rich.console import Console
+from rich.pretty import Pretty, pretty_repr
+
+
+@dataclass
+class Address:
+    street: str
+    city: str
+    zip: str = field(repr=False, default="")
+
+
+@dataclass
+class Person:
+    name: str
+    age: int
+    tags: List[str]
+    address: Address
+    friends: List[Any] = field(default_factory=list)
+
+
+@rich.repr.auto(angular=True)
+class Widget:
+    def __init__(self, name, children, visible=True):
+        self.name = name
+        self.children = children
+        self.visible = visible
+
+    def __rich_repr__(self):
+        yield self.name
+        yield "children", self.children
+        yield "visible", self.visible, True
+
+
+def mbt_str(s: str) -> str:
+    out = ['"']
+    for ch in s:
+        if ch == "\\":
+            out.append("\\\\")
+        elif ch == '"':
+            out.append('\\"')
+        elif ch == "\n":
+            out.append("\\n")
+        elif ch == "\t":
+            out.append("\\t")
+        elif ch == "\r":
+            out.append("\\r")
+        elif ord(ch) < 0x20 or ord(ch) == 0x7F:
+            out.append("\\u{%x}" % ord(ch))
+        else:
+            out.append(ch)
+    out.append('"')
+    return "".join(out)
+
+
+alice = Person(
+    "Alice",
+    30,
+    ["admin", "user"],
+    Address("1 Main Street", "Springfield", "12345"),
+)
+bob = Person("Bob", 25, [], Address("2 Side Road", "Shelbyville"), friends=[alice])
+
+CASES = [
+    (
+        "mixed_list",
+        [1, 2, 3, "four", 5.5, None, True, False],
+        '([1, 2, 3, "four", 5.5, none, true, false] : Array[&@pretty.PrettyRepr])',
+    ),
+    (
+        "rpc",
+        {
+            "version": "1.1",
+            "method": "confirmFruitPurchase",
+            "params": [["apple", "orange", "mangoes", "pomelo"], 1.123],
+            "id": "194521489",
+        },
+        "rpc_value()",
+    ),
+    ("dataclass", bob, "person_value()"),
+    (
+        "tuples",
+        ((1, 2), (3,), (), ("a", ("b", ("c",)))),
+        "tuples_value()",
+    ),
+    (
+        "unicode",
+        ["日本語のテキスト", "émoji 😀", "tab\tnewline\n", "quote's", "both '\"", "\x1b[1m"],
+        '["日本語のテキスト", "émoji 😀", "tab\\tnewline\\n", "quote\'s", "both \'\\"", "\\u{1b}[1m"]',
+    ),
+    (
+        "floats",
+        [0.1, 1e20, 1e-05, 3.0, -0.0, 1.5e16, 123456789.123, float("inf"), float("-inf")],
+        "[0.1, 1.0e20, 1.0e-5, 3.0, -0.0, 1.5e16, 123456789.123, 1.0 / 0.0, -1.0 / 0.0]",
+    ),
+    (
+        "bytes",
+        [b"hello", b"it's", b"\x00\xff\n", b'say "hi"', b"both '\"", b"\\"],
+        "bytes_value()",
+    ),
+    (
+        "mixed_keys",
+        {1: "a", 2: ["b", "c"], (1, 2): "tuple key", "long key " * 3: {"nested": True}},
+        "mixed_keys_value()",
+    ),
+    ("deep", [[[[1, 2], [3, 4]], [[5, 6], [7, 8]]], [[9]]], "deep_value()"),
+    ("big", {"k%d" % i: list(range(i)) for i in range(12)}, "big_value()"),
+    (
+        "json",
+        json.loads('{"a": [1, 2.5, null, true, "x"], "b": {"c": "d", "e": []}, "f": {}, "g": 1e100}'),
+        'json_value()',
+    ),
+    (
+        "angular",
+        Widget("root", [Widget("leaf", [], visible=False), Widget("other", [1, 2])]),
+        "widget_value()",
+    ),
+    ("long_strings", ["x" * 50, "y" * 30, "short"], '["x".repeat(50), "y".repeat(30), "short"]'),
+    (
+        "sets_deques",
+        [{1, 2, 3}, deque([1, 2]), set(), deque()],
+        "sets_deques_value()",
+    ),
+    (
+        "empties",
+        [[], {}, (), set(), "", b""],
+        "empties_value()",
+    ),
+    (
+        "wide_chars",
+        {"名前": "山田太郎", "趣味": ["読書", "映画鑑賞", "プログラミング"]},
+        'wide_chars_value()',
+    ),
+]
+
+WIDTHS = [4, 10, 20, 30, 40, 60, 80]
+EXTRAS = [
+    dict(expand_all=True, indent_size=2),
+    dict(max_length=2, max_width=40),
+    dict(max_string=5, max_width=40),
+    dict(max_depth=1),
+    dict(max_depth=2, max_width=30),
+]
+
+
+def kwargs_mbt(kw):
+    return "".join(f", {k}={str(v).lower() if isinstance(v, bool) else v}" for k, v in kw.items())
+
+
+def render(value, width, indent_guides):
+    f = io.StringIO()
+    console = Console(
+        file=f,
+        width=width,
+        color_system="truecolor",
+        force_terminal=True,
+        legacy_windows=False,
+        _environ={},
+    )
+    console.print(Pretty(value, indent_guides=indent_guides))
+    return f.getvalue()
+
+
+print("// Generated by scripts/pretty_oracle.py from upstream Rich; do not edit.")
+for name, value, expr in CASES:
+    print()
+    print("///|")
+    print(f'test "oracle {name}" {{')
+    print(f"  let value = {expr}")
+    for width in WIDTHS:
+        expected = pretty_repr(value, max_width=width)
+        print(f"  assert_eq(@pretty.pretty_repr(value, max_width={width}), {mbt_str(expected)})")
+    for kw in EXTRAS:
+        expected = pretty_repr(value, **kw)
+        print(f"  assert_eq(@pretty.pretty_repr(value{kwargs_mbt(kw)}), {mbt_str(expected)})")
+    for width, guides in [(24, True), (50, False)]:
+        expected = render(value, width, guides)
+        print(
+            f"  assert_eq(render_pretty(value, width={width}, indent_guides={str(guides).lower()}), {mbt_str(expected)})"
+        )
+    print("}")
+
+
+# Pretty renderable options: (name, python value, MoonBit expression, width,
+# Pretty kwargs, MoonBit Pretty kwargs)
+OPTION_CASES = [
+    ("justify center", [1, 2, 3], "[1, 2, 3]", 30, dict(justify="center"), "justify=Center"),
+    ("justify right", {"a": [1, 2]}, '{ "a": [1, 2] }', 30, dict(justify="right", expand_all=True), "justify=Right, expand_all=true"),
+    ("margin", ["alpha", "beta", "gamma"], '["alpha", "beta", "gamma"]', 40, dict(margin=20), "margin=20"),
+    ("overflow ellipsis", ["x" * 40], '["x".repeat(40)]', 20, dict(overflow="ellipsis"), "overflow=Ellipsis"),
+    ("no_wrap crop", ["x" * 40], '["x".repeat(40)]', 20, dict(no_wrap=True, overflow="crop"), "no_wrap=Some(true), overflow=Crop"),
+    ("indent_size 2", {"a": {"b": [1, 2]}}, "nested_value()", 12, dict(indent_size=2, indent_guides=True), "indent_size=2, indent_guides=true"),
+    ("insert_line", [1, 2], "[1, 2]", 4, dict(insert_line=True), "insert_line=true"),
+    ("max_length string", ["Hello" * 20, "x"], '["Hello".repeat(20), "x"]', 30, dict(max_string=8, max_length=1), "max_string=8, max_length=1"),
+]
+
+for name, value, expr, width, kwargs, mbt_kwargs in OPTION_CASES:
+    f = io.StringIO()
+    console = Console(
+        file=f,
+        width=width,
+        color_system="truecolor",
+        force_terminal=True,
+        legacy_windows=False,
+        _environ={},
+    )
+    console.print(Pretty(value, **kwargs))
+    print()
+    print("///|")
+    print(f'test "oracle option {name}" {{')
+    print(f"  let pretty = @pretty.Pretty::new({expr}, {mbt_kwargs})")
+    print(f"  assert_eq(render_renderable(pretty, width={width}), {mbt_str(f.getvalue())})")
+    print("}")

@@ -119,12 +119,15 @@ cloned at `.repos/rich`) to MoonBit. Module `bobzhang/rich`.
      impls for builtins, `Array`, `Map`, `Option`, `Json`, tuples; fallback for
      any `Show`. `@debug.Repr` is opaque so arbitrary `Debug` values cannot be
      traversed (would need core to expose `Repr`'s constructors).
+     `rich.repr` becomes builders (`rich_repr`, `dataclass`, `namedtuple`
+     with `arg`/`kwarg` items); `scope.render_scope` takes a
+     `Map[String, &PrettyRepr]` (package `scope`).
    * `traceback`: renderer ported over a plain data model (`Trace`, `Stack`,
      `Frame`, `SyntaxErrorInfo`) the caller builds; no automatic capture
      (MoonBit has no runtime frames).
    * `logging`: `RichHandler` ported as a renderer for a `LogRecord` struct.
    * `inspect`, `jupyter`, `_win32_console`, `_windows_renderer`,
-     `file_proxy`, `scope`(only used by `log_locals`/traceback locals) — not
+     `file_proxy` — not
      ported / reduced; listed as blocked.
 
 9. **Markdown.** Needs a parser producing markdown-it tokens. Options: use
