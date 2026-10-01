@@ -1,0 +1,7 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/spinner",
+  "bobzhang/rich/live",
+}
+
+warnings = "-implicit_impl_as_method"
