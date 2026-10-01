@@ -64,8 +64,10 @@ pub fn py_float_repr(d : Double) -> String {
 /// `(negative, digits, decpt)` meaning `0.digits × 10^decpt`.
 fn shortest_digits(d : Double) -> (Bool, String, Int) {
   let s = d.to_string()
-  let negative = s.has_prefix("-")
-  let s = if negative { s.view(start_offset=1).to_owned() } else { s }
+  let (negative, s) = match s.strip_prefix("-") {
+    Some(rest) => (true, rest.to_owned())
+    None => (false, s)
+  }
   let (mantissa, exp) = match s.find("e") {
     Some(i) =>
       (
@@ -318,10 +320,9 @@ pub fn py_format_g(d : Double) -> String {
 /// Insert thousands separators (Python's `,` format option) into the
 /// integer part of a formatted number.
 pub fn py_group_thousands(s : String) -> String {
-  let (sign, rest) = if s.has_prefix("-") {
-    ("-", s.view(start_offset=1).to_owned())
-  } else {
-    ("", s)
+  let (sign, rest) = match s.strip_prefix("-") {
+    Some(rest) => ("-", rest.to_owned())
+    None => ("", s)
   }
   let (int_part, tail) = match rest.find(".") {
     Some(i) =>

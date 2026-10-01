@@ -98,8 +98,8 @@ fn make_tag(
   let tag_attribs = attribs
     .map(kv => {
       let mut k = kv.0
-      while k.has_prefix("_") {
-        k = k.view(start_offset=1).to_owned()
+      while k.strip_prefix("_") is Some(rest) {
+        k = rest.to_owned()
       }
       "\{k.replace_all(old="_", new="-")}=\"\{kv.1.stringify()}\""
     })

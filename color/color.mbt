@@ -584,15 +584,13 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
   }
   // RE_COLOR = ^\#([0-9a-f]{6})$|color\(([0-9]{1,3})\)$|rgb\(([\d\s,]+)\)$
   // (`$` also matches before a final newline)
-  let body = if color.has_suffix("\n") {
-    color.view(end_offset=color.length() - 1).to_owned()
-  } else {
-    color
+  let body = match color.strip_suffix("\n") {
+    Some(b) => b.to_owned()
+    None => color
   }
-  if body.length() == 7 &&
-    body.has_prefix("#") &&
-    all_chars(body.view(start_offset=1), c => c is ('0'..='9' | 'a'..='f')) {
-    let h = body.view(start_offset=1)
+  if body.strip_prefix("#") is Some(h) &&
+    h.length() == 6 &&
+    all_chars(h, c => c is ('0'..='9' | 'a'..='f')) {
     let triplet : ColorTriplet = {
       red: hex_value(h.view(start_offset=0, end_offset=2)),
       green: hex_value(h.view(start_offset=2, end_offset=4)),
@@ -605,8 +603,8 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
       triplet: Some(triplet),
     }
   }
-  if body.has_prefix("color(") && body.has_suffix(")") {
-    let inner = body.view(start_offset=6, end_offset=body.length() - 1)
+  if body.strip_prefix("color(") is Some(rest) &&
+    rest.strip_suffix(")") is Some(inner) {
     if inner.length() >= 1 &&
       inner.length() <= 3 &&
       all_chars(inner, c => c is ('0'..='9')) {
@@ -628,8 +626,8 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
       }
     }
   }
-  if body.has_prefix("rgb(") && body.has_suffix(")") {
-    let inner = body.view(start_offset=4, end_offset=body.length() - 1)
+  if body.strip_prefix("rgb(") is Some(rest) &&
+    rest.strip_suffix(")") is Some(inner) {
     if inner.length() >= 1 &&
       all_chars(inner, c => {
         c is ('0'..='9' | ',') || is_unicode_digit(c) || is_py_space(c)

@@ -80,12 +80,13 @@ fn json_value(j : Json) -> PyValue {
 ///|
 /// Look up `task.<attr>` (and `task.fields[<key>]`).
 fn task_attribute(task : Task, field : String) -> PyValue raise @rich.RichError {
-  guard field.has_prefix("task.") else {
+  guard field.strip_prefix("task.") is Some(attr) else {
     raise ValueError("unknown format field \{@rich.py_repr(field)}")
   }
-  let attr = field.view(start_offset=5).to_owned()
-  if attr.has_prefix("fields[") && attr.has_suffix("]") {
-    let key = attr.view(start_offset=7, end_offset=attr.length() - 1).to_owned()
+  let attr = attr.to_owned()
+  if attr.strip_prefix("fields[") is Some(rest) &&
+    rest.strip_suffix("]") is Some(key) {
+    let key = key.to_owned()
     match task.fields.get(key) {
       Some(v) => return json_value(v)
       None => raise ValueError("KeyError: \{@rich.py_repr(key)}")

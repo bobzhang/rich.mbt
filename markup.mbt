@@ -163,8 +163,8 @@ pub fn render_markup(
         |> ignore
       }
       TagAt(position, tag) =>
-        if tag.name.has_prefix("/") {
-          let style_name = py_strip(py_slice(tag.name, 1, tag.name.length()))
+        if tag.name.strip_prefix("/") is Some(closing) {
+          let style_name = py_strip(closing.to_owned())
           let (start, open_tag) = if style_name != "" {
             let style_name = Style::normalize(style_name)
             let mut found = None

@@ -46,10 +46,13 @@ fn parse_version(version : String) -> (Int, Int, Int)? {
     // Python int() accepts surrounding whitespace and a sign
     let trimmed = p.trim(chars=" \t\n\r\u{0b}\u{0c}").to_owned()
     guard trimmed != "" else { return None }
-    let s = if trimmed.has_prefix("+") || trimmed.has_prefix("-") {
-      trimmed.view(start_offset=1).to_owned()
-    } else {
-      trimmed
+    let s = match trimmed.strip_prefix("+") {
+      Some(rest) => rest.to_owned()
+      None =>
+        match trimmed.strip_prefix("-") {
+          Some(rest) => rest.to_owned()
+          None => trimmed
+        }
     }
     guard s != "" && s.iter().all(c => c >= '0' && c <= '9') else {
       return None

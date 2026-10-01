@@ -1058,7 +1058,8 @@ pub fn Text::expand_tabs(self : Text, tab_size? : Int) -> Unit {
         if part.plain().has_suffix("\t") {
           let last = part.parts[part.parts.length() - 1]
           part.parts[part.parts.length() - 1] = last
-            .view(end_offset=last.length() - 1)
+            .strip_suffix("\t")
+            .unwrap_or(last[:])
             .to_owned() +
             " "
           cell_position += part.cell_len()

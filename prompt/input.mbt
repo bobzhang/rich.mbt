@@ -62,11 +62,10 @@ pub fn get_input(
         console.print(prompt, end="")
       }
       let line = stream.readline()
-      if password && line.has_suffix("\n") {
+      match line.strip_suffix("\n") {
         // getpass does not return the newline
-        line.view(end_offset=line.length() - 1).to_owned()
-      } else {
-        line
+        Some(l) if password => l.to_owned()
+        _ => line
       }
     }
   }

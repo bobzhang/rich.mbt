@@ -213,12 +213,13 @@ fn interpolate(
   while rest.find("%") is Some(p) {
     buf.write_string(py_slice(rest, 0, p))
     rest = py_slice(rest, p, rest.length())
-    if rest.has_prefix("%%") {
+    if rest.strip_prefix("%%") is Some(after) {
       buf.write_char('%')
-      rest = py_slice(rest, 2, rest.length())
-    } else if rest.has_prefix("%(") && rest.find(")s") is Some(close) {
-      let name = @pystr.lower(py_slice(rest, 2, close))
-      rest = py_slice(rest, close + 2, rest.length())
+      rest = after.to_owned()
+    } else if rest.strip_prefix("%(") is Some(after) &&
+      after.find(")s") is Some(close) {
+      let name = @pystr.lower(after.view(end_offset=close).to_owned())
+      rest = after.view(start_offset=close + 2).to_owned()
       match options.get(name) {
         Some(v) =>
           buf.write_string(

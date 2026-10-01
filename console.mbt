@@ -1632,10 +1632,9 @@ pub fn Console::input(
         // the newline was not echoed
         self.file().write("\n")
       }
-      if line.has_suffix("\n") {
-        line.view(end_offset=line.length() - 1).to_owned()
-      } else {
-        line
+      match line.strip_suffix("\n") {
+        Some(l) => l.to_owned()
+        None => line
       }
     }
     None => raise ValueError("EOF when reading a line")
