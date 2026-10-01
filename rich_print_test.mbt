@@ -91,3 +91,18 @@ test "test_print_json_data_with_default" {
   let json = @rich.JSON::from_data({ "date": "2021-01-01" })
   assert_eq(json.text.plain(), "{\n  \"date\": \"2021-01-01\"\n}")
 }
+
+///|
+test "json string indent and console input stream" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(file~, width=40, color_system=None)
+  console.print_json(json="{\"a\":[1,{\"b\":2}]}", indent_str="\t")
+  assert_eq(
+    file.getvalue(),
+    "{\n        \"a\": [\n                1,\n                {\n                        \"b\": 2\n                }\n        ]\n}\n",
+  )
+  file.reset()
+  let answer = console.input(prompt="Name? ", stream=() => "Ada\n")
+  assert_eq(answer, "Ada\n")
+  assert_eq(file.getvalue(), "Name? ")
+}

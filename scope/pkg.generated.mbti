@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn render_scope(Map[String, &@pretty.PrettyRepr], title? : &@rich.IntoText, sort_keys? : Bool, indent_guides? : Bool, max_length? : Int, max_string? : Int, max_depth? : Int, overflow? : @rich.OverflowMethod) -> @panel.Panel raise
+pub fn render_scope(Map[String, &@pretty.PrettyRepr], title? : &@rich.IntoText, sort_keys? : Bool, indent_guides? : Bool, max_length? : Int, max_string? : Int, max_depth? : Int, overflow? : @rich.OverflowMethod) -> @panel.Panel
 
 // Errors
 

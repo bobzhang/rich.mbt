@@ -58,9 +58,10 @@ pub fn render_scope(
   max_string? : Int,
   max_depth? : Int,
   overflow? : @rich.OverflowMethod,
-) -> @panel.Panel raise {
+) -> @panel.Panel {
   let highlighter = @rich.ReprHighlighter::new()
-  let items_table = @rich.Table::grid(padding=[0, 1], expand=false)
+  // the padding is valid, so constructing the grid cannot fail
+  let items_table = try! @rich.Table::grid(padding=[0, 1], expand=false)
   items_table.add_column(justify=Right)
   let items = scope.to_array()
   if sort_keys {

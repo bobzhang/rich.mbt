@@ -99,13 +99,22 @@ pub fn read_line(echo? : Bool = true) -> String? {
 }
 
 ///|
-pub fn write_file(_path : String, _text : String) -> Bool {
-  false
-}
+extern "js" fn js_write_file(path : String, text : String) -> Bool =
+  #|(path, text) => {
+  #|  try {
+  #|    const p = globalThis.process;
+  #|    const fs = p && p.getBuiltinModule ? p.getBuiltinModule("fs")
+  #|      : (typeof require === "function" ? require("fs") : null);
+  #|    if (!fs) return false;
+  #|    fs.writeFileSync(path, text, "utf8");
+  #|    return true;
+  #|  } catch (e) { return false; }
+  #|}
 
 ///|
-pub fn read_file(_path : String) -> String? {
-  None
+/// Write a file (Node.js only).
+pub fn write_file(path : String, text : String) -> Bool {
+  js_write_file(path, text)
 }
 
 ///|

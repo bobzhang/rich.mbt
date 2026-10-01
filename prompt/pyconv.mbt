@@ -31,11 +31,26 @@ fn py_strip(s : String) -> String {
 }
 
 ///|
+/// Replace Unicode decimal digits with ASCII digits (Python's `int()` and
+/// `float()` accept any Nd digits).
+fn ascii_digits(s : String) -> String {
+  let buf = StringBuilder()
+  for c in s {
+    match @color.unicode_decimal_value(c) {
+      Some(d) if c.to_int() > 0x7f =>
+        buf.write_char(('0'.to_int() + d).unsafe_to_char())
+      _ => buf.write_char(c)
+    }
+  }
+  buf.to_string()
+}
+
+///|
 /// Python `int(s)` for base 10 (`None` where Python raises `ValueError`).
 /// Surrounding whitespace, a sign and single underscores between digits are
 /// accepted. Values that do not fit in an `Int` are rejected.
 fn py_int(s : String) -> Int? {
-  let s = py_strip(s)
+  let s = ascii_digits(py_strip(s))
   let chars = s.to_array()
   let n = chars.length()
   let mut i = 0
@@ -64,7 +79,7 @@ fn py_int(s : String) -> Int? {
 ///|
 /// Python `float(s)` (`None` where Python raises `ValueError`).
 fn py_float(s : String) -> Double? {
-  let s = py_strip(s)
+  let s = ascii_digits(py_strip(s))
   Some(@string.parse_double(s)) catch {
     _ => None
   }

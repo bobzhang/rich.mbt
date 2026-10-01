@@ -898,3 +898,10 @@ pub fn blend_rgb(
     blue: mix(color1.blue, color2.blue),
   }
 }
+
+///|
+/// The value of a Unicode decimal digit (category Nd), as accepted by
+/// Python's `int()`, e.g. `'٣'` → `Some(3)`.
+pub fn unicode_decimal_value(c : Char) -> Int? {
+  decimal_value(c)
+}

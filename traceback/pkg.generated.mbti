@@ -30,6 +30,12 @@ pub(all) struct Frame {
 pub fn Frame::new(String, Int, String, line? : String, locals? : Map[String, @pretty.Node], last_instruction? : ((Int, Int), (Int, Int))) -> Self
 pub impl ToJson for Frame
 
+pub struct PathHighlighter {
+  // private fields
+}
+pub fn PathHighlighter::new() -> Self
+pub impl @rich.Highlighter for PathHighlighter
+
 pub(all) struct Stack {
   exc_type : String
   exc_value : String

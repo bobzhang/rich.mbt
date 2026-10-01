@@ -1366,16 +1366,19 @@ pub fn Console::print_json(
   json? : String,
   data? : Json,
   indent? : Int? = Some(2),
+  indent_str? : String,
   highlight? : Bool = true,
   ensure_ascii? : Bool = false,
   sort_keys? : Bool = false,
 ) -> Unit raise {
   let renderable = match json {
-    Some(j) => JSON::new(j, indent~, highlight~, ensure_ascii~, sort_keys~)
+    Some(j) =>
+      JSON::new(j, indent~, indent_str?, highlight~, ensure_ascii~, sort_keys~)
     None =>
       JSON::from_data(
         data.unwrap_or(Json::null()),
         indent~,
+        indent_str?,
         highlight~,
         ensure_ascii~,
         sort_keys~,
@@ -1602,18 +1605,26 @@ fn Console::render_buffer(self : Console, buffer : Array[Segment]) -> String {
 
 ///|
 /// Display a prompt and wait for input from the user.
+///
+/// `stream` replaces stdin: it is called once and returns the next line like
+/// Python's `stream.readline()` (with its newline, `""` at end of input);
+/// as upstream, the result is then returned as is.
 pub fn Console::input(
   self : Console,
   prompt? : &IntoText,
   markup? : Bool = true,
   emoji? : Bool = true,
   password? : Bool = false,
+  stream? : () -> String raise,
 ) -> String raise {
   if prompt is Some(prompt) && prompt.into_text_type().to_bool() {
     match prompt.into_text_type() {
       Str(s) => self.print(s, markup~, emoji~, end="")
       Text(t) => self.print(t, markup~, emoji~, end="")
     }
+  }
+  if stream is Some(readline) {
+    return readline()
   }
   match @term.read_line(echo=!password) {
     Some(line) => {

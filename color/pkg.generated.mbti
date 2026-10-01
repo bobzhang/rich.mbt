@@ -30,6 +30,8 @@ pub let standard_palette : Palette
 
 pub let svg_export_theme : TerminalTheme
 
+pub fn unicode_decimal_value(Char) -> Int?
+
 pub let windows_palette : Palette
 
 // Errors

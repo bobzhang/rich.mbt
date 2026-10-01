@@ -356,11 +356,17 @@ fn py_str_compare(a : String, b : String) -> Int {
 pub fn JsonValue::dumps(
   self : JsonValue,
   indent? : Int? = None,
+  indent_str? : String,
   ensure_ascii? : Bool = true,
   sort_keys? : Bool = false,
 ) -> String {
   let buf = StringBuilder()
-  let item_sep = if indent is None { ", " } else { "," }
+  // Python accepts an int (spaces) or a string as the indent
+  let unit : String? = match indent_str {
+    Some(s) => Some(s)
+    None => indent.map(n => " ".repeat(n))
+  }
+  let item_sep = if unit is None { ", " } else { "," }
   fn go(v : JsonValue, level : Int) -> Unit {
     match v {
       JNull => buf.write_string("null")
@@ -389,15 +395,15 @@ pub fn JsonValue::dumps(
           if i > 0 {
             buf.write_string(item_sep)
           }
-          if indent is Some(n) {
+          if unit is Some(u) {
             buf.write_char('\n')
-            buf.write_string(" ".repeat(n * (level + 1)))
+            buf.write_string(u.repeat(level + 1))
           }
           go(item, level + 1)
         }
-        if indent is Some(n) {
+        if unit is Some(u) {
           buf.write_char('\n')
-          buf.write_string(" ".repeat(n * level))
+          buf.write_string(u.repeat(level))
         }
         buf.write_char(']')
       }
@@ -418,17 +424,17 @@ pub fn JsonValue::dumps(
           if i > 0 {
             buf.write_string(item_sep)
           }
-          if indent is Some(n) {
+          if unit is Some(u) {
             buf.write_char('\n')
-            buf.write_string(" ".repeat(n * (level + 1)))
+            buf.write_string(u.repeat(level + 1))
           }
           buf.write_string(json_encode_string(kv.0, ensure_ascii))
           buf.write_string(": ")
           go(kv.1, level + 1)
         }
-        if indent is Some(n) {
+        if unit is Some(u) {
           buf.write_char('\n')
-          buf.write_string(" ".repeat(n * level))
+          buf.write_string(u.repeat(level))
         }
         buf.write_char('}')
       }
@@ -450,12 +456,20 @@ pub struct JSON {
 pub fn JSON::new(
   json : String,
   indent? : Int? = Some(2),
+  indent_str? : String,
   highlight? : Bool = true,
   ensure_ascii? : Bool = false,
   sort_keys? : Bool = false,
 ) -> JSON raise {
   let data = JsonValue::parse(json)
-  JSON::from_value(data, indent~, highlight~, ensure_ascii~, sort_keys~)
+  JSON::from_value(
+    data,
+    indent~,
+    indent_str?,
+    highlight~,
+    ensure_ascii~,
+    sort_keys~,
+  )
 }
 
 ///|
@@ -463,6 +477,7 @@ pub fn JSON::new(
 pub fn JSON::from_data(
   data : Json,
   indent? : Int? = Some(2),
+  indent_str? : String,
   highlight? : Bool = true,
   ensure_ascii? : Bool = false,
   sort_keys? : Bool = false,
@@ -470,6 +485,7 @@ pub fn JSON::from_data(
   JSON::from_value(
     JsonValue::from_json(data),
     indent~,
+    indent_str?,
     highlight~,
     ensure_ascii~,
     sort_keys~,
@@ -481,11 +497,12 @@ pub fn JSON::from_data(
 pub fn JSON::from_value(
   data : JsonValue,
   indent? : Int? = Some(2),
+  indent_str? : String,
   highlight? : Bool = true,
   ensure_ascii? : Bool = false,
   sort_keys? : Bool = false,
 ) -> JSON raise {
-  let json = data.dumps(indent~, ensure_ascii~, sort_keys~)
+  let json = data.dumps(indent~, indent_str?, ensure_ascii~, sort_keys~)
   let highlighter : &Highlighter = if highlight {
     (JSONHighlighter::new() : &Highlighter)
   } else {

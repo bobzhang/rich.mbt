@@ -11,6 +11,7 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   non-renderable values cannot be printed; wrap them (`@pretty.Pretty`) or
   format them as strings.
 * `Console.print(*objects)` → `print(object)` and `print_many(objects)`.
+* `diagnose.report` (prints Python environment details) is not ported.
 * No Jupyter, no legacy Windows console API (`legacy_windows` only affects
   layout), no `file_proxy` redirection, no `inspect`.
 
@@ -102,6 +103,9 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   `Renderable` (and `rich_measure`) by delegation.
 
 ## json
+
+* `indent` is `Int?` (spaces); use `indent_str` for a string indent such as
+  `"\t"` (upstream accepts either in `indent`).
 
 * `JSON::from_data` takes a MoonBit `Json`; numbers without a textual
   representation are printed as integers when integral.

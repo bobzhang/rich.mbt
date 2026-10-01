@@ -291,9 +291,30 @@ fn Traceback::read_lines(self : Traceback, filename : String) -> Array[String] {
 }
 
 ///|
-let path_highlighter : &@rich.Highlighter = try! @rich.RegexHighlighter::new([
-  "(?P<dim>.*/)(?P<bold>.+)",
-])
+let path_highlighter_instance : @rich.RegexHighlighter = try! @rich.RegexHighlighter::new([
+    "(?P<dim>.*/)(?P<bold>.+)",
+  ],
+)
+
+///|
+/// Highlights the directory part of a path dim and the file name bold
+/// (upstream `rich.traceback.PathHighlighter`).
+pub struct PathHighlighter {
+  priv inner : @rich.RegexHighlighter
+}
+
+///|
+pub fn PathHighlighter::new() -> PathHighlighter {
+  { inner: path_highlighter_instance, }
+}
+
+///|
+pub impl @rich.Highlighter for PathHighlighter with fn highlight(self, text) {
+  self.inner.highlight(text)
+}
+
+///|
+let path_highlighter : &@rich.Highlighter = PathHighlighter::new()
 
 ///|
 let repr_highlighter : &@rich.Highlighter = @rich.ReprHighlighter::new()
@@ -302,7 +323,7 @@ let repr_highlighter : &@rich.Highlighter = @rich.ReprHighlighter::new()
 fn Traceback::render_locals(
   self : Traceback,
   frame : Frame,
-) -> Array[&@rich.Renderable] raise {
+) -> Array[&@rich.Renderable] {
   match frame.locals {
     Some(locals) if locals.length() > 0 => {
       let scope : Map[String, &@pretty.PrettyRepr] = Map([])

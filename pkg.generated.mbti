@@ -82,7 +82,7 @@ pub fn[T] loop_last(ArrayView[T]) -> Array[(Bool, T)]
 
 pub fn measure_renderables(Console, ConsoleOptions, ArrayView[&Renderable]) -> Measurement raise
 
-pub fn palette_to_table(@color.Palette) -> Table raise RichError
+pub fn palette_to_table(@color.Palette) -> Table
 
 pub fn parse_markup(String) -> Array[MarkupItem]
 
@@ -100,9 +100,13 @@ pub fn py_float_repr(Double) -> String
 
 pub fn py_format(String, Map[String, String]) -> String
 
+pub fn py_format_exp(Double, Int, upper? : Bool) -> String
+
 pub fn py_format_fixed(Double, Int) -> String
 
 pub fn py_format_g(Double) -> String
+
+pub fn py_format_general(Double, precision? : Int, upper? : Bool, alternate? : Bool) -> String
 
 pub fn py_group_thousands(String) -> String
 
@@ -277,7 +281,7 @@ pub fn Console::export_text(Self, clear? : Bool, styles? : Bool) -> String
 pub fn Console::file(Self) -> &ConsoleFile
 pub fn Console::get_style(Self, &IntoStyle, default? : StyleType) -> Style raise RichError
 pub fn Console::height(Self) -> Int
-pub fn Console::input(Self, prompt? : &IntoText, markup? : Bool, emoji? : Bool, password? : Bool) -> String raise
+pub fn Console::input(Self, prompt? : &IntoText, markup? : Bool, emoji? : Bool, password? : Bool, stream? : () -> String raise) -> String raise
 pub fn Console::is_alt_screen(Self) -> Bool
 pub fn Console::is_dumb_terminal(Self) -> Bool
 pub fn Console::is_terminal(Self) -> Bool
@@ -296,7 +300,7 @@ pub fn Console::pager(Self, () -> Unit raise, pager? : &Pager, styles? : Bool, l
 pub fn Console::pop_render_hook(Self) -> Unit
 pub fn Console::pop_theme(Self) -> Unit raise RichError
 pub fn Console::print(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
-pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
 pub fn Console::print_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
 pub fn Console::push_render_hook(Self, &RenderHook) -> Unit
 pub fn Console::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
@@ -443,9 +447,9 @@ pub impl Highlighter for ISO8601Highlighter
 pub struct JSON {
   text : Text
 }
-pub fn JSON::from_data(Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
-pub fn JSON::from_value(JsonValue, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
-pub fn JSON::new(String, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_data(Json, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_value(JsonValue, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::new(String, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
 pub impl Renderable for JSON
 
 pub struct JSONHighlighter {
@@ -462,7 +466,7 @@ pub(all) enum JsonValue {
   JArray(Array[JsonValue])
   JObject(Array[(String, JsonValue)])
 } derive(Eq, @debug.Debug)
-pub fn JsonValue::dumps(Self, indent? : Int?, ensure_ascii? : Bool, sort_keys? : Bool) -> String
+pub fn JsonValue::dumps(Self, indent? : Int?, indent_str? : String, ensure_ascii? : Bool, sort_keys? : Bool) -> String
 pub fn JsonValue::from_json(Json) -> Self
 pub fn JsonValue::parse(String) -> Self raise RichError
 
@@ -486,9 +490,10 @@ pub fn Lines::iter(Self) -> Iter[Text]
 pub fn Lines::justify(Self, Console, Int, justify? : JustifyMethod, overflow? : OverflowMethod) -> Unit raise
 pub fn Lines::length(Self) -> Int
 pub fn Lines::new(ArrayView[Text]) -> Self
-pub fn Lines::pop(Self) -> Text?
+pub fn Lines::pop(Self, index? : Int) -> Text?
 pub fn Lines::repr(Self) -> String
 pub fn Lines::set(Self, Int, Text) -> Unit
+pub fn Lines::slice(Self, start? : Int, end? : Int) -> Array[Text]
 pub impl Renderable for Lines
 
 pub struct LogRender {
@@ -599,6 +604,7 @@ pub struct Renderables {
   renderables : Array[&Renderable]
 }
 pub fn Renderables::append(Self, &Renderable) -> Unit
+pub fn Renderables::iter(Self) -> Iter[&Renderable]
 pub fn Renderables::new(renderables? : Array[&Renderable]) -> Self
 pub impl Renderable for Renderables
 

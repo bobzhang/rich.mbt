@@ -35,9 +35,10 @@ pub impl Renderable for @color.Color with fn rich_measure(
 ///|
 /// A Table that displays the colors of a palette (upstream
 /// `Palette.__rich__`).
-pub fn palette_to_table(palette : @color.Palette) -> Table raise RichError {
+pub fn palette_to_table(palette : @color.Palette) -> Table {
   let colors = palette.colors()
-  let table = Table::new(
+  // fixed, valid arguments: construction cannot fail
+  let table = try! Table::new(
     headers=["index", "RGB", "Color"],
     title="Palette",
     caption="\{colors.length()} colors",

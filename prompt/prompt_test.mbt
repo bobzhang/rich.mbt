@@ -122,3 +122,9 @@ test "prompt_confirm_markup" {
   let expected = "continue [y/n] (y): Please enter Y or N\ncontinue [y/n] (y): Please enter Y or N\ncontinue [y/n] (y): "
   assert_eq(file.getvalue(), expected)
 }
+
+///|
+test "numeric prompts accept unicode decimal digits" {
+  assert_eq(@prompt.IntPrompt::new("n").process_response("１２"), 12)
+  assert_eq(@prompt.FloatPrompt::new("x").process_response("١.٢"), 1.2)
+}

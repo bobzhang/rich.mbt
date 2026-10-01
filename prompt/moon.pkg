@@ -1,5 +1,6 @@
 import {
   "bobzhang/rich",
+  "bobzhang/rich/color",
   "bobzhang/pygments/pystr",
   "moonbitlang/core/string",
 }
