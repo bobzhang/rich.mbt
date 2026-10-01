@@ -96,6 +96,160 @@ let sample_go : String = "package main\n" +
   "}\n"
 
 ///|
+let sample_css : String = "body > .main:hover {\n" +
+  "  color: #fff;\n" +
+  "  margin: 0 auto !important;\n" +
+  "}\n" +
+  "@media (max-width: 600px) { a { b: 1px } }\n"
+
+///|
+let sample_ruby : String = "class Foo < Bar\n" +
+  "  def hello(name = \"x\")\n" +
+  "    puts \"hi #{name}\" if name =~ /\\w+/\n" +
+  "  end\n" +
+  "end\n"
+
+///|
+let sample_php : String = "<?php\n" +
+  "$x = array(1, 2);\n" +
+  "foreach ($x as $k => $v) { echo \"$k: {$v}\\n\"; }\n" +
+  "?>\n" +
+  "<p>html</p>\n"
+
+///|
+let sample_typescript : String = "interface P { x: number; y?: string }\n" +
+  "export const f = <T,>(a: T): T => a;\n" +
+  "enum E { A = 1, B }\n"
+
+///|
+let sample_toml : String = "[package]\n" +
+  "name = \"rich\"\n" +
+  "version = \"0.1.0\" # comment\n" +
+  "[deps]\n" +
+  "x = { version = \"1\", features = [\"a\"] }\n"
+
+///|
+let sample_docker : String = "FROM python:3.12-slim\n" +
+  "RUN pip install rich && \\\n" +
+  "    echo done\n" +
+  "CMD [\"python\", \"-m\", \"rich\"]\n"
+
+///|
+let sample_make : String = "all: build\n" +
+  "\n" +
+  "build: $(SRC)\n" +
+  "\t$(CC) -o $@ $^ $(CFLAGS)\n" +
+  ".PHONY: all\n"
+
+///|
+let sample_java : String = "public class Main {\n" +
+  "  @Override\n" +
+  "  public static void main(String[] args) {\n" +
+  "    System.out.println(\"hi\" + args.length);\n" +
+  "  }\n" +
+  "}\n"
+
+///|
+let sample_haskell : String = "module Main where\n" +
+  "import Data.List (sort)\n" +
+  "main :: IO ()\n" +
+  "main = print $ sort [3, 1, 2] -- comment\n"
+
+///|
+let sample_lua : String = "local t = {a = 1, [2] = 'b'}\n" +
+  "for k, v in pairs(t) do\n" +
+  "  print(k, v) -- comment\n" +
+  "end\n"
+
+///|
+let sample_markdown : String = "# Title\n" +
+  "\n" +
+  "Some *emph* and **strong** text with `code`.\n" +
+  "\n" +
+  "- item\n" +
+  "\n" +
+  "```python\n" +
+  "print(1)\n" +
+  "```\n"
+
+///|
+let sample_ini : String = "[section]\n" +
+  "key = value ; comment\n" +
+  "other=1\n"
+
+///|
+let sample_perl : String = "my @a = (1, 2);\n" +
+  "print \"$_\\n\" for grep { /\\d/ } @a;\n"
+
+///|
+let sample_kotlin : String = "fun main() {\n" +
+  "    val xs = listOf(1, 2)\n" +
+  "    println(\"${xs.size}\")\n" +
+  "}\n"
+
+///|
+let sample_scala : String = "object Main extends App {\n" +
+  "  val x: Int = 42\n" +
+  "  println(s\"x = $x\")\n" +
+  "}\n"
+
+///|
+let sample_swift : String = "let x: [Int] = [1, 2]\n" +
+  "func f(_ a: Int) -> Int { return a * 2 }\n"
+
+///|
+let sample_elixir : String = "defmodule M do\n" +
+  "  def f(x), do: x |> Enum.map(&(&1 * 2))\n" +
+  "end\n"
+
+///|
+let sample_nim : String = "proc f(x: int): int =\n" +
+  "  result = x * 2\n" +
+  "echo f(21)\n"
+
+///|
+let sample_xml : String = "<?xml version=\"1.0\"?>\n" +
+  "<root a=\"1\"><!-- c --><child>t</child></root>\n"
+
+///|
+let sample_tex : String = "\\\\documentclass{article}\n" +
+  "\\\\begin{document} $x^2$ % c\n" +
+  "\\\\end{document}\n"
+
+///|
+let sample_console : String = "$ ls -la\n" +
+  "total 0\n" +
+  "# echo hi\n" +
+  "hi\n"
+
+///|
+let sample_pycon : String = ">>> 1 + 1\n" +
+  "2\n" +
+  ">>> raise ValueError('x')\n" +
+  "Traceback (most recent call last):\n" +
+  "  File \"<stdin>\", line 1, in <module>\n" +
+  "ValueError: x\n"
+
+///|
+let sample_rst : String = "Title\n" +
+  "=====\n" +
+  "\n" +
+  ".. code:: python\n" +
+  "\n" +
+  "   print(1)\n" +
+  "\n" +
+  "*emph* ``lit``\n"
+
+///|
+let sample_erlang : String = "-module(m).\n" +
+  "f(X) when X > 0 -> {ok, X};\n" +
+  "f(_) -> error.\n"
+
+///|
+let sample_clojure : String = "(defn f [x] (* x 2)) ; c\n" +
+  "(println (f 21) :kw \"s\")\n"
+
+///|
 fn oracle_render(
   syntax : @syntax.Syntax,
   width~ : Int,
@@ -2839,7 +2993,460 @@ test "oracle 131: go vim {'padding': 1, 'word_wrap': True, 'line_numbers': True}
 }
 
 ///|
-test "oracle 132: python monokai {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 132: css monokai {} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(sample_css, "css", theme="monokai")
+  let expected : String = "\u{1b}[38;2;255;70;137;48;2;39;40;34mbody\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34m>\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m.\u{1b}[0m\u{1b}[38;2;166;226;46;48;2;39;40;34mmain\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m:\u{1b}[0m\u{1b}[38;2;166;226;46;48;2;39;40;34mhover\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m{\u{1b}[0m\u{1b}[48;2;39;40;34m                                        \u{1b}[0m\n" +
+    "\u{1b}[38;2;248;248;242;48;2;39;40;34m  \u{1b}[0m\u{1b}[38;2;102;217;239;48;2;39;40;34mcolor\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m:\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;174;129;255;48;2;39;40;34m#fff\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m;\u{1b}[0m\u{1b}[48;2;39;40;34m                                              \u{1b}[0m\n" +
+    "\u{1b}[38;2;248;248;242;48;2;39;40;34m  \u{1b}[0m\u{1b}[38;2;102;217;239;48;2;39;40;34mmargin\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m:\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;174;129;255;48;2;39;40;34m0\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;102;217;239;48;2;39;40;34mauto\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;149;144;119;48;2;39;40;34m!important\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m;\u{1b}[0m\u{1b}[48;2;39;40;34m                                \u{1b}[0m\n" +
+    "\u{1b}[38;2;248;248;242;48;2;39;40;34m}\u{1b}[0m\u{1b}[48;2;39;40;34m                                                           \u{1b}[0m\n" +
+    "\u{1b}[38;2;248;248;242;48;2;39;40;34m@\u{1b}[0m\u{1b}[38;2;102;217;239;48;2;39;40;34mmedia\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34m(\u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34mmax-width\u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34m:\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34m600px\u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34m)\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m{\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;255;70;137;48;2;39;40;34ma\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m{\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mb\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m:\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;174;129;255;48;2;39;40;34m1\u{1b}[0m\u{1b}[38;2;102;217;239;48;2;39;40;34mpx\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m}\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34m}\u{1b}[0m\u{1b}[48;2;39;40;34m                  \u{1b}[0m\n" +
+    "\u{1b}[48;2;39;40;34m                                                            \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 133: ruby default {'line_numbers': True} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_ruby,
+    "ruby",
+    theme="default",
+    line_numbers=true,
+  )
+  let expected : String = "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m1 \u{1b}[0m\u{1b}[1;38;5;28;48;5;255mclass\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[1;38;5;21;48;5;255mFoo\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;241;48;5;255m<\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;88;48;5;255mBar\u{1b}[0m\u{1b}[48;5;255m                          \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m2 \u{1b}[0m\u{1b}[38;5;249;48;5;255m  \u{1b}[0m\u{1b}[1;38;5;28;48;5;255mdef\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;21;48;5;255mhello\u{1b}[0m\u{1b}[38;5;16;48;5;255m(\u{1b}[0m\u{1b}[38;5;28;48;5;255mname\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;241;48;5;255m=\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;124;48;5;255m\"\u{1b}[0m\u{1b}[38;5;124;48;5;255mx\u{1b}[0m\u{1b}[38;5;124;48;5;255m\"\u{1b}[0m\u{1b}[38;5;16;48;5;255m)\u{1b}[0m\u{1b}[48;5;255m                  \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m3 \u{1b}[0m\u{1b}[38;5;249;48;5;255m    \u{1b}[0m\u{1b}[38;5;28;48;5;255mputs\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;124;48;5;255m\"\u{1b}[0m\u{1b}[38;5;124;48;5;255mhi \u{1b}[0m\u{1b}[1;38;5;132;48;5;255m#{\u{1b}[0m\u{1b}[38;5;28;48;5;255mname\u{1b}[0m\u{1b}[1;38;5;132;48;5;255m}\u{1b}[0m\u{1b}[38;5;124;48;5;255m\"\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[1;38;5;28;48;5;255mif\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;28;48;5;255mname\u{1b}[0m\u{1b}[38;5;249;48;5;255m \u{1b}[0m\u{1b}[38;5;241;48;5;255m=~\u{1b}[0m\u{1b}[38;5;16;48;5;255m \u{1b}[0m\u{1b}[38;5;132;48;5;255m/\u{1b}[0m\u{1b}[38;5;132;48;5;255m\\\u{1b}[0m\u{1b}[38;5;132;48;5;255mw+\u{1b}[0m\u{1b}[38;5;132;48;5;255m/\u{1b}[0m\u{1b}[48;5;255m   \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m4 \u{1b}[0m\u{1b}[38;5;249;48;5;255m  \u{1b}[0m\u{1b}[1;38;5;28;48;5;255mend\u{1b}[0m\u{1b}[48;5;255m                                    \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m5 \u{1b}[0m\u{1b}[1;38;5;28;48;5;255mend\u{1b}[0m\u{1b}[48;5;255m                                      \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m6 \u{1b}[0m\u{1b}[48;5;255m                                         \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 134: php ansi_dark {'line_numbers': True, 'word_wrap': True, 'code_width': 30} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_php,
+    "php",
+    theme="ansi_dark",
+    line_numbers=true,
+    word_wrap=true,
+    code_width=30,
+  )
+  let expected : String = "  \u{1b}[2m1 \u{1b}[0m\u{1b}[96m<?php\u{1b}[0m\n" +
+    "  \u{1b}[2m2 \u{1b}[0m\u{1b}[91m$x\u{1b}[0m = \u{1b}[94marray\u{1b}[0m(\u{1b}[94m1\u{1b}[0m, \u{1b}[94m2\u{1b}[0m);\n" +
+    "  \u{1b}[2m3 \u{1b}[0m\u{1b}[94mforeach\u{1b}[0m (\u{1b}[91m$x\u{1b}[0m \u{1b}[94mas\u{1b}[0m \u{1b}[91m$k\u{1b}[0m => \u{1b}[91m$v\u{1b}[0m) { \n" +
+    "    \u{1b}[94mecho\u{1b}[0m \u{1b}[33m\"\u{1b}[0m\u{1b}[33m$k\u{1b}[0m\u{1b}[33m: \u{1b}[0m\u{1b}[33m{\u{1b}[0m\u{1b}[91m$v\u{1b}[0m\u{1b}[33m}\u{1b}[0m\u{1b}[33m\\n\u{1b}[0m\u{1b}[33m\"\u{1b}[0m; }\n" +
+    "  \u{1b}[2m4 \u{1b}[0m\u{1b}[96m?>\u{1b}[0m\n" +
+    "  \u{1b}[2m5 \u{1b}[0m<p>html</p>\n" +
+    "  \u{1b}[2m6 \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 135: typescript ansi_light {'indent_guides': True} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_typescript,
+    "typescript",
+    theme="ansi_light",
+    indent_guides=true,
+  )
+  let expected : String = "interface P { x: number; y?: string }\n" +
+    "export const f = <T,>(a: T): T => a;\n" +
+    "enum E { A = 1, B }\n" +
+    "\n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 136: toml dracula {'indent_guides': True, 'line_numbers': True, 'line_range': (2, 6)} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_toml,
+    "toml",
+    theme="dracula",
+    indent_guides=true,
+    line_numbers=true,
+    line_range=(Some(2), Some(6)),
+  )
+  let expected : String = "\u{1b}[1;38;2;227;227;223;48;2;40;42;54m  \u{1b}[0m\u{1b}[38;2;102;103;110;48;2;40;42;54m2 \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54mname\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54m=\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54mrich\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[48;2;40;42;54m                                           \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;227;227;223;48;2;40;42;54m  \u{1b}[0m\u{1b}[38;2;102;103;110;48;2;40;42;54m3 \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54mversion\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54m=\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m0.1.0\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;98;114;164;48;2;40;42;54m# comment\u{1b}[0m\u{1b}[48;2;40;42;54m                             \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;227;227;223;48;2;40;42;54m  \u{1b}[0m\u{1b}[38;2;102;103;110;48;2;40;42;54m4 \u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54m[\u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54mdeps\u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54m]\u{1b}[0m\u{1b}[48;2;40;42;54m                                                  \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;227;227;223;48;2;40;42;54m  \u{1b}[0m\u{1b}[38;2;102;103;110;48;2;40;42;54m5 \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54mx\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;255;121;198;48;2;40;42;54m=\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m{\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54mversion\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m=\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m1\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m,\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54mfeatures\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m=\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m[\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54ma\u{1b}[0m\u{1b}[38;2;189;147;249;48;2;40;42;54m\"\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m]\u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;40;42;54m}\u{1b}[0m\u{1b}[48;2;40;42;54m                 \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;227;227;223;48;2;40;42;54m  \u{1b}[0m\u{1b}[38;2;102;103;110;48;2;40;42;54m6 \u{1b}[0m\u{1b}[48;2;40;42;54m                                                        \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 137: docker solarized-light {'line_range': (3, None), 'highlight_lines': [4]} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_docker,
+    "docker",
+    theme="solarized-light",
+    line_range=(Some(3), None),
+    highlight_lines=[4],
+  )
+  let expected : String = "\u{1b}[38;5;242;48;5;230m    \u{1b}[0m\u{1b}[38;5;32;48;5;230mecho\u{1b}[0m\u{1b}[38;5;242;48;5;230m \u{1b}[0m\u{1b}[38;5;100;48;5;230mdone\u{1b}[0m\u{1b}[48;5;230m                                \u{1b}[0m\n" +
+    "\u{1b}[38;5;100;48;5;230mCMD\u{1b}[0m\u{1b}[38;5;242;48;5;230m \u{1b}[0m\u{1b}[38;5;242;48;5;230m[\u{1b}[0m\u{1b}[38;5;36;48;5;230m\"python\"\u{1b}[0m\u{1b}[38;5;242;48;5;230m,\u{1b}[0m\u{1b}[38;5;242;48;5;230m \u{1b}[0m\u{1b}[38;5;36;48;5;230m\"-m\"\u{1b}[0m\u{1b}[38;5;242;48;5;230m,\u{1b}[0m\u{1b}[38;5;242;48;5;230m \u{1b}[0m\u{1b}[38;5;36;48;5;230m\"rich\"\u{1b}[0m\u{1b}[38;5;242;48;5;230m]\u{1b}[0m\u{1b}[48;5;230m                 \u{1b}[0m\n" +
+    "\u{1b}[48;5;230m                                             \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 138: make github-dark {'line_numbers': True, 'highlight_lines': [1, 3], 'start_line': 98} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_make,
+    "make",
+    theme="github-dark",
+    line_numbers=true,
+    highlight_lines=[1, 3],
+    start_line=98,
+  )
+  let expected : String = "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m 98 \u{1b}[0m\u{1b}[1;37;40mall\u{1b}[0m\u{1b}[1;91;40m:\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[97;40mbuild\u{1b}[0m\u{1b}[40m                                                                \u{1b}[0m\n" +
+    "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m 99 \u{1b}[0m\u{1b}[40m                                                                          \u{1b}[0m\n" +
+    "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m100 \u{1b}[0m\u{1b}[1;37;40mbuild\u{1b}[0m\u{1b}[1;91;40m:\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[91;40m$(\u{1b}[0m\u{1b}[96;40mSRC\u{1b}[0m\u{1b}[91;40m)\u{1b}[0m\u{1b}[40m                                                             \u{1b}[0m\n" +
+    "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m101 \u{1b}[0m\u{1b}[90;40m    \u{1b}[0m\u{1b}[91;40m$(\u{1b}[0m\u{1b}[97;40mCC\u{1b}[0m\u{1b}[91;40m)\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[97;40m-o\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[96;40m$@\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[97;40m$\u{1b}[0m\u{1b}[97;40m^\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[91;40m$(\u{1b}[0m\u{1b}[97;40mCFLAGS\u{1b}[0m\u{1b}[91;40m)\u{1b}[0m\u{1b}[40m                                              \u{1b}[0m\n" +
+    "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m102 \u{1b}[0m\u{1b}[1;37;40m.PHONY\u{1b}[0m\u{1b}[1;91;40m:\u{1b}[0m\u{1b}[90;40m \u{1b}[0m\u{1b}[97;40mall\u{1b}[0m\u{1b}[40m                                                               \u{1b}[0m\n" +
+    "\u{1b}[40m  \u{1b}[0m\u{1b}[2;40m103 \u{1b}[0m\u{1b}[40m                                                                          \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 139: java nord {'padding': (1, 2), 'background_color': '#203040'} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_java,
+    "java",
+    theme="nord",
+    padding=[1, 2],
+    background_color="#203040",
+  )
+  let expected : String = "                                                  \n" +
+    "  public class Main {                             \n" +
+    "    @Override                                     \n" +
+    "    public static void main(String[] args) {      \n" +
+    "      System.out.println(\"hi\" + args.length);     \n" +
+    "    }                                             \n" +
+    "  }                                               \n" +
+    "                                                  \n" +
+    "                                                  \n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 140: haskell emacs {'tab_size': 8, 'word_wrap': True} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_haskell,
+    "haskell",
+    theme="emacs",
+    tab_size=8,
+    word_wrap=true,
+  )
+  let expected : String = "\u{1b}[1;38;2;170;34;255;48;2;248;248;248mmodule\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;0;0;255;48;2;248;248;248mMain\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;170;34;255;48;2;248;248;248mwhere\u{1b}[0m\u{1b}[48;2;248;248;248m                                           \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;170;34;255;48;2;248;248;248mimport\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;0;0;255;48;2;248;248;248mData.List\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m(\u{1b}[0m\u{1b}[38;2;0;160;0;48;2;248;248;248msort\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m)\u{1b}[0m\u{1b}[48;2;248;248;248m                                     \u{1b}[0m\n" +
+    "\u{1b}[38;2;0;160;0;48;2;248;248;248mmain\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;170;34;255;48;2;248;248;248m::\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;0;187;0;48;2;248;248;248mIO\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;170;34;255;48;2;248;248;248m()\u{1b}[0m\u{1b}[48;2;248;248;248m                                               \u{1b}[0m\n" +
+    "\u{1b}[38;2;0;160;0;48;2;248;248;248mmain\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;170;34;255;48;2;248;248;248m=\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248mprint\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m$\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248msort\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m[\u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m3\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m,\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m1\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m,\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m2\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m]\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[3;38;2;0;136;0;48;2;248;248;248m-- comment\u{1b}[0m\u{1b}[48;2;248;248;248m                    \u{1b}[0m\n" +
+    "\u{1b}[48;2;248;248;248m                                                            \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 141: lua vim {'dedent': True, 'line_numbers': True, 'line_range': (None, 4)} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_lua,
+    "lua",
+    theme="vim",
+    dedent=true,
+    line_numbers=true,
+    line_range=(None, Some(4)),
+  )
+  let expected : String = "\u{1b}[1;38;5;249;48;5;16m  \u{1b}[0m\u{1b}[38;5;237;48;5;16m1 \u{1b}[0m\u{1b}[38;5;40;48;5;16mlocal\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;44;48;5;16mt\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;68;48;5;16m=\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;251;48;5;16m{\u{1b}[0m\u{1b}[38;5;44;48;5;16ma\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;68;48;5;16m=\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;164;48;5;16m1\u{1b}[0m\u{1b}[38;5;251;48;5;16m,\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;251;48;5;16m[\u{1b}[0m\u{1b}[38;5;164;48;5;16m2\u{1b}[0m\u{1b}[38;5;251;48;5;16m]\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;68;48;5;16m=\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;160;48;5;16m'\u{1b}[0m\u{1b}[38;5;160;48;5;16mb\u{1b}[0m\u{1b}[38;5;160;48;5;16m'\u{1b}[0m\u{1b}[38;5;251;48;5;16m}\u{1b}[0m\u{1b}[48;5;16m             \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;249;48;5;16m  \u{1b}[0m\u{1b}[38;5;237;48;5;16m2 \u{1b}[0m\u{1b}[38;5;184;48;5;16mfor\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;44;48;5;16mk\u{1b}[0m\u{1b}[38;5;251;48;5;16m,\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;44;48;5;16mv\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;184;48;5;16min\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;164;48;5;16mpairs\u{1b}[0m\u{1b}[38;5;251;48;5;16m(\u{1b}[0m\u{1b}[38;5;44;48;5;16mt\u{1b}[0m\u{1b}[38;5;251;48;5;16m)\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;184;48;5;16mdo\u{1b}[0m\u{1b}[48;5;16m                  \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;249;48;5;16m  \u{1b}[0m\u{1b}[38;5;237;48;5;16m3 \u{1b}[0m\u{1b}[38;5;251;48;5;16m  \u{1b}[0m\u{1b}[38;5;164;48;5;16mprint\u{1b}[0m\u{1b}[38;5;251;48;5;16m(\u{1b}[0m\u{1b}[38;5;44;48;5;16mk\u{1b}[0m\u{1b}[38;5;251;48;5;16m,\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;44;48;5;16mv\u{1b}[0m\u{1b}[38;5;251;48;5;16m)\u{1b}[0m\u{1b}[38;5;251;48;5;16m \u{1b}[0m\u{1b}[38;5;18;48;5;16m-- comment\u{1b}[0m\u{1b}[48;5;16m                 \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;249;48;5;16m  \u{1b}[0m\u{1b}[38;5;237;48;5;16m4 \u{1b}[0m\u{1b}[38;5;184;48;5;16mend\u{1b}[0m\u{1b}[48;5;16m                                      \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 142: markdown gruvbox-dark {'code_width': 20} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_markdown,
+    "markdown",
+    theme="gruvbox-dark",
+    code_width=20,
+  )
+  let expected : String = "\u{1b}[1;97;40m# Title\u{1b}[0m\u{1b}[40m             \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[97;40mSome\u{1b}[0m\u{1b}[97;40m \u{1b}[0m\u{1b}[3;97;40m*emph*\u{1b}[0m\u{1b}[97;40m \u{1b}[0m\u{1b}[97;40mand\u{1b}[0m\u{1b}[97;40m \u{1b}[0m\u{1b}[1;97;40m**st\u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[91;40m-\u{1b}[0m\u{1b}[97;40m \u{1b}[0m\u{1b}[97;40mitem\u{1b}[0m\u{1b}[40m              \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[93;40m```\u{1b}[0m\u{1b}[93;40mpython\u{1b}[0m\u{1b}[40m           \u{1b}[0m\n" +
+    "\u{1b}[91;40mprint\u{1b}[0m\u{1b}[97;40m(\u{1b}[0m\u{1b}[37;40m1\u{1b}[0m\u{1b}[97;40m)\u{1b}[0m\u{1b}[40m            \u{1b}[0m\n" +
+    "\u{1b}[93;40m```\u{1b}[0m\u{1b}[40m                 \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 143: ini one-dark {'padding': 1, 'word_wrap': True, 'line_numbers': True} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_ini,
+    "ini",
+    theme="one-dark",
+    padding=[1],
+    word_wrap=true,
+    line_numbers=true,
+  )
+  let expected : String = "                                                  \n" +
+    "   1 [section]                                    \n" +
+    "   2 key = value ; comment                        \n" +
+    "   3 other=1                                      \n" +
+    "   4                                              \n" +
+    "                                                  \n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 144: perl no-such-theme {} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(sample_perl, "perl", theme="no-such-theme")
+  let expected : String = "\u{1b}[1;38;2;0;128;0;48;2;248;248;248mmy\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;25;23;124;48;2;248;248;248m@\u{1b}[0m\u{1b}[38;2;25;23;124;48;2;248;248;248ma\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m=\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m(\u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m1\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m,\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;102;102;102;48;2;248;248;248m2\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m)\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m;\u{1b}[0m\u{1b}[48;2;248;248;248m                                             \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;0;128;0;48;2;248;248;248mprint\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;186;33;33;48;2;248;248;248m\"$_\\n\"\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[1;38;2;0;128;0;48;2;248;248;248mfor\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;128;0;48;2;248;248;248mgrep\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m{\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;164;90;119;48;2;248;248;248m/\\d/\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m}\u{1b}[0m\u{1b}[38;2;187;187;187;48;2;248;248;248m \u{1b}[0m\u{1b}[38;2;25;23;124;48;2;248;248;248m@\u{1b}[0m\u{1b}[38;2;25;23;124;48;2;248;248;248ma\u{1b}[0m\u{1b}[38;2;0;0;0;48;2;248;248;248m;\u{1b}[0m\u{1b}[48;2;248;248;248m                          \u{1b}[0m\n" +
+    "\u{1b}[48;2;248;248;248m                                                            \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 145: kotlin monokai {'line_numbers': True} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_kotlin,
+    "kotlin",
+    theme="monokai",
+    line_numbers=true,
+  )
+  let expected : String = "\u{1b}[1;38;5;253;48;5;235m  \u{1b}[0m\u{1b}[38;5;241;48;5;235m1 \u{1b}[0m\u{1b}[38;5;81;48;5;235mfun\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;148;48;5;235mmain\u{1b}[0m\u{1b}[38;5;231;48;5;235m(\u{1b}[0m\u{1b}[38;5;231;48;5;235m)\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;231;48;5;235m{\u{1b}[0m\u{1b}[48;5;235m                             \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;253;48;5;235m  \u{1b}[0m\u{1b}[38;5;241;48;5;235m2 \u{1b}[0m\u{1b}[38;5;231;48;5;235m    \u{1b}[0m\u{1b}[38;5;81;48;5;235mval\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;231;48;5;235mxs\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;204;48;5;235m=\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;231;48;5;235mlistOf\u{1b}[0m\u{1b}[38;5;231;48;5;235m(\u{1b}[0m\u{1b}[38;5;141;48;5;235m1\u{1b}[0m\u{1b}[38;5;231;48;5;235m,\u{1b}[0m\u{1b}[38;5;231;48;5;235m \u{1b}[0m\u{1b}[38;5;141;48;5;235m2\u{1b}[0m\u{1b}[38;5;231;48;5;235m)\u{1b}[0m\u{1b}[48;5;235m                \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;253;48;5;235m  \u{1b}[0m\u{1b}[38;5;241;48;5;235m3 \u{1b}[0m\u{1b}[38;5;231;48;5;235m    \u{1b}[0m\u{1b}[38;5;231;48;5;235mprintln\u{1b}[0m\u{1b}[38;5;231;48;5;235m(\u{1b}[0m\u{1b}[38;5;186;48;5;235m\"\u{1b}[0m\u{1b}[38;5;186;48;5;235m${\u{1b}[0m\u{1b}[38;5;231;48;5;235mxs\u{1b}[0m\u{1b}[38;5;231;48;5;235m.\u{1b}[0m\u{1b}[38;5;148;48;5;235msize\u{1b}[0m\u{1b}[38;5;186;48;5;235m}\u{1b}[0m\u{1b}[38;5;186;48;5;235m\"\u{1b}[0m\u{1b}[38;5;231;48;5;235m)\u{1b}[0m\u{1b}[48;5;235m                \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;253;48;5;235m  \u{1b}[0m\u{1b}[38;5;241;48;5;235m4 \u{1b}[0m\u{1b}[38;5;231;48;5;235m}\u{1b}[0m\u{1b}[48;5;235m                                        \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;253;48;5;235m  \u{1b}[0m\u{1b}[38;5;241;48;5;235m5 \u{1b}[0m\u{1b}[48;5;235m                                         \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 146: scala default {'line_numbers': True, 'word_wrap': True, 'code_width': 30} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_scala,
+    "scala",
+    theme="default",
+    line_numbers=true,
+    word_wrap=true,
+    code_width=30,
+  )
+  let expected : String = "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m1 \u{1b}[0m\u{1b}[1;32;107mobject\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[1;34;107mMain\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[1;32;107mextends\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[1;34;107mApp\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[30;107m{\u{1b}[0m\u{1b}[107m     \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m2 \u{1b}[0m\u{1b}[37;107m  \u{1b}[0m\u{1b}[1;32;107mval\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[30;107mx\u{1b}[0m\u{1b}[30;107m:\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[1;34;107mInt\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[90;107m=\u{1b}[0m\u{1b}[37;107m \u{1b}[0m\u{1b}[90;107m42\u{1b}[0m\u{1b}[107m             \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m3 \u{1b}[0m\u{1b}[37;107m  \u{1b}[0m\u{1b}[30;107mprintln\u{1b}[0m\u{1b}[30;107m(\u{1b}[0m\u{1b}[31;107ms\"\u{1b}[0m\u{1b}[31;107mx = \u{1b}[0m\u{1b}[1;90;107m$\u{1b}[0m\u{1b}[30;107mx\u{1b}[0m\u{1b}[31;107m\"\u{1b}[0m\u{1b}[30;107m)\u{1b}[0m\u{1b}[107m          \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m4 \u{1b}[0m\u{1b}[30;107m}\u{1b}[0m\u{1b}[107m                             \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m5 \u{1b}[0m\u{1b}[107m                              \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 147: swift ansi_dark {'indent_guides': True} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_swift,
+    "swift",
+    theme="ansi_dark",
+    indent_guides=true,
+  )
+  let expected : String = "let x: [Int] = [1, 2]\n" +
+    "func f(_ a: Int) -> Int { return a * 2 }\n" +
+    "\n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 148: elixir ansi_light {'indent_guides': True, 'line_numbers': True, 'line_range': (2, 6)} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_elixir,
+    "elixir",
+    theme="ansi_light",
+    indent_guides=true,
+    line_numbers=true,
+    line_range=(Some(2), Some(6)),
+  )
+  let expected : String = "  \u{1b}[2m2 \u{1b}[0m\u{1b}[2;37m  \u{1b}[0m\u{1b}[34mdef\u{1b}[0m\u{1b}[37m \u{1b}[0mf(x),\u{1b}[37m \u{1b}[0m\u{1b}[33mdo\u{1b}[0m:\u{1b}[37m \u{1b}[0mx\u{1b}[37m \u{1b}[0m|>\u{1b}[37m \u{1b}[0m\u{1b}[4;32mEnum\u{1b}[0m.map(&(&1\u{1b}[37m \u{1b}[0m*\u{1b}[37m \u{1b}[0m\u{1b}[34m2\u{1b}[0m))\n" +
+    "  \u{1b}[2m3 \u{1b}[0m\u{1b}[34mend\u{1b}[0m\n" +
+    "  \u{1b}[2m4 \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 149: nim dracula {'line_range': (3, None), 'highlight_lines': [4]} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_nim,
+    "nim",
+    theme="dracula",
+    line_range=(Some(3), None),
+    highlight_lines=[4],
+  )
+  let expected : String = "\u{1b}[38;5;231;48;5;236mecho\u{1b}[0m\u{1b}[38;5;231;48;5;236m \u{1b}[0m\u{1b}[38;5;231;48;5;236mf\u{1b}[0m\u{1b}[38;5;231;48;5;236m(\u{1b}[0m\u{1b}[38;5;215;48;5;236m21\u{1b}[0m\u{1b}[38;5;231;48;5;236m)\u{1b}[0m\u{1b}[48;5;236m                                   \u{1b}[0m\n" +
+    "\u{1b}[48;5;236m                                             \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 150: xml solarized-light {'line_numbers': True, 'highlight_lines': [1, 3], 'start_line': 98} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_xml,
+    "xml",
+    theme="solarized-light",
+    line_numbers=true,
+    highlight_lines=[1, 3],
+    start_line=98,
+  )
+  let expected : String = "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m 98 \u{1b}[0m\u{1b}[91;107m<?xml version=\"1.0\"?>\u{1b}[0m\u{1b}[107m                                                     \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m 99 \u{1b}[0m\u{1b}[36;107m<root\u{1b}[0m\u{1b}[90;107m \u{1b}[0m\u{1b}[90;107ma=\u{1b}[0m\u{1b}[36;107m\"1\"\u{1b}[0m\u{1b}[36;107m>\u{1b}[0m\u{1b}[3;37;107m<!-- c -->\u{1b}[0m\u{1b}[36;107m<child\u{1b}[0m\u{1b}[36;107m>\u{1b}[0m\u{1b}[90;107mt\u{1b}[0m\u{1b}[36;107m</child>\u{1b}[0m\u{1b}[36;107m</root>\u{1b}[0m\u{1b}[107m                             \u{1b}[0m\n" +
+    "\u{1b}[107m  \u{1b}[0m\u{1b}[2;107m100 \u{1b}[0m\u{1b}[107m                                                                          \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 151: tex github-dark {'padding': (1, 2), 'background_color': '#203040'} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_tex,
+    "tex",
+    theme="github-dark",
+    padding=[1, 2],
+    background_color="#203040",
+  )
+  let expected : String = "                                                  \n" +
+    "  \\\\documentclass{article}                        \n" +
+    "  \\\\begin{document} $x^2$ % c                     \n" +
+    "  \\\\end{document}                                 \n" +
+    "                                                  \n" +
+    "                                                  \n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 152: console nord {'tab_size': 8, 'word_wrap': True} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_console,
+    "console",
+    theme="nord",
+    tab_size=8,
+    word_wrap=true,
+  )
+  let expected : String = "\u{1b}[1;38;2;97;110;136;48;2;46;52;64m$ \u{1b}[0m\u{1b}[38;2;216;222;233;48;2;46;52;64mls\u{1b}[0m\u{1b}[38;2;216;222;233;48;2;46;52;64m \u{1b}[0m\u{1b}[38;2;216;222;233;48;2;46;52;64m-la\u{1b}[0m\u{1b}[48;2;46;52;64m                                                    \u{1b}[0m\n" +
+    "\u{1b}[38;2;216;222;233;48;2;46;52;64mtotal 0\u{1b}[0m\u{1b}[48;2;46;52;64m                                                     \u{1b}[0m\n" +
+    "\u{1b}[1;38;2;97;110;136;48;2;46;52;64m# \u{1b}[0m\u{1b}[38;2;129;161;193;48;2;46;52;64mecho\u{1b}[0m\u{1b}[38;2;216;222;233;48;2;46;52;64m \u{1b}[0m\u{1b}[38;2;216;222;233;48;2;46;52;64mhi\u{1b}[0m\u{1b}[48;2;46;52;64m                                                   \u{1b}[0m\n" +
+    "\u{1b}[38;2;216;222;233;48;2;46;52;64mhi\u{1b}[0m\u{1b}[48;2;46;52;64m                                                          \u{1b}[0m\n" +
+    "\u{1b}[48;2;46;52;64m                                                            \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 153: pycon emacs {'dedent': True, 'line_numbers': True, 'line_range': (None, 4)} {'width': 45, 'color_system': '256'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_pycon,
+    "pycon",
+    theme="emacs",
+    dedent=true,
+    line_numbers=true,
+    line_range=(None, Some(4)),
+  )
+  let expected : String = "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m1 \u{1b}[0m\u{1b}[1;38;5;18;48;5;255m>>> \u{1b}[0m\u{1b}[38;5;241;48;5;255m1\u{1b}[0m\u{1b}[38;5;16;48;5;255m \u{1b}[0m\u{1b}[38;5;241;48;5;255m+\u{1b}[0m\u{1b}[38;5;16;48;5;255m \u{1b}[0m\u{1b}[38;5;241;48;5;255m1\u{1b}[0m\u{1b}[48;5;255m                                \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m2 \u{1b}[0m\u{1b}[38;5;244;48;5;255m2\u{1b}[0m\u{1b}[48;5;255m                                        \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m3 \u{1b}[0m\u{1b}[1;38;5;18;48;5;255m>>> \u{1b}[0m\u{1b}[1;38;5;129;48;5;255mraise\u{1b}[0m\u{1b}[38;5;16;48;5;255m \u{1b}[0m\u{1b}[1;38;5;167;48;5;255mValueError\u{1b}[0m\u{1b}[38;5;16;48;5;255m(\u{1b}[0m\u{1b}[38;5;131;48;5;255m'\u{1b}[0m\u{1b}[38;5;131;48;5;255mx\u{1b}[0m\u{1b}[38;5;131;48;5;255m'\u{1b}[0m\u{1b}[38;5;16;48;5;255m)\u{1b}[0m\u{1b}[48;5;255m                \u{1b}[0m\n" +
+    "\u{1b}[1;38;5;233;48;5;255m  \u{1b}[0m\u{1b}[38;5;248;48;5;255m4 \u{1b}[0m\u{1b}[38;5;26;48;5;255mTraceback (most recent call last):\u{1b}[0m\u{1b}[48;5;255m       \u{1b}[0m\n"
+  assert_eq(oracle_render(syntax, width=45, color_system=Some("256")), expected)
+}
+
+///|
+test "oracle 154: rst vim {'code_width': 20} {'width': 80, 'color_system': 'standard'}" {
+  let syntax = @syntax.Syntax::new(
+    sample_rst,
+    "rst",
+    theme="vim",
+    code_width=20,
+  )
+  let expected : String = "\u{1b}[1;34;40mTitle\u{1b}[0m\u{1b}[40m               \u{1b}[0m\n" +
+    "\u{1b}[1;34;40m=====\u{1b}[0m\u{1b}[40m               \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[37;40m..\u{1b}[0m\u{1b}[37;40m \u{1b}[0m\u{1b}[93;40mcode\u{1b}[0m\u{1b}[37;40m::\u{1b}[0m\u{1b}[37;40m \u{1b}[0m\u{1b}[93;40mpython\u{1b}[0m\u{1b}[40m    \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[37;40m   \u{1b}[0m\u{1b}[35;40mprint\u{1b}[0m\u{1b}[37;40m(\u{1b}[0m\u{1b}[35;40m1\u{1b}[0m\u{1b}[37;40m)\u{1b}[0m\u{1b}[40m         \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n" +
+    "\u{1b}[3;37;40m*emph*\u{1b}[0m\u{1b}[37;40m \u{1b}[0m\u{1b}[31;40m``\u{1b}[0m\u{1b}[31;40mlit\u{1b}[0m\u{1b}[31;40m``\u{1b}[0m\u{1b}[40m      \u{1b}[0m\n" +
+    "\u{1b}[40m                    \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=80, color_system=Some("standard")),
+    expected,
+  )
+}
+
+///|
+test "oracle 155: erlang gruvbox-dark {'padding': 1, 'word_wrap': True, 'line_numbers': True} {'width': 50, 'color_system': None}" {
+  let syntax = @syntax.Syntax::new(
+    sample_erlang,
+    "erlang",
+    theme="gruvbox-dark",
+    padding=[1],
+    word_wrap=true,
+    line_numbers=true,
+  )
+  let expected : String = "                                                  \n" +
+    "   1 -module(m).                                  \n" +
+    "   2 f(X) when X > 0 -> {ok, X};                  \n" +
+    "   3 f(_) -> error.                               \n" +
+    "   4                                              \n" +
+    "                                                  \n"
+  assert_eq(oracle_render(syntax, width=50, color_system=None), expected)
+}
+
+///|
+test "oracle 156: clojure one-dark {} {'width': 60, 'color_system': 'truecolor'}" {
+  let syntax = @syntax.Syntax::new(sample_clojure, "clojure", theme="one-dark")
+  let expected : String = "\u{1b}[38;2;171;178;191;48;2;40;44;52m(\u{1b}[0m\u{1b}[38;2;198;120;221;48;2;40;44;52mdefn \u{1b}[0m\u{1b}[38;2;224;108;117;48;2;40;44;52mf\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m[\u{1b}[0m\u{1b}[38;2;224;108;117;48;2;40;44;52mx\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m]\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m(\u{1b}[0m\u{1b}[38;2;229;192;123;48;2;40;44;52m* \u{1b}[0m\u{1b}[38;2;224;108;117;48;2;40;44;52mx\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;209;154;102;48;2;40;44;52m2\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m)\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m)\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;127;132;142;48;2;40;44;52m; c\u{1b}[0m\u{1b}[48;2;40;44;52m                                    \u{1b}[0m\n" +
+    "\u{1b}[38;2;171;178;191;48;2;40;44;52m(\u{1b}[0m\u{1b}[38;2;229;192;123;48;2;40;44;52mprintln \u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m(\u{1b}[0m\u{1b}[1;38;2;97;175;239;48;2;40;44;52mf\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;209;154;102;48;2;40;44;52m21\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m)\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;152;195;121;48;2;40;44;52m:kw\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m \u{1b}[0m\u{1b}[38;2;152;195;121;48;2;40;44;52m\"s\"\u{1b}[0m\u{1b}[38;2;171;178;191;48;2;40;44;52m)\u{1b}[0m\u{1b}[48;2;40;44;52m                                    \u{1b}[0m\n" +
+    "\u{1b}[48;2;40;44;52m                                                            \u{1b}[0m\n"
+  assert_eq(
+    oracle_render(syntax, width=60, color_system=Some("truecolor")),
+    expected,
+  )
+}
+
+///|
+test "oracle 157: python monokai {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2864,7 +3471,7 @@ test "oracle 132: python monokai {'line_numbers': True} {'width': 70, 'color_sys
 }
 
 ///|
-test "oracle 133: python default {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 158: python default {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2889,7 +3496,7 @@ test "oracle 133: python default {'line_numbers': True} {'width': 70, 'color_sys
 }
 
 ///|
-test "oracle 134: python ansi_dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 159: python ansi_dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2914,7 +3521,7 @@ test "oracle 134: python ansi_dark {'line_numbers': True} {'width': 70, 'color_s
 }
 
 ///|
-test "oracle 135: python ansi_light {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 160: python ansi_light {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2939,7 +3546,7 @@ test "oracle 135: python ansi_light {'line_numbers': True} {'width': 70, 'color_
 }
 
 ///|
-test "oracle 136: python dracula {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 161: python dracula {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2964,7 +3571,7 @@ test "oracle 136: python dracula {'line_numbers': True} {'width': 70, 'color_sys
 }
 
 ///|
-test "oracle 137: python solarized-light {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 162: python solarized-light {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -2989,7 +3596,7 @@ test "oracle 137: python solarized-light {'line_numbers': True} {'width': 70, 'c
 }
 
 ///|
-test "oracle 138: python github-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 163: python github-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3014,7 +3621,7 @@ test "oracle 138: python github-dark {'line_numbers': True} {'width': 70, 'color
 }
 
 ///|
-test "oracle 139: python nord {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 164: python nord {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3039,7 +3646,7 @@ test "oracle 139: python nord {'line_numbers': True} {'width': 70, 'color_system
 }
 
 ///|
-test "oracle 140: python emacs {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 165: python emacs {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3064,7 +3671,7 @@ test "oracle 140: python emacs {'line_numbers': True} {'width': 70, 'color_syste
 }
 
 ///|
-test "oracle 141: python vim {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 166: python vim {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3089,7 +3696,7 @@ test "oracle 141: python vim {'line_numbers': True} {'width': 70, 'color_system'
 }
 
 ///|
-test "oracle 142: python gruvbox-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 167: python gruvbox-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3114,7 +3721,7 @@ test "oracle 142: python gruvbox-dark {'line_numbers': True} {'width': 70, 'colo
 }
 
 ///|
-test "oracle 143: python one-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 168: python one-dark {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3139,7 +3746,7 @@ test "oracle 143: python one-dark {'line_numbers': True} {'width': 70, 'color_sy
 }
 
 ///|
-test "oracle 144: python no-such-theme {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
+test "oracle 169: python no-such-theme {'line_numbers': True} {'width': 70, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3164,7 +3771,7 @@ test "oracle 144: python no-such-theme {'line_numbers': True} {'width': 70, 'col
 }
 
 ///|
-test "oracle 145: python monokai {'line_numbers': True} {'width': 40, 'color_system': 'truecolor'}" {
+test "oracle 170: python monokai {'line_numbers': True} {'width': 40, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(
     sample_python,
     "python",
@@ -3194,7 +3801,7 @@ test "oracle 145: python monokai {'line_numbers': True} {'width': 40, 'color_sys
 }
 
 ///|
-test "oracle 146: python monokai {} {'width': 60, 'color_system': 'truecolor'}" {
+test "oracle 171: python monokai {} {'width': 60, 'color_system': 'truecolor'}" {
   let syntax = @syntax.Syntax::new(sample_python, "python", theme="monokai")
   syntax.stylize_range("bold red", (2, 0), (2, 3), style_before=false)
   syntax.stylize_range("on blue", (5, 4), (8, 2), style_before=true)
@@ -3217,7 +3824,7 @@ test "oracle 146: python monokai {} {'width': 60, 'color_system': 'truecolor'}" 
 }
 
 ///|
-test "oracle 147: rust ansi_dark {'line_numbers': True, 'word_wrap': True} {'width': 40, 'color_system': 'standard'}" {
+test "oracle 172: rust ansi_dark {'line_numbers': True, 'word_wrap': True} {'width': 40, 'color_system': 'standard'}" {
   let syntax = @syntax.Syntax::new(
     sample_rust,
     "rust",

@@ -122,6 +122,34 @@ func main() {
 ''',
 }
 
+EXTRA_SAMPLES = {
+    "css": "body > .main:hover {\n  color: #fff;\n  margin: 0 auto !important;\n}\n@media (max-width: 600px) { a { b: 1px } }\n",
+    "ruby": "class Foo < Bar\n  def hello(name = \"x\")\n    puts \"hi #{name}\" if name =~ /\\w+/\n  end\nend\n",
+    "php": "<?php\n$x = array(1, 2);\nforeach ($x as $k => $v) { echo \"$k: {$v}\\n\"; }\n?>\n<p>html</p>\n",
+    "typescript": "interface P { x: number; y?: string }\nexport const f = <T,>(a: T): T => a;\nenum E { A = 1, B }\n",
+    "toml": "[package]\nname = \"rich\"\nversion = \"0.1.0\" # comment\n[deps]\nx = { version = \"1\", features = [\"a\"] }\n",
+    "docker": "FROM python:3.12-slim\nRUN pip install rich && \\\n    echo done\nCMD [\"python\", \"-m\", \"rich\"]\n",
+    "make": "all: build\n\nbuild: $(SRC)\n\t$(CC) -o $@ $^ $(CFLAGS)\n.PHONY: all\n",
+    "java": "public class Main {\n  @Override\n  public static void main(String[] args) {\n    System.out.println(\"hi\" + args.length);\n  }\n}\n",
+    "haskell": "module Main where\nimport Data.List (sort)\nmain :: IO ()\nmain = print $ sort [3, 1, 2] -- comment\n",
+    "lua": "local t = {a = 1, [2] = 'b'}\nfor k, v in pairs(t) do\n  print(k, v) -- comment\nend\n",
+    "markdown": "# Title\n\nSome *emph* and **strong** text with `code`.\n\n- item\n\n```python\nprint(1)\n```\n",
+    "ini": "[section]\nkey = value ; comment\nother=1\n",
+    "perl": "my @a = (1, 2);\nprint \"$_\\n\" for grep { /\\d/ } @a;\n",
+    "kotlin": "fun main() {\n    val xs = listOf(1, 2)\n    println(\"${xs.size}\")\n}\n",
+    "scala": "object Main extends App {\n  val x: Int = 42\n  println(s\"x = $x\")\n}\n",
+    "swift": "let x: [Int] = [1, 2]\nfunc f(_ a: Int) -> Int { return a * 2 }\n",
+    "elixir": "defmodule M do\n  def f(x), do: x |> Enum.map(&(&1 * 2))\nend\n",
+    "nim": "proc f(x: int): int =\n  result = x * 2\necho f(21)\n",
+    "xml": "<?xml version=\"1.0\"?>\n<root a=\"1\"><!-- c --><child>t</child></root>\n",
+    "tex": "\\\\documentclass{article}\n\\\\begin{document} $x^2$ % c\n\\\\end{document}\n",
+    "console": "$ ls -la\ntotal 0\n# echo hi\nhi\n",
+    "pycon": ">>> 1 + 1\n2\n>>> raise ValueError('x')\nTraceback (most recent call last):\n  File \"<stdin>\", line 1, in <module>\nValueError: x\n",
+    "rst": "Title\n=====\n\n.. code:: python\n\n   print(1)\n\n*emph* ``lit``\n",
+    "erlang": "-module(m).\nf(X) when X > 0 -> {ok, X};\nf(_) -> error.\n",
+    "clojure": "(defn f [x] (* x 2)) ; c\n(println (f 21) :kw \"s\")\n",
+}
+
 THEMES = ["monokai", "default", "ansi_dark", "ansi_light", "dracula",
           "solarized-light", "github-dark", "nord", "emacs", "vim",
           "gruvbox-dark", "one-dark", "no-such-theme"]
@@ -184,6 +212,11 @@ for li, lang in enumerate(langs):
         theme = THEMES[(li * 5 + oi) % len(THEMES)]
         console_args = CONSOLES[(li + oi) % len(CONSOLES)]
         cases.append((lang, theme, options, console_args, False, None))
+# more languages, one rendering each
+for li, (lang, code) in enumerate(EXTRA_SAMPLES.items()):
+    SAMPLES[lang] = code
+    cases.append((lang, THEMES[li % len(THEMES)], OPTION_SETS[li % len(OPTION_SETS)],
+                  CONSOLES[li % len(CONSOLES)], False, None))
 # a few extra: stylize_range, no_wrap, explicit theme sweep on python
 for theme in THEMES:
     cases.append(("python", theme, {"line_numbers": True},
