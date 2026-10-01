@@ -1,5 +1,6 @@
 import {
   "bobzhang/pygments/regex",
+  "bobzhang/pygments/pystr",
 }
 
 warnings = "-implicit_impl_as_method"
