@@ -1,0 +1,11 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/spinner",
+  "bobzhang/rich/progress_bar",
+  "bobzhang/rich/live",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/deque",
+  "moonbitlang/core/math",
+}
+
+warnings = "-implicit_impl_as_method"
