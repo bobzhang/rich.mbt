@@ -111,19 +111,51 @@ fn format_field(
         Some(p) if p < s.length() => s.view(end_offset=p).to_owned()
         _ => s
       }
-    ('r', S(s)) => @rich.py_repr(s)
+    ('r', S(s)) => {
+      let r = @rich.py_repr(s)
+      match precision {
+        Some(p) if p < r.length() => r.view(end_offset=p).to_owned()
+        _ => r
+      }
+    }
     ('d' | 'i' | 'u', F(d)) => d.to_int().to_string()
     ('d' | 'i' | 'u', I(n)) => n.to_string()
     ('f' | 'F', F(d)) => @rich.py_format_fixed(d, precision.unwrap_or(6))
     ('f' | 'F', I(n)) =>
       @rich.py_format_fixed(n.to_double(), precision.unwrap_or(6))
-    ('e' | 'E' | 'g' | 'G', F(d)) => @rich.py_format_g(d)
+    ('e', F(d)) => @rich.py_format_exp(d, precision.unwrap_or(6))
+    ('E', F(d)) => @rich.py_format_exp(d, precision.unwrap_or(6), upper=true)
+    ('e', I(n)) => @rich.py_format_exp(n.to_double(), precision.unwrap_or(6))
+    ('E', I(n)) =>
+      @rich.py_format_exp(n.to_double(), precision.unwrap_or(6), upper=true)
+    ('g' | 'G', F(d)) =>
+      @rich.py_format_general(
+        d,
+        precision=precision.unwrap_or(6),
+        upper=conversion == 'G',
+        alternate=flags.contains("#"),
+      )
+    ('g' | 'G', I(n)) =>
+      @rich.py_format_general(
+        n.to_double(),
+        precision=precision.unwrap_or(6),
+        upper=conversion == 'G',
+        alternate=flags.contains("#"),
+      )
     (_, I(n)) => n.to_string()
     (_, F(d)) => @rich.py_float_repr(d)
     (_, S(s)) => s
   }
-  let body = if flags.contains("+") && !body.has_prefix("-") && !(value is S(_)) {
-    "+" + body
+  let numeric = !(value is S(_)) ||
+    conversion is ('d' | 'i' | 'u' | 'f' | 'F' | 'e' | 'E' | 'g' | 'G')
+  let body = if numeric && !(value is S(_)) && !body.has_prefix("-") {
+    if flags.contains("+") {
+      "+" + body
+    } else if flags.contains(" ") {
+      " " + body
+    } else {
+      body
+    }
   } else {
     body
   }

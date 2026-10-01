@@ -206,25 +206,70 @@ fn round_significant(d : Double, sig : Int) -> (Bool, String, Int) {
 }
 
 ///|
-/// Python `format(d, "g")` (6 significant digits, trailing zeros removed).
-pub fn py_format_g(d : Double) -> String {
-  if d.is_nan() {
-    return "nan"
+fn exp_suffix(x : Int, upper : Bool) -> String {
+  let e = x.abs()
+  (if upper { "E" } else { "e" }) +
+  (if x < 0 { "-" } else { "+" }) +
+  (if e < 10 { "0\{e}" } else { e.to_string() })
+}
+
+///|
+fn non_finite(d : Double, upper : Bool) -> String? {
+  let s = if d.is_nan() {
+    "nan"
+  } else if d.is_pos_inf() {
+    "inf"
+  } else if d.is_neg_inf() {
+    "-inf"
+  } else {
+    return None
   }
-  if d.is_pos_inf() {
-    return "inf"
-  }
-  if d.is_neg_inf() {
-    return "-inf"
+  Some(if upper { s.to_upper() } else { s })
+}
+
+///|
+/// Python `format(d, ".{precision}e")` (scientific notation, correctly
+/// rounded).
+pub fn py_format_exp(
+  d : Double,
+  precision : Int,
+  upper? : Bool = false,
+) -> String {
+  if non_finite(d, upper) is Some(s) {
+    return s
   }
   if d == 0.0 {
-    return if 1.0 / d < 0.0 { "-0" } else { "0" }
+    let sign = if 1.0 / d < 0.0 { "-" } else { "" }
+    let frac = if precision > 0 { "." + "0".repeat(precision) } else { "" }
+    return sign + "0" + frac + exp_suffix(0, upper)
   }
-  let precision = 6
-  let (negative, digits, x) = round_significant(d, precision)
+  let (negative, digits, x) = round_significant(d, precision + 1)
   let sign = if negative { "-" } else { "" }
+  let mantissa = if precision > 0 {
+    digits.view(end_offset=1).to_owned() +
+    "." +
+    digits.view(start_offset=1).to_owned()
+  } else {
+    digits
+  }
+  sign + mantissa + exp_suffix(x, upper)
+}
+
+///|
+/// Python `format(d, ".{precision}g")` (general format; `alternate` keeps
+/// trailing zeros like `%#g`).
+pub fn py_format_general(
+  d : Double,
+  precision? : Int = 6,
+  upper? : Bool = false,
+  alternate? : Bool = false,
+) -> String {
+  if non_finite(d, upper) is Some(s) {
+    return s
+  }
+  let precision = if precision == 0 { 1 } else { precision }
   fn strip(s : String) -> String {
-    if !s.contains(".") {
+    if alternate || !s.contains(".") {
       return s
     }
     let mut end = s.length()
@@ -237,19 +282,23 @@ pub fn py_format_g(d : Double) -> String {
     s.view(end_offset=end).to_owned()
   }
 
+  if d == 0.0 {
+    let sign = if 1.0 / d < 0.0 { "-" } else { "" }
+    return sign + strip("0." + "0".repeat(precision - 1))
+  }
+  let (negative, digits, x) = round_significant(d, precision)
+  let sign = if negative { "-" } else { "" }
   if x < -4 || x >= precision {
     let mantissa = strip(
-      digits.view(end_offset=1).to_owned() +
-      "." +
-      digits.view(start_offset=1).to_owned(),
+      if digits.length() > 1 || alternate {
+        digits.view(end_offset=1).to_owned() +
+        "." +
+        digits.view(start_offset=1).to_owned()
+      } else {
+        digits
+      },
     )
-    let exp_sign = if x < 0 { "-" } else { "+" }
-    let e = x.abs()
-    sign +
-    mantissa +
-    "e" +
-    exp_sign +
-    (if e < 10 { "0\{e}" } else { e.to_string() })
+    sign + mantissa + exp_suffix(x, upper)
   } else if x >= 0 {
     let int_part = digits.view(end_offset=x + 1).to_owned()
     let frac = digits.view(start_offset=x + 1).to_owned()
@@ -257,6 +306,12 @@ pub fn py_format_g(d : Double) -> String {
   } else {
     sign + strip("0." + "0".repeat(-x - 1) + digits)
   }
+}
+
+///|
+/// Python `format(d, "g")` (6 significant digits, trailing zeros removed).
+pub fn py_format_g(d : Double) -> String {
+  py_format_general(d)
 }
 
 ///|

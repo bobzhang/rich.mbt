@@ -378,3 +378,17 @@ test "normalize" {
   inspect(@rich.Style::normalize(" FOO bar "), content="foo bar")
   inspect(@rich.Style::normalize("on red bold"), content="bold on red")
 }
+
+///|
+test "style meta is copied and compared by value" {
+  let m : Map[String, Json] = { "id": "one" }
+  let s = @rich.Style::new(meta=m)
+  m["id"] = "two"
+  assert_eq(s.meta(), { "id": "one" })
+  let a = @rich.Style::new(meta={ "id": "strkzm" })
+  let b = @rich.Style::new(meta={ "id": "lhy4b8" })
+  assert_true(a != b)
+  assert_true(
+    @rich.Style::new(meta={ "id": "x" }) == @rich.Style::new(meta={ "id": "x" }),
+  )
+}

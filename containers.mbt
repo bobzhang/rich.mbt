@@ -12,6 +12,12 @@ pub fn Renderables::new(renderables? : Array[&Renderable] = []) -> Renderables {
 }
 
 ///|
+/// Iterate over the renderables.
+pub fn Renderables::iter(self : Renderables) -> Iter[&Renderable] {
+  self.renderables.iter()
+}
+
+///|
 pub fn Renderables::append(
   self : Renderables,
   renderable : &Renderable,
@@ -65,13 +71,36 @@ pub fn Lines::length(self : Lines) -> Int {
 }
 
 ///|
+/// The line at `index` (negative indices count from the end, as in
+/// Python). Aborts if out of range.
 pub fn Lines::get(self : Lines, index : Int) -> Text {
-  self.lines[index]
+  self.lines[if index < 0 { self.lines.length() + index } else { index }]
 }
 
 ///|
+/// Replace the line at `index` (negative indices count from the end).
 pub fn Lines::set(self : Lines, index : Int, value : Text) -> Unit {
-  self.lines[index] = value
+  self.lines[if index < 0 { self.lines.length() + index } else { index }] = value
+}
+
+///|
+/// Lines `start..end` with Python slice semantics (upstream `lines[a:b]`).
+pub fn Lines::slice(self : Lines, start? : Int, end? : Int) -> Array[Text] {
+  let n = self.lines.length()
+  fn clamp(i : Int?, default : Int) -> Int {
+    match i {
+      None => default
+      Some(i) => if i < 0 { @cmp.maximum(0, n + i) } else { @cmp.minimum(i, n) }
+    }
+  }
+
+  let a = clamp(start, 0)
+  let b = clamp(end, n)
+  if a >= b {
+    []
+  } else {
+    self.lines[a:b].to_owned()
+  }
 }
 
 ///|
@@ -87,9 +116,16 @@ pub fn Lines::extend_(self : Lines, lines : ArrayView[Text]) -> Unit {
 }
 
 ///|
-/// Remove and return the last line.
-pub fn Lines::pop(self : Lines) -> Text? {
-  self.lines.pop()
+/// Remove and return the line at `index` (default: the last line;
+/// negative indices count from the end). `None` if out of range.
+pub fn Lines::pop(self : Lines, index? : Int = -1) -> Text? {
+  let n = self.lines.length()
+  let i = if index < 0 { n + index } else { index }
+  if i < 0 || i >= n {
+    None
+  } else {
+    Some(self.lines.remove(i))
+  }
 }
 
 ///|

@@ -146,7 +146,7 @@ let layout_counter : Ref[Int] = { val: 0, }
 
 ///|
 /// A renderable to divide a fixed height in to rows or columns.
-pub struct Layout {
+pub(all) struct Layout {
   priv id : Int
   /// The content, or `None` for the placeholder.
   priv mut renderable_ : &@rich.Renderable?

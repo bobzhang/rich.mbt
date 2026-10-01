@@ -85,6 +85,46 @@ fn meta_hash(meta : Map[String, Json]?) -> String {
 }
 
 ///|
+/// Canonical text of the meta data (upstream compares pickled bytes, so key
+/// order matters).
+fn meta_key(meta : Map[String, Json]?) -> String {
+  match meta {
+    None => ""
+    Some(m) => Json::object(m).stringify()
+  }
+}
+
+///|
+/// Deep copy JSON (objects and arrays are mutable).
+fn json_deep_copy(j : Json) -> Json {
+  match j {
+    Array(items) => Json::array(items.map(json_deep_copy))
+    Object(m) => {
+      let copy : Map[String, Json] = Map([])
+      for k, v in m {
+        copy[k] = json_deep_copy(v)
+      }
+      Json::object(copy)
+    }
+    _ => j
+  }
+}
+
+///|
+fn meta_deep_copy(meta : Map[String, Json]?) -> Map[String, Json]? {
+  match meta {
+    None => None
+    Some(m) => {
+      let copy : Map[String, Json] = Map([])
+      for k, v in m {
+        copy[k] = json_deep_copy(v)
+      }
+      Some(copy)
+    }
+  }
+}
+
+///|
 fn non_empty(s : String?) -> String? {
   match s {
     Some("") | None => None
@@ -144,6 +184,7 @@ pub fn Style::new(
   link? : String,
   meta? : Map[String, Json],
 ) -> Style {
+  let meta = meta_deep_copy(meta)
   let values = [
     bold, dim, italic, underline, blink, blink2, reverse, conceal, strike, underline2,
     frame, encircle, overline,
@@ -210,6 +251,7 @@ pub fn Style::from_color(
 ///|
 /// Create a new style with meta data.
 pub fn Style::from_meta(meta : Map[String, Json]?) -> Style {
+  let meta = meta_deep_copy(meta)
   make_style(
     color=None,
     bgcolor=None,
@@ -342,8 +384,8 @@ pub fn Style::link_id(self : Style) -> String {
 ///|
 /// Meta information (empty if not set).
 pub fn Style::meta(self : Style) -> Map[String, Json] {
-  match self.meta_ {
-    Some(m) => m.copy()
+  match meta_deep_copy(self.meta_) {
+    Some(m) => m
     None => Map([])
   }
 }
@@ -462,7 +504,7 @@ pub impl Eq for Style with fn equal(self, other) {
     self.color_ == other.color_ &&
     self.bgcolor_ == other.bgcolor_ &&
     self.link_ == other.link_ &&
-    meta_hash(self.meta_) == meta_hash(other.meta_)
+    meta_key(self.meta_) == meta_key(other.meta_)
   )
 }
 
@@ -473,7 +515,7 @@ pub impl Hash for Style with fn hash_combine(self, hasher) {
   hasher.combine(self.attributes)
   hasher.combine(self.set_attributes)
   hasher.combine(self.link_.unwrap_or(""))
-  hasher.combine(meta_hash(self.meta_))
+  hasher.combine(meta_key(self.meta_))
 }
 
 ///|
