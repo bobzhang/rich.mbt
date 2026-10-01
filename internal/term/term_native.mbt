@@ -110,6 +110,22 @@ pub fn write_file(path : String, text : String) -> Bool {
 }
 
 ///|
+#borrow(path, ok)
+extern "c" fn c_read_file(path : Bytes, ok : Ref[Int]) -> Bytes = "rich_term_read_file"
+
+///|
+/// Read the file at `path` (decoded as UTF-8), or `None` on failure.
+pub fn read_file(path : String) -> String? {
+  let ok = Ref(0)
+  let bytes = c_read_file(@utf8.encode(path + "\u{0}"), ok)
+  if ok.val == 0 {
+    None
+  } else {
+    Some(@utf8.decode_lossy(bytes))
+  }
+}
+
+///|
 /// Pipe `text` to a shell command (e.g. a pager). Returns `false` if the
 /// command could not be started.
 pub fn pipe_to(command : String, text : String) -> Bool {

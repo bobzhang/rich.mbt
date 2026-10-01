@@ -623,7 +623,7 @@ pub fn pick_bool(values : Array[Bool?]) -> Bool {
 ///|
 /// Pair each item with a flag that is true for the last item
 /// (upstream `_loop.loop_last`).
-fn[T] loop_last(xs : ArrayView[T]) -> Array[(Bool, T)] {
+pub fn[T] loop_last(xs : ArrayView[T]) -> Array[(Bool, T)] {
   let n = xs.length()
   let out = []
   for i, x in xs {
@@ -633,8 +633,9 @@ fn[T] loop_last(xs : ArrayView[T]) -> Array[(Bool, T)] {
 }
 
 ///|
-/// Pair each item with a flag that is true for the first item.
-fn[T] loop_first(xs : ArrayView[T]) -> Array[(Bool, T)] {
+/// Pair each item with a flag that is true for the first item
+/// (upstream `_loop.loop_first`).
+pub fn[T] loop_first(xs : ArrayView[T]) -> Array[(Bool, T)] {
   let out = []
   for i, x in xs {
     out.push((i == 0, x))
@@ -643,8 +644,9 @@ fn[T] loop_first(xs : ArrayView[T]) -> Array[(Bool, T)] {
 }
 
 ///|
-/// Pair each item with flags for first and last.
-fn[T] loop_first_last(xs : ArrayView[T]) -> Array[(Bool, Bool, T)] {
+/// Pair each item with flags for first and last
+/// (upstream `_loop.loop_first_last`).
+pub fn[T] loop_first_last(xs : ArrayView[T]) -> Array[(Bool, Bool, T)] {
   let n = xs.length()
   let out = []
   for i, x in xs {

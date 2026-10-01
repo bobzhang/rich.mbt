@@ -45,7 +45,7 @@ pub struct Box {
   bottom : String
   bottom_divider : String
   bottom_right : String
-}
+} derive(Eq, Debug)
 
 ///|
 /// Create a box from 8 lines of 4 characters.
@@ -108,6 +108,12 @@ fn builtin_box(name : String, box_ : String, ascii? : Bool = false) -> Box {
 ///|
 pub impl Show for Box with fn output(self, logger) {
   logger.write_string(self.box_)
+}
+
+///|
+/// Upstream `repr(box)`.
+pub fn Box::repr(_self : Box) -> String {
+  "Box(...)"
 }
 
 ///|

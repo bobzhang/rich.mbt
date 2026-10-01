@@ -157,6 +157,24 @@ MOONBIT_FFI_EXPORT int32_t rich_term_write_file(moonbit_bytes_t path, moonbit_by
   return (n == len && rc == 0) ? 0 : -1;
 }
 
+/* Read a whole file. Sets *ok to 1 on success. */
+MOONBIT_FFI_EXPORT moonbit_bytes_t rich_term_read_file(moonbit_bytes_t path, int32_t *ok) {
+  *ok = 0;
+  FILE *f = fopen((const char *)path, "rb");
+  if (!f) return moonbit_make_bytes(0, 0);
+  long n = -1;
+  if (fseek(f, 0, SEEK_END) == 0) n = ftell(f);
+  if (n < 0 || fseek(f, 0, SEEK_SET) != 0) {
+    fclose(f);
+    return moonbit_make_bytes(0, 0);
+  }
+  moonbit_bytes_t r = moonbit_make_bytes((int32_t)n, 0);
+  size_t got = fread(r, 1, (size_t)n, f);
+  fclose(f);
+  if (got == (size_t)n) *ok = 1;
+  return r;
+}
+
 /* Pipe text to a shell command (e.g. a pager). Returns the exit status or -1. */
 MOONBIT_FFI_EXPORT int32_t rich_term_pipe_to(moonbit_bytes_t command, moonbit_bytes_t data) {
 #ifdef _WIN32

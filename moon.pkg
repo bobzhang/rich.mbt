@@ -7,12 +7,15 @@ import {
   "bobzhang/rich/internal/term",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
-  "moonbitlang/core/json",
   "moonbitlang/core/env",
   "moonbitlang/core/bigint",
   "moonbitlang/core/double",
   "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8",
 }
+
+import {
+  "bobzhang/rich/panel",
+} for "test"
 
 warnings = "-implicit_impl_as_method"

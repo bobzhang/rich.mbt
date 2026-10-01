@@ -69,6 +69,11 @@ pub fn write_file(_path : String, _text : String) -> Bool {
 }
 
 ///|
+pub fn read_file(_path : String) -> String? {
+  None
+}
+
+///|
 pub fn pipe_to(_command : String, _text : String) -> Bool {
   false
 }
