@@ -1,0 +1,75 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/prompt"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub fn get_input(@rich.Console, @rich.Text, Bool, InputStream?) -> String raise
+
+// Errors
+pub(all) suberror InvalidResponse {
+  InvalidResponse(@rich.TextType)
+}
+pub fn InvalidResponse::message(Self) -> @rich.TextType
+
+// Types and methods
+pub(all) struct Confirm {
+}
+pub fn Confirm::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : Bool, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Bool raise
+pub fn Confirm::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[Bool] raise
+
+pub(all) struct FloatPrompt {
+}
+pub fn FloatPrompt::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : Double, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Double raise
+pub fn FloatPrompt::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[Double] raise
+
+pub struct InputStream {
+  // private fields
+}
+pub fn InputStream::new(String) -> Self
+pub fn InputStream::readline(Self) -> String
+
+pub(all) struct IntPrompt {
+}
+pub fn IntPrompt::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : Int, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Int raise
+pub fn IntPrompt::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[Int] raise
+
+pub(all) struct Prompt {
+}
+pub fn Prompt::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : String, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> String raise
+pub fn Prompt::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[String] raise
+
+pub(all) struct PromptBase[T] {
+  mut console : @rich.Console
+  mut prompt : @rich.Text
+  mut password : Bool
+  mut choices : Array[String]?
+  mut case_sensitive : Bool
+  mut show_default : Bool
+  mut show_choices : Bool
+  mut validate_error_message : String
+  mut illegal_choice_message : String
+  mut prompt_suffix : String
+  mut response_type : (String) -> T?
+  mut to_str : (T) -> String
+  mut render_default_fn : ((PromptBase[T], T) -> @rich.Text)?
+  mut process_response_fn : ((PromptBase[T], String) -> T raise InvalidResponse)?
+  mut pre_prompt_fn : ((PromptBase[T]) -> Unit raise)?
+  mut get_input : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise
+}
+pub fn[T] PromptBase::call(Self[T], default? : T, stream? : InputStream) -> T raise
+pub fn[T] PromptBase::check_choice(Self[T], String) -> Bool
+pub fn[T] PromptBase::convert_response(Self[T], String) -> T raise InvalidResponse
+pub fn[T] PromptBase::make_prompt(Self[T], default? : T) -> @rich.Text
+pub fn[T] PromptBase::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, response_type~ : (String) -> T?, to_str~ : (T) -> String, validate_error_message? : String, illegal_choice_message? : String, prompt_suffix? : String, render_default? : (Self[T], T) -> @rich.Text, process_response? : (Self[T], String) -> T raise InvalidResponse, pre_prompt? : (Self[T]) -> Unit raise, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Self[T] raise
+pub fn[T] PromptBase::on_validate_error(Self[T], String, InvalidResponse) -> Unit raise
+pub fn[T] PromptBase::pre_prompt(Self[T]) -> Unit raise
+pub fn[T] PromptBase::process_response(Self[T], String) -> T raise InvalidResponse
+pub fn[T] PromptBase::render_default(Self[T], T) -> @rich.Text
+
+// Type aliases
+pub type InputFn = (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise
+
+// Traits

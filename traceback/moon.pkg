@@ -1,0 +1,19 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/internal/fs",
+  "bobzhang/rich/columns",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/pretty",
+  "bobzhang/rich/scope",
+  "bobzhang/rich/syntax",
+  "bobzhang/pygments/lexers",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/env",
+}
+
+import {
+  "moonbitlang/core/json",
+  "bobzhang/rich/pretty",
+} for "test"
+
+warnings = "-implicit_impl_as_method"
