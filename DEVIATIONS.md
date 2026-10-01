@@ -12,6 +12,12 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   format them as strings.
 * `Console.print(*objects)` → `print(object)` and `print_many(objects)`.
 * `diagnose.report` (prints Python environment details) is not ported.
+* Upstream refreshes `Live`/`Progress`/`Status` from a background thread.
+  The synchronous API refreshes on updates (and `tick()`); the `aio`
+  package (native, `moonbitlang/async`) adds timer-driven refresh:
+  `@aio.run_live`, `run_progress`, `run_status` and an async `track`. The
+  async runtime is cooperative, so the timer fires whenever the body
+  suspends (sleep, IO, `@async.pause()`), not during CPU-bound work.
 * No Jupyter, no legacy Windows console API (`legacy_windows` only affects
   layout), no `file_proxy` redirection, no `inspect`.
 

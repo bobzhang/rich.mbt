@@ -1,0 +1,15 @@
+import {
+  "bobzhang/rich/live",
+  "bobzhang/rich/progress",
+  "bobzhang/rich/status",
+  "moonbitlang/async",
+  "moonbitlang/core/cmp",
+}
+
+import {
+  "bobzhang/rich",
+} for "test"
+
+supported_targets = "native"
+
+warnings = "-implicit_impl_as_method"

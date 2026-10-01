@@ -1,0 +1,25 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/aio"
+
+import {
+  "bobzhang/rich/live",
+  "bobzhang/rich/progress",
+  "bobzhang/rich/status",
+}
+
+// Values
+pub async fn[X] run_live(@live.Live, async () -> X) -> X
+
+pub async fn[X] run_progress(@progress.Progress, async () -> X) -> X
+
+pub async fn[X] run_status(@status.Status, async () -> X) -> X
+
+pub async fn[T] track(Array[T], async (T) -> Unit, description? : String, progress? : @progress.Progress) -> Unit
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

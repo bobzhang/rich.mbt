@@ -77,6 +77,24 @@ fn main raise {
 }
 ```
 
+In async code (native), `@aio` refreshes from a timer like upstream's
+refresh thread, so spinners and elapsed times keep moving while the body
+awaits:
+
+```mbt nocheck
+///|
+async fn main {
+  let progress = @progress.Progress::new()
+  @aio.run_progress(progress, () => {
+    let task = progress.add_task("Downloading", total=Some(3.0))
+    for _ in 0..<3 {
+      @async.sleep(500) // network IO, subprocesses, ...
+      progress.advance(task)
+    }
+  })
+}
+```
+
 Run the feature demo (`python -m rich`):
 
 ```bash
@@ -101,6 +119,7 @@ moon run cmd/demo
 | `bobzhang/rich/live` | live, live_render |
 | `bobzhang/rich/status` | status |
 | `bobzhang/rich/progress` | progress |
+| `bobzhang/rich/aio` | the refresh thread: timer-driven `Live`/`Progress`/`Status` on `moonbitlang/async` (native) |
 | `bobzhang/rich/pretty` | pretty, repr |
 | `bobzhang/rich/scope` | scope |
 | `bobzhang/rich/syntax` | syntax (via [pygments.mbt](https://github.com/bobzhang/pygments.mbt)) |
@@ -118,7 +137,8 @@ moon run cmd/demo
   100, all 652 CommonMark spec examples for Markdown and 36 languages × 13
   themes for Syntax.
 * MoonBit has no threads and no runtime introspection: `Live`/`Progress`
-  refresh on updates (or `tick()`) instead of from a timer thread; `pretty`
+  refresh on updates (or `tick()`), or from a timer with `@aio` in async
+  code; `pretty`
   works through the `PrettyRepr` trait; tracebacks are rendered from data you
   provide; `inspect` and Jupyter support are not ported.
 
