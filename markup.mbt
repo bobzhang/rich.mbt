@@ -154,7 +154,8 @@ pub fn render_markup(
         let plain_text = plain_text.replace_all(old="\\[", new="[")
         text.append_str(
           if emoji {
-            emoji_replace(plain_text)
+            // as upstream, the variant only applies to markup without tags
+            @emoji.replace(plain_text)
           } else {
             plain_text
           },

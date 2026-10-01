@@ -283,6 +283,22 @@ test "render_meta" {
 }
 
 ///|
+test "emoji variant only without tags (as upstream)" {
+  assert_eq(
+    @rich.render_markup(":warning:", emoji_variant=Emoji).plain(),
+    "⚠\u{fe0f}",
+  )
+  assert_eq(
+    @rich.render_markup(":warning: [b]:warning:[/b]", emoji_variant=Emoji).plain(),
+    "⚠ ⚠",
+  )
+  assert_eq(
+    @rich.render_markup(":warning-text: [b]x", emoji_variant=Emoji).plain(),
+    "⚠\u{fe0e} x",
+  )
+}
+
+///|
 test "tag" {
   inspect(tag("bold"), content="bold")
   inspect(tag("link", parameters="foo"), content="link foo")
