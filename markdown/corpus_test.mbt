@@ -94,7 +94,7 @@ test "rendered output matches upstream" {
   debug_inspect(
     (passed, render_cases.length()),
     content=(
-      #|(1147, 1155)
+      #|(1149, 1157)
     ),
   )
 }

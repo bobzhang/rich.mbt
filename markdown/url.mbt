@@ -137,7 +137,6 @@ fn MdUrl::parse(url : String) -> MdUrl {
   let mut rest = py_strip(url)
   // protocol: ^([a-z0-9.+-]+:)
   let mut proto = ""
-  let mut lower_proto = ""
   let mut i = 0
   while i < rest.length() {
     let c = rest[i]
@@ -149,7 +148,6 @@ fn MdUrl::parse(url : String) -> MdUrl {
   }
   if i > 0 && i < rest.length() && rest[i] == ':' {
     proto = substr(rest, 0, end=i + 1)
-    lower_proto = proto.to_lower()
     u.protocol = proto
     rest = substr(rest, i + 1)
   }
@@ -253,7 +251,6 @@ fn MdUrl::parse(url : String) -> MdUrl {
   if rest != "" {
     u.pathname = rest
   }
-  ignore(lower_proto)
   u
 }
 

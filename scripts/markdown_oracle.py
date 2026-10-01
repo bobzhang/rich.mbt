@@ -23,6 +23,7 @@ from rich.markdown import Markdown
 
 ROOT = Path(__file__).resolve().parent.parent
 SPEC = ROOT / ".mooncakes/moonbit-community/cmark/src/data/test/spec.md"
+README = Path("/Users/dii/git/rich.mbt/.repos/rich/README.md")
 OUT = ROOT / "markdown/corpus_data_test.mbt"
 
 PARSER = MarkdownIt().enable("strikethrough").enable("table")
@@ -248,6 +249,9 @@ EXTRA_RENDER = [
 
 
 def mbt_str(s: str) -> str:
+    if len(s) > 1500:  # keep source lines short (compiler text segment limit)
+        chunks = [s[i : i + 1500] for i in range(0, len(s), 1500)]
+        return "(" + " +\n    ".join(mbt_str(c) for c in chunks) + ")"
     out = ['"']
     for ch in s:
         o = ord(ch)
@@ -302,6 +306,9 @@ def main() -> None:
         for width, options in OPTIONS:
             cases.append((ex, width, options))
     cases += EXTRA_RENDER
+    # a real-world document: upstream Rich's README
+    readme = README.read_text(encoding="utf-8")
+    cases += [(readme, 100, {}), (readme, 60, {"hyperlinks": "false"})]
     for ex in spec:
         cases.append((ex, 80, {}))
     for ex, width, options in cases:

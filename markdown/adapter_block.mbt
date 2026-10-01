@@ -308,7 +308,7 @@ fn Converter::heading(
   if heading.layout is Setext(_) {
     // A setext heading whose content holds a GFM table: markdown-it parses
     // the table first (the underline then ends it or becomes a row).
-    if self.setext_lines(h) is Some(all) && self.split_tables(all, h.meta.loc) {
+    if self.setext_lines(h) is Some(all) && self.split_tables(all) {
       return
     }
   }
@@ -370,14 +370,14 @@ fn Converter::paragraph(
     lines[lines.length() - 1] = self.extend_to_line_end(last)
   }
   lines.append(lost)
-  if self.split_tables(lines, p.meta.loc) {
+  if self.split_tables(lines) {
     return
   }
   self.push(Token::make("paragraph_open", "p", 1))
   if !reparse {
     self.inline_block(p.v.inline, p.meta.loc)
   } else {
-    self.inline_text(py_strip(lines.map(l => l.text).join("\n")))
+    self.inline_text(self.lines_source(lines))
   }
   self.push(Token::make("paragraph_close", "p", -1))
 }

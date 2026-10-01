@@ -68,12 +68,7 @@ fn Converter::lost_lines_after(
     if pos >= end {
       break
     }
-    result.push({
-      line: l,
-      text: substr(self.src, pos, end~),
-      indent: 0,
-      recovered: true,
-    })
+    result.push({ ..self.make_line(l, pos, end), indent: 0, recovered: true, })
     l += 1
   }
   result
@@ -316,8 +311,7 @@ fn interrupts_paragraph(line : Line) -> Bool {
 }
 
 ///|
-fn Converter::first_line(self : Converter, b : @cmark.Block) -> Int? {
-  ignore(self)
+fn block_first_line(b : @cmark.Block) -> Int? {
   match b {
     HtmlBlock(h) =>
       match h.v.0.get(0) {
@@ -413,7 +407,7 @@ fn Converter::table_takes_over(
       lines[0].line
     }
     _ => {
-      guard self.first_line(b) is Some(first) else { return false }
+      guard block_first_line(b) is Some(first) else { return false }
       let pair = self.source_lines(first, first + 1)
       guard pair.length() == 2 && table_start(pair, 0) is Some(_) else {
         return false
@@ -425,7 +419,7 @@ fn Converter::table_takes_over(
   for b in blocks[i:] {
     last = @cmp.maximum(last, block_last_line(b))
   }
-  self.split_tables(self.source_lines(first, last), b.meta().loc)
+  self.split_tables(self.source_lines(first, last))
 }
 
 ///|
@@ -445,7 +439,7 @@ fn Converter::after_link_definition(
   }
   let def_loc = def.meta.loc
   guard !def_loc.is_none() &&
-    self.first_line(next) is Some(first) &&
+    block_first_line(next) is Some(first) &&
     first == def_loc.last_line.0 + 1 else {
     return false
   }

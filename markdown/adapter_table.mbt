@@ -14,6 +14,8 @@ priv struct Line {
   indent : Int
   /// No inline node starts on this line: cmark may have lost its content.
   recovered : Bool
+  /// The blanks before `text` on the source line.
+  lead : String
 }
 
 ///|
@@ -41,11 +43,17 @@ fn Converter::make_line(
   while s < end && self.src[s] is (' ' | '\t') {
     s += 1
   }
+  let line_start = self.line_starts[line - 1]
+  let mut b = s
+  while b > line_start && self.src[b - 1] is (' ' | '\t') {
+    b -= 1
+  }
   {
     line,
     text: substr(self.src, s, end~),
     indent: self.column(line, s),
     recovered: false,
+    lead: substr(self.src, b, end=s),
   }
 }
 
@@ -376,11 +384,7 @@ let max_autocompleted_cells : Int = 0x10000
 /// Split block `lines` into paragraph / table / remaining blocks as
 /// markdown-it would. Returns `false` (emitting nothing) when the lines
 /// hold no table.
-fn Converter::split_tables(
-  self : Converter,
-  lines : Array[Line],
-  _loc : @cmark_base.TextLoc,
-) -> Bool {
+fn Converter::split_tables(self : Converter, lines : Array[Line]) -> Bool {
   guard lines.iter().any(l => l.text.contains("|")) else { return false }
   let n = lines.length()
   let mut found = None
@@ -392,9 +396,8 @@ fn Converter::split_tables(
   }
   guard found is Some((start, (header, aligns))) else { return false }
   if start > 0 {
-    let content = lines[:start].map(l => l.text).join("\n")
     self.push(Token::make("paragraph_open", "p", 1))
-    self.inline_text(py_strip(content))
+    self.inline_text(self.lines_source(lines[:start]))
     self.push(Token::make("paragraph_close", "p", -1))
   }
   let column_count = header.length()

@@ -88,8 +88,7 @@ fn InlineConv::inline(
         Soft => self.push(Token::make("softbreak", "br", 0))
         Hard => self.push(Token::make("hardbreak", "br", 0))
       }
-    CodeSpan(c) =>
-      self.push(Token::make("code_inline", "code", 0, content=c.v.code()))
+    CodeSpan(c) => self.code_span(c.v)
     Emphasis(e) => {
       self.push(Token::make("em_open", "em", 1))
       self.inline(e.v.inline, self.new_scope())
@@ -118,7 +117,7 @@ fn InlineConv::inline(
       }
     }
     Link(l) => self.link(l, scope)
-    Image(l) => self.image(l, scope)
+    Image(l) => self.image(l)
     Autolink(a) => {
       let url = a.v.link.v
       let valid = if a.v.is_email {
@@ -193,7 +192,6 @@ fn InlineConv::link(
 fn InlineConv::image(
   self : InlineConv,
   l : @cmark.Node[@cmark.InlineLink],
-  _scope : Int,
 ) -> Unit {
   let dest = self.link_dest(l.v)
   let src = normalize_link(dest.unwrap_or(""))
@@ -510,7 +508,7 @@ fn Converter::inline_block(
   }
   let lines = self.inline_lines(inline, loc)
   if lines.iter().any(l => l.text.contains("~")) {
-    self.inline_text(py_strip(lines.map(l => l.text).join("\n")))
+    self.inline_text(self.lines_source(lines))
     return
   }
   let conv = InlineConv::new(self.src, self.defs, snippet=false)
@@ -518,6 +516,48 @@ fn Converter::inline_block(
   for t in conv.finish() {
     self.push(t)
   }
+}
+
+///|
+/// The inline source of block `lines`, as markdown-it sees it: lines
+/// joined with `\n`, keeping the indentation of continuation lines (only
+/// known outside containers), stripped.
+fn Converter::lines_source(self : Converter, lines : ArrayView[Line]) -> String {
+  let top = self.quote_depth == 0 && self.list_depth == 0
+  let parts = lines
+    .iter()
+    .mapi((k, l) => if top && k > 0 { l.lead + l.text } else { l.text })
+    .collect()
+  py_strip(parts.join("\n"))
+}
+
+///|
+/// markdown-it's code span content: line endings become spaces, keeping
+/// the indentation of continuation lines; one surrounding space is
+/// stripped from each side when both are present.
+fn InlineConv::code_span(self : InlineConv, c : @cmark.InlineCodeSpan) -> Unit {
+  let parts : Array[String] = []
+  for k, t in c.code_layout.to_array() {
+    if k == 0 {
+      parts.push(t.node.v)
+    } else {
+      // snippet lines carry 4 extra blanks
+      let blanks = if self.snippet && t.blanks.length() >= 4 {
+        substr(t.blanks, 4)
+      } else {
+        t.blanks
+      }
+      parts.push(blanks + t.node.v)
+    }
+  }
+  let mut content = parts.join(" ")
+  if content.length() >= 2 &&
+    content.has_prefix(" ") &&
+    content.has_suffix(" ") &&
+    py_strip(content) != "" {
+    content = substr(content, 1, end=content.length() - 1)
+  }
+  self.push(Token::make("code_inline", "code", 0, content~))
 }
 
 ///|
