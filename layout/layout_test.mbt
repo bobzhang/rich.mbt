@@ -99,7 +99,7 @@ test "refresh screen" {
   )
   ignore(console.capture(() => console.print(layout)))
   let mut result = ""
-  console.screen(() => {
+  console.screen(_ => {
     result = console.capture(() => layout.refresh_screen(console, "foo"))
   })
   let expected = "\u{1b}[1;1H\u{1b}[34m╭─\u{1b}[0m\u{1b}[34m \u{1b}[0m\u{1b}[32m'foo'\u{1b}[0m\u{1b}[34m─╮\u{1b}[0m\u{1b}[2;1H\u{1b}[34m│\u{1b}[0m \u{1b}[1;35mLayout\u{1b}[0m \u{1b}[34m│\u{1b}[0m\u{1b}[3;1H\u{1b}[34m│\u{1b}[0m \u{1b}[1m(\u{1b}[0m      \u{1b}[34m│\u{1b}[0m\u{1b}[4;1H\u{1b}[34m│\u{1b}[0m     \u{1b}[33mna\u{1b}[0m \u{1b}[34m│\u{1b}[0m\u{1b}[5;1H\u{1b}[34m╰────────╯\u{1b}[0m"
