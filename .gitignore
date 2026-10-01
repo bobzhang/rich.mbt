@@ -1,0 +1,6 @@
+.repos/
+.venv/
+_build/
+target/
+.mooncakes/
+__pycache__/
