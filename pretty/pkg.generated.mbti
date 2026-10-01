@@ -1,0 +1,171 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/pretty"
+
+import {
+  "bobzhang/rich",
+  "moonbitlang/core/bigint",
+  "moonbitlang/core/debug",
+  "moonbitlang/core/deque",
+  "moonbitlang/core/hashmap",
+  "moonbitlang/core/hashset",
+  "moonbitlang/core/set",
+}
+
+// Values
+pub fn[T : PrettyRepr] arg(T) -> ReprArg
+
+pub fn[T : PrettyRepr + Eq] arg_default(T, T) -> ReprArg
+
+pub fn[T : @debug.Debug] debugged(T) -> Leaf
+
+pub fn[T : PrettyRepr] kwarg(String, T) -> ReprArg
+
+pub fn[T : PrettyRepr + Eq] kwarg_default(String, T, T) -> ReprArg
+
+pub fn[T : PrettyRepr] pprint(T, console? : @rich.Console, indent_guides? : Bool, max_length? : Int, max_string? : Int, max_depth? : Int, expand_all? : Bool) -> Unit raise
+
+pub fn[T : PrettyRepr] pretty_repr(T, max_width? : Int, indent_size? : Int, max_length? : Int, max_string? : Int, max_depth? : Int, expand_all? : Bool) -> String
+
+pub fn py_bytes_repr(BytesView) -> String
+
+pub fn repr_string(String, ArrayView[ReprArg], angular? : Bool) -> String
+
+pub fn[T : Show] shown(T) -> Leaf
+
+pub fn[T : PrettyRepr] traverse(T, max_length? : Int, max_string? : Int, max_depth? : Int) -> Node
+
+// Errors
+
+// Types and methods
+pub struct Dict {
+  items : Array[(&PrettyRepr, &PrettyRepr)]
+}
+pub fn Dict::new(Array[(&PrettyRepr, &PrettyRepr)]) -> Self
+pub impl PrettyRepr for Dict
+
+pub struct Leaf {
+  repr : String
+}
+pub fn Leaf::new(String) -> Self
+pub impl PrettyRepr for Leaf
+
+pub(all) struct Node {
+  mut key_repr : String
+  mut value_repr : String
+  mut open_brace : String
+  mut close_brace : String
+  mut empty : String
+  mut last : Bool
+  mut is_tuple : Bool
+  mut is_namedtuple : Bool
+  mut children : Array[Node]?
+  mut key_separator : String
+  mut separator : String
+}
+pub fn Node::check_length(Self, Int, Int) -> Bool
+pub fn Node::copy(Self) -> Self
+pub fn Node::iter_tokens(Self) -> Iter[String]
+pub fn Node::new(key_repr? : String, value_repr? : String, open_brace? : String, close_brace? : String, empty? : String, last? : Bool, is_tuple? : Bool, is_namedtuple? : Bool, children? : Array[Self], key_separator? : String, separator? : String) -> Self
+pub fn Node::render(Self, max_width? : Int, indent_size? : Int, expand_all? : Bool) -> String
+pub impl PrettyRepr for Node
+pub impl Show for Node
+
+pub(all) struct Pretty {
+  mut value : &PrettyRepr
+  mut highlighter : &@rich.Highlighter
+  mut indent_size : Int
+  mut justify : @rich.JustifyMethod?
+  mut overflow : @rich.OverflowMethod?
+  mut no_wrap : Bool?
+  mut indent_guides : Bool
+  mut max_length : Int?
+  mut max_string : Int?
+  mut max_depth : Int?
+  mut expand_all : Bool
+  mut margin : Int
+  mut insert_line : Bool
+}
+pub fn Pretty::new(&PrettyRepr, highlighter? : &@rich.Highlighter, indent_size? : Int, justify? : @rich.JustifyMethod, overflow? : @rich.OverflowMethod, no_wrap? : Bool?, indent_guides? : Bool, max_length? : Int, max_string? : Int, max_depth? : Int, expand_all? : Bool, margin? : Int, insert_line? : Bool) -> Self
+pub impl @rich.Renderable for Pretty
+
+pub struct PrettyContext {
+  max_length : Int?
+  max_string : Int?
+  max_depth : Int?
+  depth : Int
+  root : Bool
+  // private fields
+}
+pub fn[T : PrettyRepr] PrettyContext::child(Self, T) -> Node
+pub fn PrettyContext::dataclass(Self, String, ArrayView[(String, &PrettyRepr)], id? : PrettyId) -> Node
+pub fn[K : PrettyRepr] PrettyContext::key_repr(Self, K) -> String
+pub fn PrettyContext::leaf(Self, String) -> Node
+pub fn[K : PrettyRepr, V : PrettyRepr] PrettyContext::mapping(Self, ArrayView[(K, V)], open_brace? : String, close_brace? : String, empty? : String, id? : PrettyId) -> Node
+pub fn PrettyContext::namedtuple(Self, String, ArrayView[(String, &PrettyRepr)], id? : PrettyId) -> Node
+pub fn PrettyContext::new(max_length? : Int, max_string? : Int, max_depth? : Int) -> Self
+pub fn PrettyContext::reached_max_depth(Self) -> Bool
+pub fn PrettyContext::rich_repr(Self, String, ArrayView[ReprArg], angular? : Bool, id? : PrettyId) -> Node
+pub fn[T : PrettyRepr] PrettyContext::sequence(Self, ArrayView[T], open_brace? : String, close_brace? : String, empty? : String, is_tuple? : Bool, id? : PrettyId) -> Node
+pub fn PrettyContext::str_leaf(Self, String) -> Node
+pub fn PrettyContext::str_repr(Self, String) -> String
+pub fn PrettyContext::tuple(Self, ArrayView[&PrettyRepr]) -> Node
+pub fn PrettyContext::visit(Self, PrettyId, () -> Node) -> Node
+
+pub struct PrettyId {
+  // private fields
+}
+pub fn PrettyId::new() -> Self
+
+pub(all) enum ReprArg {
+  Positional(&PrettyRepr)
+  Keyword(String, &PrettyRepr)
+  Skip
+}
+
+pub struct Tuple {
+  items : Array[&PrettyRepr]
+}
+pub fn Tuple::new(Array[&PrettyRepr]) -> Self
+pub impl PrettyRepr for Tuple
+
+// Type aliases
+
+// Traits
+pub(open) trait PrettyRepr {
+  fn pretty_node(Self, PrettyContext) -> Node
+}
+pub impl PrettyRepr for Unit
+pub impl PrettyRepr for Bool
+pub impl PrettyRepr for Byte
+pub impl PrettyRepr for Char
+pub impl PrettyRepr for Int
+pub impl PrettyRepr for Int16
+pub impl PrettyRepr for Int64
+pub impl PrettyRepr for UInt
+pub impl PrettyRepr for UInt16
+pub impl PrettyRepr for UInt64
+pub impl PrettyRepr for Float
+pub impl PrettyRepr for Double
+pub impl PrettyRepr for String
+pub impl[T : PrettyRepr] PrettyRepr for T?
+pub impl[T : PrettyRepr, E : PrettyRepr] PrettyRepr for Result[T, E]
+pub impl[T : PrettyRepr] PrettyRepr for FixedArray[T]
+pub impl[T : PrettyRepr] PrettyRepr for ReadOnlyArray[T]
+pub impl PrettyRepr for Bytes
+pub impl PrettyRepr for Error
+pub impl PrettyRepr for @rich.JsonValue
+pub impl PrettyRepr for @bigint.BigInt
+pub impl[T : PrettyRepr] PrettyRepr for Array[T]
+pub impl[T : PrettyRepr] PrettyRepr for ArrayView[T]
+pub impl PrettyRepr for Json
+pub impl[K : PrettyRepr, V : PrettyRepr] PrettyRepr for Map[K, V]
+pub impl[T : PrettyRepr] PrettyRepr for @deque.Deque[T]
+pub impl[K : PrettyRepr, V : PrettyRepr] PrettyRepr for @hashmap.HashMap[K, V]
+pub impl[T : PrettyRepr] PrettyRepr for @hashset.HashSet[T]
+pub impl[T : PrettyRepr] PrettyRepr for @set.Set[T]
+pub impl[A : PrettyRepr, B : PrettyRepr] PrettyRepr for (A, B)
+pub impl[A : PrettyRepr, B : PrettyRepr, C : PrettyRepr] PrettyRepr for (A, B, C)
+pub impl[A : PrettyRepr, B : PrettyRepr, C : PrettyRepr, D : PrettyRepr] PrettyRepr for (A, B, C, D)
+pub impl[A : PrettyRepr, B : PrettyRepr, C : PrettyRepr, D : PrettyRepr, E : PrettyRepr] PrettyRepr for (A, B, C, D, E)
+pub impl[A : PrettyRepr, B : PrettyRepr, C : PrettyRepr, D : PrettyRepr, E : PrettyRepr, F : PrettyRepr] PrettyRepr for (A, B, C, D, E, F)
+pub impl PrettyRepr for StringView
