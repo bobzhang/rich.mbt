@@ -3,7 +3,7 @@
 ///|
 test "wrap oracle cases" {
   let cases : Array[
-    (String, Int, JustifyMethod?, OverflowMethod?, Array[String]),
+    (String, Int, @rich.JustifyMethod?, @rich.OverflowMethod?, Array[String]),
   ] = [
     (
       "Hello, World!",
@@ -13518,7 +13518,7 @@ test "wrap oracle cases" {
     let actual = lines.lines.map(l => l.repr())
     if actual != expected {
       fail(
-        "\{markup} width=\{width} \{to_repr(justify)} \{to_repr(overflow)}:\n\{to_repr(actual)}\n\{to_repr(expected)}",
+        "\{markup} width=\{width} \{justify.map(j => j.to_string()).unwrap_or("None")} \{overflow.map(o => o.to_string()).unwrap_or("None")}:\n\{actual.join("\n")}\n\{expected.join("\n")}",
       )
     }
   }
@@ -13526,7 +13526,7 @@ test "wrap oracle cases" {
 
 ///|
 test "print oracle cases" {
-  let cases : Array[(String, Int, JustifyMethod?, String)] = [
+  let cases : Array[(String, Int, @rich.JustifyMethod?, String)] = [
     (
       "Hello, World!",
       7,
@@ -16210,7 +16210,7 @@ test "text method oracle cases" {
     ("hyphen-ated-words-are-not-split-on-hyphens", "cell_len", "42"),
   ]
   for case in cases {
-    let (markup, method, expected) = case
-    assert_eq(text_method(markup, method), expected, msg="\{markup} \{method}")
+    let (markup, op, expected) = case
+    assert_eq(text_method(markup, op), expected, msg="\{markup} \{op}")
   }
 }

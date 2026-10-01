@@ -371,7 +371,7 @@ test "style parse oracle cases" {
   for case in cases {
     let actual = describe_style(case.0)
     if actual != case.1 {
-      fail("\{case.0}:\n\{to_repr(actual)}\n\{to_repr(case.1)}")
+      fail("\{case.0}:\n\{actual.join("\n")}\n\{case.1.join("\n")}")
     }
   }
 }

@@ -21,9 +21,9 @@ fn lines_repr_text(lines : @rich.Lines) -> String {
 
 ///|
 /// Apply the method named by the generator to the Text of `markup`.
-fn text_method(markup : String, method : String) -> String raise {
+fn text_method(markup : String, op : String) -> String raise {
   let t = @rich.Text::from_markup(markup)
-  match method {
+  match op {
     "markup" => t.markup()
     "split_space" => lines_repr_text(t.split(separator=" "))
     "split_nl_sep" =>
@@ -46,7 +46,7 @@ fn text_method(markup : String, method : String) -> String raise {
     }
     "align_left" | "align_center" | "align_right" => {
       let a = t.copy()
-      let align : @rich.AlignMethod = match method {
+      let align : @rich.AlignMethod = match op {
         "align_left" => Left
         "align_center" => Center
         _ => Right
@@ -73,9 +73,9 @@ fn text_method(markup : String, method : String) -> String raise {
     }
     "fit6" => lines_repr_text(t.fit(6))
     "cell_len" => t.cell_len().to_string()
-    _ if method.has_prefix("truncate") => {
+    _ if op.has_prefix("truncate") => {
       // truncate{width}_{overflow}
-      let rest = method.view(start_offset=8).to_owned()
+      let rest = op.view(start_offset=8).to_owned()
       guard rest.find("_") is Some(i) else { fail("bad method") }
       let width = @string.parse_int(rest.view(end_offset=i))
       let overflow = @rich.OverflowMethod::parse(
@@ -85,6 +85,6 @@ fn text_method(markup : String, method : String) -> String raise {
       tr.truncate(width, overflow~, pad=true)
       tr.repr()
     }
-    _ => fail("unknown method \{method}")
+    _ => fail("unknown method \{op}")
   }
 }

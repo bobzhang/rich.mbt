@@ -136,7 +136,7 @@ def misc_cases():
 def main():
     lines = [HEADER, ""]
     lines += ["///|", 'test "wrap oracle cases" {']
-    lines.append("  let cases : Array[(String, Int, JustifyMethod?, OverflowMethod?, Array[String])] = [")
+    lines.append("  let cases : Array[(String, Int, @rich.JustifyMethod?, @rich.OverflowMethod?, Array[String])] = [")
     for m, width, justify, overflow, out in wrap_cases():
         outs = ", ".join(mbt_str(o) for o in out)
         lines.append(f"    ({mbt_str(m)}, {width}, {opt(justify)}, {opt(overflow)}, [{outs}]),")
@@ -149,7 +149,7 @@ def main():
         "    let actual = lines.lines.map(l => l.repr())",
         "    if actual != expected {",
         "      fail(",
-        "        \"\\{markup} width=\\{width} \\{to_repr(justify)} \\{to_repr(overflow)}:\\n\\{to_repr(actual)}\\n\\{to_repr(expected)}\",",
+        "        \"\\{markup} width=\\{width} \\{justify.map(j => j.to_string()).unwrap_or(\"None\")} \\{overflow.map(o => o.to_string()).unwrap_or(\"None\")}:\\n\\{actual.join(\"\\n\")}\\n\\{expected.join(\"\\n\")}\",",
         "      )",
         "    }",
         "  }",
@@ -157,7 +157,7 @@ def main():
         "",
     ]
     lines += ["///|", 'test "print oracle cases" {']
-    lines.append("  let cases : Array[(String, Int, JustifyMethod?, String)] = [")
+    lines.append("  let cases : Array[(String, Int, @rich.JustifyMethod?, String)] = [")
     for m, width, justify, out in print_cases():
         lines.append(f"    ({mbt_str(m)}, {width}, {opt(justify)}, {mbt_str(out)}),")
     lines += [
@@ -179,8 +179,8 @@ def main():
     lines += [
         "  ]",
         "  for case in cases {",
-        "    let (markup, method, expected) = case",
-        "    assert_eq(text_method(markup, method), expected, msg=\"\\{markup} \\{method}\")",
+        "    let (markup, op, expected) = case",
+        "    assert_eq(text_method(markup, op), expected, msg=\"\\{markup} \\{op}\")",
         "  }",
         "}",
     ]
