@@ -285,8 +285,12 @@ pub fn Console::export_svg(
   }
   let backgrounds = text_backgrounds.join("")
   let matrix = text_group.join("")
-  let terminal_width = (width.to_double() * char_width + padding_width.to_double()).ceil().to_int()
-  let terminal_height = (y + 1).to_double() * line_height + padding_height.to_double()
+  let terminal_width = (width.to_double() * char_width +
+    padding_width.to_double())
+    .ceil()
+    .to_int()
+  let terminal_height = (y + 1).to_double() * line_height +
+    padding_height.to_double()
   let mut chrome = make_tag("rect", [
     ("fill", S(theme.background_color.hex())),
     ("stroke", S("rgba(255,255,255,0.35)")),

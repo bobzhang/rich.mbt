@@ -1,0 +1,7 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/cells",
+  "moonbitlang/core/cmp",
+}
+
+warnings = "-implicit_impl_as_method"

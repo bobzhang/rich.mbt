@@ -106,7 +106,7 @@ fn shortest_digits(d : Double) -> (Bool, String, Int) {
 /// `|d| = mantissa * 2^exponent`.
 fn decompose(d : Double) -> (Bool, UInt64, Int) {
   let bits = d.reinterpret_as_uint64()
-  let negative = (bits >> 63) != 0UL
+  let negative = bits >> 63 != 0UL
   let exp_bits = ((bits >> 52) & 0x7ffUL).to_int()
   let frac = bits & 0xfffffffffffffUL
   if exp_bits == 0 {
@@ -173,7 +173,9 @@ pub fn py_format_fixed(d : Double, precision : Int) -> String {
     digits
   }
   let int_part = digits.view(end_offset=digits.length() - precision).to_owned()
-  let frac_part = digits.view(start_offset=digits.length() - precision).to_owned()
+  let frac_part = digits
+    .view(start_offset=digits.length() - precision)
+    .to_owned()
   let sign = if negative { "-" } else { "" }
   if precision == 0 {
     sign + int_part
@@ -216,7 +218,7 @@ pub fn py_format_g(d : Double) -> String {
     return "-inf"
   }
   if d == 0.0 {
-    return if (1.0 / d) < 0.0 { "-0" } else { "0" }
+    return if 1.0 / d < 0.0 { "-0" } else { "0" }
   }
   let precision = 6
   let (negative, digits, x) = round_significant(d, precision)
@@ -243,7 +245,11 @@ pub fn py_format_g(d : Double) -> String {
     )
     let exp_sign = if x < 0 { "-" } else { "+" }
     let e = x.abs()
-    sign + mantissa + "e" + exp_sign + (if e < 10 { "0\{e}" } else { e.to_string() })
+    sign +
+    mantissa +
+    "e" +
+    exp_sign +
+    (if e < 10 { "0\{e}" } else { e.to_string() })
   } else if x >= 0 {
     let int_part = digits.view(end_offset=x + 1).to_owned()
     let frac = digits.view(start_offset=x + 1).to_owned()
