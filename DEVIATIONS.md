@@ -75,3 +75,35 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
   `inf`/`nan`/`_`). The default of a `FloatPrompt` is displayed with Python
   float repr (`(1.0)`).
 * `PromptError` (the base class of `InvalidResponse`) is not ported.
+
+## logging
+
+* There is no Python `logging` module: `RichHandler` renders `LogRecord`
+  structs (name, level, already-interpolated `msg`, `pathname`, `lineno`,
+  `func_name`, `created`, optional `exc_text` / `stack_info`). Upstream
+  `extra={"markup": ..., "highlighter": ...}` are the record fields `markup`
+  and `highlighter` (`highlighter: None` → pass a `@rich.NullHighlighter`);
+  other extra attributes are strings in `extra`.
+* A small `Formatter` replaces `logging.Formatter` (`%`-style only:
+  `%(attr)[flags][width][.precision]conv` with conversions `s r d i f e g`,
+  `%%`; `asctime` uses `datefmt` or `%Y-%m-%d %H:%M:%S,mmm` in local time).
+  Unknown attributes raise `ValueError` at format time (Python `KeyError`).
+  Attributes about threads/processes/`relativeCreated` are not available.
+* A minimal `Logger` (level, handlers, `debug`/`info`/`warning`/`error`/
+  `critical`/`exception`/`log`) creates records with the caller's MoonBit
+  source location as `pathname`/`lineno`; no logger hierarchy, propagation,
+  filters or `basicConfig`. `RichHandler::handle` checks the handler level
+  (Python checks it in `Logger.callHandlers`).
+* Rich tracebacks: MoonBit has no exception objects with frames, so the
+  record carries an optional `traceback` renderable (e.g. a
+  `@traceback.Traceback` built by the caller); with `rich_tracebacks=true` it
+  is rendered below the message instead of the formatted `exc_text`. The
+  `tracebacks_*` and `locals_*` options are therefore not handler
+  options (configure the traceback renderable instead).
+* `log_time_format` is a `strftime` string; a callable is passed as
+  `log_time_formatter` (receives seconds since the epoch, not a
+  `datetime`).
+* `emit` raises render errors instead of calling `handleError`; the
+  `NullFile` (pythonw) special case is not ported.
+* Skipped upstream test: `test_stderr_and_stdout_are_none` (pythonw /
+  `NullFile`). `test_exception*` use a stand-in traceback renderable.
