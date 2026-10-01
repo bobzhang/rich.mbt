@@ -1,0 +1,21 @@
+///|
+test "python float formatting" {
+  inspect(@rich.py_float_repr(0.1 + 0.2), content="0.30000000000000004")
+  inspect(@rich.py_float_repr(1.0e16), content="1e+16")
+  inspect(@rich.py_float_repr(1234567890123456.0), content="1234567890123456.0")
+  inspect(@rich.py_float_repr(0.0001), content="0.0001")
+  inspect(@rich.py_float_repr(0.00001), content="1e-05")
+  inspect(@rich.py_float_repr(-2.5), content="-2.5")
+  inspect(@rich.py_format_fixed(2.675, 2), content="2.67")
+  inspect(@rich.py_format_fixed(0.5, 0), content="0")
+  inspect(@rich.py_format_fixed(1.5, 0), content="2")
+  inspect(@rich.py_format_fixed(-0.05, 1), content="-0.1")
+  inspect(@rich.py_format_fixed(1234.5678, 1), content="1234.6")
+  inspect(@rich.py_format_g(12.200000000000001), content="12.2")
+  inspect(@rich.py_format_g(1234567.0), content="1.23457e+06")
+  inspect(@rich.py_format_g(0.0001), content="0.0001")
+  inspect(@rich.py_format_g(0.00001234), content="1.234e-05")
+  inspect(@rich.py_format_g(999999.5), content="1e+06")
+  inspect(@rich.py_format_g(25.65), content="25.65")
+  inspect(@rich.py_group_thousands("1234567.25"), content="1,234,567.25")
+}

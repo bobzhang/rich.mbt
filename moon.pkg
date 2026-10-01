@@ -12,6 +12,7 @@ import {
   "moonbitlang/core/bigint",
   "moonbitlang/core/double",
   "moonbitlang/core/debug",
+  "moonbitlang/core/encoding/utf8",
 }
 
 warnings = "-implicit_impl_as_method"
