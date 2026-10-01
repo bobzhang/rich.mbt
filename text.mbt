@@ -49,7 +49,7 @@ pub fn Span::split(self : Span, offset : Int) -> (Span, Span?) {
 
 ///|
 /// Move start and end by a given offset.
-pub fn Span::move(self : Span, offset : Int) -> Span {
+pub fn Span::move_(self : Span, offset : Int) -> Span {
   { start: self.start + offset, end: self.end + offset, style: self.style, }
 }
 
@@ -64,7 +64,7 @@ pub fn Span::right_crop(self : Span, offset : Int) -> Span {
 
 ///|
 /// Extend the span by the given number of cells.
-pub fn Span::extend(self : Span, cells : Int) -> Span {
+pub fn Span::extend_(self : Span, cells : Int) -> Span {
   if cells != 0 {
     { start: self.start, end: self.end + cells, style: self.style, }
   } else {
@@ -652,7 +652,7 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
     let end_offset = self.length_
     self.spans_ = self.spans_.map(span => {
       if span.end >= end_offset {
-        span.extend(spaces)
+        span.extend_(spaces)
       } else {
         span
       }
@@ -1139,7 +1139,7 @@ pub fn Text::pad(self : Text, count : Int, character? : Char = ' ') -> Unit {
     let pad_characters = py_char_repeat(character, count)
     self.set_plain(pad_characters + self.plain() + pad_characters)
     let shift = count * char_utf16_len(character)
-    self.spans_ = self.spans_.map(span => span.move(shift))
+    self.spans_ = self.spans_.map(span => span.move_(shift))
   }
 }
 
@@ -1173,7 +1173,7 @@ pub fn Text::pad_left(
   if count != 0 {
     self.set_plain(py_char_repeat(character, count) + self.plain())
     let shift = count * char_utf16_len(character)
-    self.spans_ = self.spans_.map(span => span.move(shift))
+    self.spans_ = self.spans_.map(span => span.move_(shift))
   }
 }
 
@@ -1521,7 +1521,7 @@ pub fn Text::wrap(
     for l in new_lines.lines {
       l.truncate(width, overflow=wrap_overflow)
     }
-    lines.extend(new_lines.lines)
+    lines.extend_(new_lines.lines)
   }
   lines
 }

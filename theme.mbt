@@ -102,7 +102,7 @@ fn config_items(
       }
       continue
     }
-    let stripped_left = line.trim_start(chars=" \t").to_string()
+    let stripped_left = line.trim_start(chars=" \t").to_owned()
     let cur_indent_level = line.length() - stripped_left.length()
     if cursect is Some(sect) &&
       optname is Some(name) &&

@@ -77,7 +77,7 @@ priv enum LitTok {
   TStr(String, String?, Bool)
   TOp(String)
   TEnd
-} derive(Eq)
+}
 
 ///|
 fn is_name_start(c : Char) -> Bool {
@@ -724,7 +724,7 @@ fn convert_node(node : LitNode) -> PyValue raise LitError {
 
 ///|
 fn literal_eval_impl(source : String) -> PyValue raise LitError {
-  let source = source.trim_start(chars=" \t").to_string()
+  let source = source.trim_start(chars=" \t").to_owned()
   let p = LitParser::{ tokens: lit_tokenize(source), pos: 0, }
   if p.peek() is TEnd {
     raise LitSyntax("invalid syntax")

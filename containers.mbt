@@ -80,7 +80,7 @@ pub fn Lines::append(self : Lines, line : Text) -> Unit {
 }
 
 ///|
-pub fn Lines::extend(self : Lines, lines : ArrayView[Text]) -> Unit {
+pub fn Lines::extend_(self : Lines, lines : ArrayView[Text]) -> Unit {
   for line in lines {
     self.lines.push(line)
   }

@@ -536,6 +536,7 @@ test "test_export_svg_specified_unique_id" {
 }
 
 ///|
+#cfg(any(target="native", target="llvm"))
 fn temp_path(name : String) -> String {
   let dir = match @env.get_env_var("TMPDIR") {
     Some(d) if d != "" => d

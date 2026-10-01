@@ -50,7 +50,7 @@ pub fn Control::home() -> Control {
 
 ///|
 /// Move cursor relative to current position.
-pub fn Control::move(x? : Int = 0, y? : Int = 0) -> Control {
+pub fn Control::move_(x? : Int = 0, y? : Int = 0) -> Control {
   let codes = []
   if x != 0 {
     codes.push(

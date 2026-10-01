@@ -70,7 +70,7 @@ test "span_split" {
 
 ///|
 test "span_move" {
-  assert_eq(span(5, 10, "foo").move(2), span(7, 12, "foo"))
+  assert_eq(span(5, 10, "foo").move_(2), span(7, 12, "foo"))
 }
 
 ///|

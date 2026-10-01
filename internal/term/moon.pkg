@@ -3,7 +3,7 @@ import {
   "moonbitlang/core/env",
 }
 
-warnings = "-implicit_impl_as_method"
+warnings = "-implicit_impl_as_method-unused_package"
 
 options(
   "native-stub": [ "term_stub.c" ],

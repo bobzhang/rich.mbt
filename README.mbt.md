@@ -40,7 +40,9 @@ test "print markup and a table" {
 ```mbt nocheck
 ///|
 fn main {
-  @rich.print("[bold red]alert![/] Something happened") catch { _ => () }
+  @rich.print("[bold red]alert![/] Something happened") catch {
+    _ => ()
+  }
 }
 ```
 

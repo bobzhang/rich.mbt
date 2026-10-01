@@ -94,13 +94,19 @@ let repr_highlighter_instance : RegexHighlighter = must_regex_highlighter(
 
 ///|
 /// Highlights the text typically produced from `__repr__` methods.
-pub fn ReprHighlighter::new() -> RegexHighlighter {
-  repr_highlighter_instance
+pub struct ReprHighlighter {
+  priv inner : RegexHighlighter
 }
 
 ///|
-/// Namespace for `ReprHighlighter::new()`.
-pub struct ReprHighlighter {}
+pub fn ReprHighlighter::new() -> ReprHighlighter {
+  { inner: repr_highlighter_instance, }
+}
+
+///|
+pub impl Highlighter for ReprHighlighter with fn highlight(self, text) {
+  self.inner.highlight(text)
+}
 
 ///|
 let json_str_pattern : String = "(?<![\\\\\\w])(?P<str>b?\\\".*?(?<!\\\\)\\\")"
@@ -168,9 +174,16 @@ let iso8601_highlighter_instance : RegexHighlighter = must_regex_highlighter(
 
 ///|
 /// Highlights ISO8601 date time strings.
-pub struct ISO8601Highlighter {}
+pub struct ISO8601Highlighter {
+  priv inner : RegexHighlighter
+}
 
 ///|
-pub fn ISO8601Highlighter::new() -> RegexHighlighter {
-  iso8601_highlighter_instance
+pub fn ISO8601Highlighter::new() -> ISO8601Highlighter {
+  { inner: iso8601_highlighter_instance, }
+}
+
+///|
+pub impl Highlighter for ISO8601Highlighter with fn highlight(self, text) {
+  self.inner.highlight(text)
 }
