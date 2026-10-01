@@ -1,6 +1,17 @@
 // Helpers for the differential tests.
 
 ///|
+/// Replace each `(from, to)` pair in `s` (times rendered in UTC by the
+/// oracle and in local time here).
+fn replace_times(s : String, pairs : Array[(String, String)]) -> String {
+  let mut s = s
+  for pair in pairs {
+    s = s.replace_all(old=pair.0, new=pair.1)
+  }
+  s
+}
+
+///|
 /// Replace the (random) ids of OSC 8 hyperlinks, `id=<digits>;`, by `id=0;`.
 fn normalize_link_ids(s : String) -> String {
   let buf = StringBuilder()
