@@ -57,7 +57,8 @@ fn main raise {
   console.print(tree)
   console.print(@syntax.Syntax::new("def f(x):\n    return x + 1", "python", line_numbers=true))
   console.print(@markdown.Markdown::new("# Title\n\n* one\n* **two**"))
-  console.print(@pretty.Pretty::new({ "numbers": [1, 2, 3], "ok": true }))
+  let data : Json = { "numbers": [1, 2, 3], "ok": true }
+  console.print(@pretty.Pretty::new(data))
   let progress = @progress.Progress::new()
   progress.start()
   let task = progress.add_task("Working...", total=Some(10.0))
