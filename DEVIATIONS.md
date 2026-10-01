@@ -44,3 +44,34 @@ Intentional differences between rich.mbt and Rich 15.0.0, by module.
 
 * `JSON::from_data` takes a MoonBit `Json`; numbers without a textual
   representation are printed as integers when integral.
+
+## prompt
+
+* `PromptBase[PromptType]` is a generic struct `PromptBase[T]`; the upstream
+  subclasses are namespaces whose `new` returns `PromptBase[String]`
+  (`Prompt`), `PromptBase[Int]` (`IntPrompt`), `PromptBase[Double]`
+  (`FloatPrompt`) and `PromptBase[Bool]` (`Confirm`), and whose `ask` is the
+  upstream classmethod. Class attributes (`response_type`,
+  `validate_error_message`, `illegal_choice_message`, `prompt_suffix`,
+  `choices`) are fields; overridable methods are optional function fields
+  (`render_default_fn`, `process_response_fn`, `pre_prompt_fn`,
+  `get_input`). `convert_response` is the base `process_response`, so an
+  override can call it (upstream `super().process_response`).
+* `__call__` is `call(default?, stream?)`. `default` must have the response
+  type (upstream accepts any value and only displays it when it is a `str`
+  or of the response type; `...` is "no default" → `None`).
+* The prompt text is a positional argument without a default (pass `""`).
+* Input is injectable: `get_input?` (an `InputFn`, i.e.
+  `(Console, Text, password, InputStream?) -> String raise`, defaulting to
+  `@prompt.get_input`, which calls `Console::input`). `stream` is an
+  `InputStream` (a readable string, like `io.StringIO`): lines keep their
+  newline and the end of the stream reads as `""`, as with
+  `TextIO.readline`. With `password=true` and a stream, the line is read from
+  the stream with the newline removed (upstream passes the stream to
+  `getpass`, which uses it for output and reads from the terminal).
+* `IntPrompt` parses with Python `int()` rules (sign, whitespace, `_`
+  separators, base 10) but rejects values that do not fit an `Int`.
+  `FloatPrompt` uses `@string.parse_double` (Python `float()` syntax incl.
+  `inf`/`nan`/`_`). The default of a `FloatPrompt` is displayed with Python
+  float repr (`(1.0)`).
+* `PromptError` (the base class of `InvalidResponse`) is not ported.
