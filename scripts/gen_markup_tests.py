@@ -195,7 +195,8 @@ def literal_tests():
     return "\n".join(lines) + "\n"
 
 
-with open(os.path.join(ROOT, "markup_oracle_test.mbt"), "w") as f:
-    f.write(markup_tests())
-with open(os.path.join(ROOT, "literal_eval_wbtest.mbt"), "w") as f:
-    f.write(literal_tests())
+if __name__ == "__main__":
+    with open(os.path.join(ROOT, "markup_oracle_test.mbt"), "w") as f:
+        f.write(markup_tests())
+    with open(os.path.join(ROOT, "literal_eval_wbtest.mbt"), "w") as f:
+        f.write(literal_tests())
