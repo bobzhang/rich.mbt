@@ -28,7 +28,8 @@ async fn[X] with_refresher(live : @live.Live, body : async () -> X) -> X {
       group.spawn_bg(no_wait=true, allow_failure=true, () => {
         for ;; {
           let wait = live.time_until_refresh()
-          if wait > 0.0005 {
+          if wait > 0.0 {
+            // sleep until the shared throttle allows a refresh
             @async.sleep(@cmp.maximum(1, (wait * 1000.0).ceil().to_int()))
             continue
           }

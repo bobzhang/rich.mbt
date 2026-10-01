@@ -6,3 +6,7 @@ import {
 }
 
 warnings = "-implicit_impl_as_method"
+
+import {
+  "moonbitlang/core/double",
+} for "test"

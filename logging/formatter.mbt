@@ -132,7 +132,7 @@ fn format_field(
       let digits = match conversion {
         'd' | 'i' | 'u' => {
           let n = match value {
-            I(n) => n.abs().to_string()
+            I(n) => n.to_int64().abs().to_string()
             _ => magnitude.floor().to_int64().to_string()
           }
           match precision {
@@ -142,7 +142,10 @@ fn format_field(
         }
         'f' | 'F' => {
           let r = @rich.py_format_fixed(magnitude, precision.unwrap_or(6))
-          if alternate && !r.contains(".") {
+          if alternate &&
+            !r.contains(".") &&
+            !magnitude.is_nan() &&
+            !magnitude.is_inf() {
             r + "."
           } else {
             r

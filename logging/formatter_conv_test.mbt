@@ -4984,3 +4984,19 @@ test "formatter numeric conversions match Python" {
     }
   }
 }
+
+///|
+test "formatter edge values match Python" {
+  assert_eq(
+    @logging.Formatter::new(fmt="%(levelno)d|%(levelno)012d").format_message(
+      @logging.LogRecord::new(-2147483648, "m"),
+    ),
+    "-2147483648|-02147483648",
+  )
+  assert_eq(
+    @logging.Formatter::new(fmt="%(created)#f|%(created)#e|%(created)#g").format_message(
+      @logging.LogRecord::new(20, "m", created=@double.infinity),
+    ),
+    "inf|inf|inf",
+  )
+}
