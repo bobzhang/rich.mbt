@@ -365,8 +365,10 @@ time-throttled refreshes (DESIGN.md §7):
 * Task IDs are `Int`; an unknown task ID raises `RichError::ValueError`
   (upstream `KeyError`), `remove_task` of an unknown ID does nothing.
   `Progress::get_task(id)` returns a task.
-* `Task` numbers are `Double`, so `{task.completed}` formats as `0.0` where
-  upstream prints `0` when ints were passed. `fields` (upstream `**fields`)
+* `Task` numbers are `Double`. In format strings, integral `completed`,
+  `total` and `remaining` values print as ints (`{task.completed}` → `0`),
+  matching upstream for the usual int counts; an explicitly fractional-free
+  float (upstream `total=100.0`) also prints as `100`. `fields` (upstream `**fields`)
   is a `Map[String, Json]`; integral JSON numbers format as ints.
   `Task._progress` is private (`Task::samples()` returns a copy).
 * Format strings (`TextColumn`, `TaskProgressColumn`, string columns) use

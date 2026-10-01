@@ -21,7 +21,7 @@ test "oracle format_task" {
   assert_eq(@progress.format_task("{task.description}", task), "Downloading")
   assert_eq(@progress.format_task("{task.percentage:>3.0f}%", task), " 46%")
   assert_eq(@progress.format_task("{task.completed}", task), "567.5")
-  assert_eq(@progress.format_task("{task.total}", task), "1234.0")
+  assert_eq(@progress.format_task("{task.total}", task), "1234")
   assert_eq(
     @progress.format_task("{task.completed:.2f}/{task.total:,.1f}", task),
     "567.50/1,234.0",

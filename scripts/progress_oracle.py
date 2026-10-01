@@ -361,7 +361,7 @@ FORMATS = [
 def gen_progress():
     out = [HEADER]
     # format strings
-    task = Task(3, "Downloading", 1234.0, 567.5, _get_time=lambda: 5.0,
+    task = Task(3, "Downloading", 1234, 567.5, _get_time=lambda: 5.0,
                 fields={"name": "x y", "n": 42, "x": 3.14159, "big": 1234567, "flag": True})
     task.start_time = 1.5
     out.append('''///|

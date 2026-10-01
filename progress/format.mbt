@@ -34,6 +34,25 @@ fn PyValue::repr(self : PyValue) -> String {
 }
 
 ///|
+/// A task quantity: upstream keeps Python ints for counts given as ints
+/// (`advance(1)`, `total=100`), so integral values are shown as ints.
+fn quantity(d : Double) -> PyValue {
+  if d == d.floor() && d.abs() < 9007199254740992.0 {
+    PyInt(d.to_int64())
+  } else {
+    PyFloat(d)
+  }
+}
+
+///|
+fn opt_quantity(d : Double?) -> PyValue {
+  match d {
+    Some(d) => quantity(d)
+    None => PyNone
+  }
+}
+
+///|
 fn opt_float(d : Double?) -> PyValue {
   match d {
     Some(d) => PyFloat(d)
@@ -75,15 +94,15 @@ fn task_attribute(task : Task, field : String) -> PyValue raise @rich.RichError 
   match attr {
     "id" => PyInt(task.id.to_int64())
     "description" => PyStr(task.description)
-    "total" => opt_float(task.total)
-    "completed" => PyFloat(task.completed)
+    "total" => opt_quantity(task.total)
+    "completed" => quantity(task.completed)
     "finished_time" => opt_float(task.finished_time)
     "visible" => PyBool(task.visible)
     "start_time" => opt_float(task.start_time)
     "stop_time" => opt_float(task.stop_time)
     "finished_speed" => opt_float(task.finished_speed)
     "started" => PyBool(task.started())
-    "remaining" => opt_float(task.remaining())
+    "remaining" => opt_quantity(task.remaining())
     "elapsed" => opt_float(task.elapsed())
     "finished" => PyBool(task.finished())
     "percentage" => PyFloat(task.percentage())
