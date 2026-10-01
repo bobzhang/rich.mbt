@@ -54,6 +54,10 @@ fn regex_full_match(re : @regex.Regex?, s : String) -> Bool {
 /// `html_inline` token for the part matching its tag pattern, text for
 /// the rest.
 fn InlineConv::raw_html(self : InlineConv, content : String) -> Unit {
+  if self.joined_html.get(content) is Some(original) {
+    self.push(Token::make("html_inline", "", 0, content=original))
+    return
+  }
   let matched = match html_tag_re {
     None => content.length()
     Some(re) => match_length(re, content)

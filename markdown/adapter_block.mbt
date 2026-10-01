@@ -15,6 +15,10 @@ priv struct Converter {
   /// Link reference labels by markdown-it's normalization.
   labels : Map[String, @cmark.Label]
   out : Array[Token]
+  /// Lines covered by a leaf block of the AST (see adapter_recover.mbt).
+  covered : Array[Bool]
+  /// Number of enclosing block quotes.
+  mut quote_depth : Int
 }
 
 ///|
@@ -30,17 +34,19 @@ fn parse_cmark(
   defs : Map[String, @cmark.LabelDef],
   labels : Map[String, @cmark.Label],
 ) -> @cmark.Doc {
-  let resolver = @cmark.LabelResolverFn(ctx => match ctx {
-    Def(_, label) => {
-      let key = normalize_label(label.key)
-      if labels.contains(key) {
-        None
-      } else {
-        labels[key] = label
-        Some(label)
+  let resolver = @cmark.LabelResolverFn(ctx => {
+    match ctx {
+      Def(_, label) => {
+        let key = normalize_label(label.key)
+        if labels.contains(key) {
+          None
+        } else {
+          labels[key] = label
+          Some(label)
+        }
       }
+      Ref(_, label, _) => labels.get(normalize_label(label.key))
     }
-    Ref(_, label, _) => labels.get(normalize_label(label.key))
   })
   @cmark.Doc::from_string(
     src,
@@ -70,7 +76,23 @@ fn Converter::new(
   labels : Map[String, @cmark.Label],
   out : Array[Token],
 ) -> Converter {
-  { src, line_starts: compute_line_starts(src), defs, labels, out }
+  let line_starts = compute_line_starts(src)
+  {
+    src,
+    line_starts,
+    defs,
+    labels,
+    out,
+    covered: Array::make(line_starts.length() + 2, false),
+    quote_depth: 0,
+  }
+}
+
+///|
+/// Convert a document parsed from `self.src`.
+fn Converter::document(self : Converter, block : @cmark.Block) -> Unit {
+  self.mark_covered(block)
+  self.block(block)
 }
 
 ///|
@@ -113,7 +135,7 @@ pub fn parse_tokens(markup : String) -> Array[Token] {
   let labels : Map[String, @cmark.Label] = Map([])
   let doc = parse_cmark(src, Map([]), labels)
   let conv = Converter::new(src, doc.defs, labels, [])
-  conv.block(doc.block)
+  conv.document(doc.block)
   conv.out
 }
 
@@ -125,11 +147,16 @@ fn Converter::push(self : Converter, token : Token) -> Unit {
 ///|
 fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
   match block {
-    Blocks(seq) => for b in seq.v.iter() { self.block(b) }
+    Blocks(seq) =>
+      for b in seq.v.iter() {
+        self.block(b)
+      }
     BlankLine(_) | LinkRefDefinition(_) => ()
     BlockQuote(q) => {
       self.push(Token::make("blockquote_open", "blockquote", 1))
+      self.quote_depth += 1
       self.block(q.v.block)
+      self.quote_depth -= 1
       self.push(Token::make("blockquote_close", "blockquote", -1))
     }
     CodeBlock(cb) => self.code_block(cb.v)
@@ -181,9 +208,17 @@ fn Converter::code_block(self : Converter, cb : @cmark.CodeBlock) -> Unit {
         }
         substr(self.src, start, end=self.line_end(start))
       }
-      self.push(
-        Token::make("fence", "code", 0, content=content.to_string(), info~),
-      )
+      // An unclosed fence ending the source without a final newline.
+      let mut content = content.to_string()
+      if layout.closing_fence is None &&
+        cb.code.length() > 0 &&
+        !self.src.has_suffix("\n") {
+        let last = cb.code[cb.code.length() - 1].meta.loc
+        if !last.is_none() && last.last_ccode + 1 >= self.src.length() {
+          content = substr(content, 0, end=content.length() - 1)
+        }
+      }
+      self.push(Token::make("fence", "code", 0, content~, info~))
     }
   }
 }
@@ -260,10 +295,18 @@ fn Converter::paragraph(
   p : @cmark.Node[@cmark.BlockParagraph],
 ) -> Unit {
   let lines = self.inline_lines(p.v.inline, p.meta.loc)
+  // Lines cmark lost after a failed multi-line raw HTML attempt.
+  let lost = self.lost_lines_after(lines)
+  let reparse = lost.length() > 0 || lines.iter().any(l => l.recovered)
+  lines.append(lost)
   if self.split_tables(lines, p.meta.loc) {
     return
   }
   self.push(Token::make("paragraph_open", "p", 1))
-  self.inline_block(p.v.inline, p.meta.loc)
+  if !reparse {
+    self.inline_block(p.v.inline, p.meta.loc)
+  } else {
+    self.inline_text(py_strip(lines.map(l => l.text).join("\n")))
+  }
   self.push(Token::make("paragraph_close", "p", -1))
 }

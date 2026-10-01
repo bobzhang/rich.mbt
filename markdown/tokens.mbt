@@ -34,7 +34,7 @@ fn Token::make(
   info? : String = "",
   attrs? : Map[String, String] = {},
 ) -> Token {
-  { type_, tag, nesting, content, info, attrs }
+  { type_, tag, nesting, content, info, attrs, }
 }
 
 ///|

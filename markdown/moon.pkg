@@ -1,16 +1,13 @@
 import {
   "bobzhang/rich",
-  "bobzhang/rich/cells",
+  "bobzhang/rich/syntax",
   "bobzhang/pygments/regex",
   "moonbit-community/casefold",
   "moonbit-community/cmark/cmark",
   "moonbit-community/cmark/cmark_base",
   "moonbit-community/cmark/char" @cmark_char,
   "moonbitlang/core/cmp",
+  "moonbitlang/core/string",
 }
-
-import {
-  "moonbit-community/cmark/cmark_html",
-} for "test"
 
 warnings = "-implicit_impl_as_method"

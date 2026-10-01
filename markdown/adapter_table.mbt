@@ -12,6 +12,8 @@ priv struct Line {
   /// Indentation in columns relative to the block's first line (negative
   /// for lazy continuation lines).
   indent : Int
+  /// No inline node starts on this line: cmark may have lost its content.
+  recovered : Bool
 }
 
 ///|
@@ -39,7 +41,12 @@ fn Converter::make_line(
   while s < end && self.src[s] is (' ' | '\t') {
     s += 1
   }
-  { line, text: substr(self.src, s, end~), indent: self.column(line, s) }
+  {
+    line,
+    text: substr(self.src, s, end~),
+    indent: self.column(line, s),
+    recovered: false,
+  }
 }
 
 ///|
@@ -66,7 +73,10 @@ fn record_candidate(
 fn collect_line_starts(inline : @cmark.Inline, cands : Map[Int, Int]) -> Unit {
   record_candidate(cands, inline.meta().loc)
   match inline {
-    Inlines(seq) => for i in seq.v.iter() { collect_line_starts(i, cands) }
+    Inlines(seq) =>
+      for i in seq.v.iter() {
+        collect_line_starts(i, cands)
+      }
     Break(b) => {
       let after = b.v.layout_after.meta.loc
       if !after.is_none() {
@@ -77,7 +87,10 @@ fn collect_line_starts(inline : @cmark.Inline, cands : Map[Int, Int]) -> Unit {
       for t in cs.v.code_layout.iter() {
         record_candidate(cands, t.node.meta.loc)
       }
-    RawHtml(h) => for t in h.v.0.iter() { record_candidate(cands, t.node.meta.loc) }
+    RawHtml(h) =>
+      for t in h.v.0.iter() {
+        record_candidate(cands, t.node.meta.loc)
+      }
     Emphasis(e) | StrongEmphasis(e) => collect_line_starts(e.v.inline, cands)
     ExtStrikethrough(s) => collect_line_starts(s.v.0, cands)
     Link(l) | Image(l) => {
@@ -118,18 +131,22 @@ fn Converter::inline_lines(
   let last = loc.last_line.0
   let lines : Array[Line] = []
   let mut base = 0
-  for l in first..=last {
+  for l in first..<=last {
     guard l - 1 < self.line_starts.length() else { break }
-    let start = match cands.get(l) {
-      Some(p) => p
-      None => self.line_starts[l - 1]
+    let (start, recovered) = match cands.get(l) {
+      Some(p) => (p, false)
+      None => (self.content_start(l), true)
     }
-    let end = if l == last { loc.last_ccode + 1 } else { self.line_end(start) }
+    let end = if l == last && !recovered {
+      loc.last_ccode + 1
+    } else {
+      self.line_end(start)
+    }
     let line = self.make_line(l, start, @cmp.maximum(start, end))
     if l == first {
       base = line.indent
     }
-    lines.push({ ..line, indent: line.indent - base })
+    lines.push({ ..line, indent: line.indent - base, recovered, })
   }
   lines
 }
@@ -439,7 +456,7 @@ fn Converter::split_tables(
       .join("\n")
     let doc = self.parse(rest)
     let sub = Converter::new(rest, self.defs, self.labels, self.out)
-    sub.block(doc.block)
+    sub.document(doc.block)
   }
   true
 }

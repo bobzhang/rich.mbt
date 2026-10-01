@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/markdown"
+
+import {
+  "bobzhang/rich",
+}
+
+// Values
+pub fn normalize_link(String) -> String
+
+pub fn normalize_link_text(String) -> String
+
+pub fn parse_tokens(String) -> Array[Token]
+
+pub fn validate_link(String) -> Bool
+
+// Errors
+
+// Types and methods
+pub struct Markdown {
+  markup : String
+  parsed : Array[Token]
+  code_theme : String
+  justify : @rich.JustifyMethod?
+  style : @rich.StyleType
+  hyperlinks : Bool
+  inline_code_lexer : String?
+  inline_code_theme : String
+}
+pub fn Markdown::new(String, code_theme? : String, justify? : @rich.JustifyMethod, style? : &@rich.IntoStyle, hyperlinks? : Bool, inline_code_lexer? : String, inline_code_theme? : String) -> Self
+pub impl @rich.Renderable for Markdown
+
+pub(all) struct Token {
+  type_ : String
+  tag : String
+  nesting : Int
+  content : String
+  info : String
+  attrs : Map[String, String]
+}
+pub fn Token::dump(Self) -> String
+
+// Type aliases
+
+// Traits

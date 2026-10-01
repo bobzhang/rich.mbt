@@ -7,10 +7,6 @@ Run with the Python oracle (upstream Rich + markdown-it-py):
 It records, for every CommonMark spec example and a hand-written corpus,
 the flattened markdown-it token stream Rich walks, and for the corpus (and
 the spec examples) the rendered output at several widths / options.
-
-Until the `syntax` package is available, code blocks are rendered by the
-markdown package's plain fallback (see markdown/code_hook.mbt); pass
-`--syntax` to record real `Syntax` output instead.
 """
 
 from __future__ import annotations
@@ -23,24 +19,11 @@ from pathlib import Path
 from markdown_it import MarkdownIt
 
 from rich.console import Console
-from rich.markdown import CodeBlock, Markdown
-from rich.padding import Padding
-from rich.text import Text
+from rich.markdown import Markdown
 
 ROOT = Path(__file__).resolve().parent.parent
 SPEC = ROOT / ".mooncakes/moonbit-community/cmark/src/data/test/spec.md"
 OUT = ROOT / "markdown/corpus_data_test.mbt"
-
-USE_SYNTAX = "--syntax" in sys.argv
-
-if not USE_SYNTAX:
-
-    def _fallback(self, console, options):  # mirrors markdown/code_hook.mbt
-        code = str(self.text).rstrip()
-        yield Padding(Text(code), 1, style="markdown.code_block")
-
-    CodeBlock.__rich_console__ = _fallback
-
 
 PARSER = MarkdownIt().enable("strikethrough").enable("table")
 _FLATTEN = Markdown("")._flatten_tokens
@@ -68,7 +51,7 @@ def dump_tokens(markup: str) -> str:
 RE_LINK_IDS = re.compile(r"id=[\d\.\-]*?;.*?\x1b")
 
 
-def render(markup: str, width: int, hyperlinks: bool, justify, style) -> str:
+def render(markup: str, width: int, options: dict[str, str]) -> str:
     console = Console(
         width=width,
         file=io.StringIO(),
@@ -77,11 +60,9 @@ def render(markup: str, width: int, hyperlinks: bool, justify, style) -> str:
         legacy_windows=False,
         _environ={},
     )
-    kwargs = {"hyperlinks": hyperlinks}
-    if justify is not None:
-        kwargs["justify"] = justify
-    if style is not None:
-        kwargs["style"] = style
+    kwargs: dict = dict(options)
+    if "hyperlinks" in kwargs:
+        kwargs["hyperlinks"] = kwargs["hyperlinks"] == "true"
     console.print(Markdown(markup, **kwargs))
     return RE_LINK_IDS.sub("id=0;foo\x1b", console.file.getvalue())
 
@@ -198,24 +179,59 @@ CORPUS = [
     # entities, escapes
     "&amp; &lt; &gt; &quot; &copy; &#35; &#x1F600; &nbsp;x &unknown;",
     "\\*not em\\* \\# not heading \\[not link\\]",
+    # raw HTML that cmark tries to parse across lines
+    "x <a\nb\nc",
+    "> x <a\n> b\n> c\n\nafter",
+    "- x <a\n  b\n- c",
+    "if a <b then\nc > d\n# heading",
+    "<foo bar=baz\nbim!bop />\n",
+    "x <!-- unterminated\ncomment\n\nnext",
+    # nesting and spacing
+    "> # Heading in quote\n>\n> 1. one\n> 2. two\n>\n> ---\n>\n> | a |\n> |---|\n> | 1 |",
+    "1. item\n\n   > quote in item\n\n   ```\n   code in item\n   ```\n\n2. next",
+    "- a\n  - b\n    > c\n    > - d",
+    "Para\n***\nPara after rule\n\n---\n---",
+    "Text\n\n<div>\n*not markdown*\n</div>\n\nText",
+    "line one\\\nline two  \nline three",
+    "a *b **c** d* e\n\n**a *b* c**\n\n*a **b***",
+    "~~a **b** c~~ and **~~nested~~**",
+    "[a ~~b~~ *c*](http://x.com) and ![i ~~s~~](i.png)",
+    "Autolink <https://example.com/a_b> in *emphasis <https://x.y>*",
+    "| a | b |\n|:-:|--:|\n| 中文 | wide |\n| x | 😀 |",
+    "| a |\n|---|\n| b \\| c |\n| `d \\| e` |",
+    "| x |\n|---|\n| 1 |\n\n| y |\n|---|\n| 2 |",
+    "* one\n\n  two\n* three\n\n\n* four",
+    "1. a\n1. b\n1. c",
+    "3) x\n7) y",
+    "# Title *em* `code` ~~s~~ [l](http://l.com)",
+    "Setext *em*\n===",
+    "    code\n\n```\nfence\n```\n~~~\ntilde\n~~~",
+    "![img](http://example.com/path/to/img.png \"title\") ![](http://example.com/) ![](relative)",
+    "[![a](b.png)](c)\n\n![![x](y.png)](z.png)",
     # mixed document
     "# Title\n\nSome *text* with a [link](http://example.com).\n\n> A quote\n\n- item 1\n- item 2\n\n1. one\n2. two\n\n---\n\n| x | y |\n|---|---|\n| 1 | 2 |\n\n```\ncode\n```\n\nEnd.",
 ]
 
 OPTIONS = [
-    (40, True, None, None),
-    (80, True, None, None),
-    (120, False, None, None),
-    (80, False, None, None),
+    (40, {}),
+    (80, {}),
+    (120, {"hyperlinks": "false"}),
+    (80, {"hyperlinks": "false"}),
 ]
 
 EXTRA_RENDER = [
-    # (markup, width, hyperlinks, justify, style)
-    ("Justified paragraph text that is long enough to wrap over several lines of output.", 30, True, "full", None),
-    ("Centered paragraph text that wraps.\n\n# Heading\n\n- item", 30, True, "center", None),
-    ("Right aligned text that wraps around.", 30, True, "right", None),
-    ("Styled *markdown* with a [link](http://e.com)\n\n> quote", 40, True, None, "bold red"),
-    ("Styled on background\n\n- item\n\n```\ncode\n```", 40, True, None, "on blue"),
+    # (markup, width, Markdown keyword arguments)
+    ("Justified paragraph text that is long enough to wrap over several lines of output.", 30, {"justify": "full"}),
+    ("Centered paragraph text that wraps.\n\n# Heading\n\n- item", 30, {"justify": "center"}),
+    ("Right aligned text that wraps around.", 30, {"justify": "right"}),
+    ("Styled *markdown* with a [link](http://e.com)\n\n> quote", 40, {"style": "bold red"}),
+    ("Styled on background\n\n- item\n\n```\ncode\n```", 40, {"style": "on blue"}),
+    ("```python\nimport this\nprint('x')\n```", 40, {"code_theme": "emacs"}),
+    ("```rust\nfn main() {}\n```\n\n```nosuchlexer\nplain\n```", 60, {"code_theme": "friendly"}),
+    ("Inline `print('x')` code and `def f(): pass`.", 60, {"inline_code_lexer": "python"}),
+    ("Inline `x = 1` with theme", 60, {"inline_code_lexer": "python", "inline_code_theme": "emacs"}),
+    ("| code |\n|---|\n| `a + b` |", 40, {"inline_code_lexer": "python"}),
+    ("```\nfence with inline lexer set\n```", 40, {"inline_code_lexer": "python"}),
 ]
 
 
@@ -241,15 +257,10 @@ def mbt_str(s: str) -> str:
     return "".join(out)
 
 
-def mbt_opt(s):
-    return "None" if s is None else f"Some({mbt_str(s)})"
-
-
 def main() -> None:
     spec = spec_examples()
     out = [
         "// Generated by scripts/markdown_oracle.py. DO NOT EDIT.",
-        f"// Code blocks rendered with {'Syntax' if USE_SYNTAX else 'the plain fallback'}.",
         "",
         "///|",
         "/// CommonMark spec examples: (markdown, markdown-it token dump).",
@@ -270,26 +281,25 @@ def main() -> None:
         "]",
         "",
         "///|",
-        "/// Rendered output: (markdown, width, hyperlinks, justify, style, output).",
-        "let render_cases : Array[(String, Int, Bool, String?, String?, String)] = [",
+        "/// Rendered output: (markdown, width, `Markdown` keyword arguments as",
+        "/// `key=value` pairs separated by `;`, output).",
+        "let render_cases : Array[(String, Int, String, String)] = [",
     ]
     cases = []
     for ex in CORPUS:
-        for width, hyperlinks, justify, style in OPTIONS:
-            cases.append((ex, width, hyperlinks, justify, style))
+        for width, options in OPTIONS:
+            cases.append((ex, width, options))
     cases += EXTRA_RENDER
     for ex in spec:
-        cases.append((ex, 80, True, None, None))
-    for ex, width, hyperlinks, justify, style in cases:
+        cases.append((ex, 80, {}))
+    for ex, width, options in cases:
         try:
-            rendered = render(ex, width, hyperlinks, justify, style)
+            rendered = render(ex, width, options)
         except Exception as error:  # upstream crashes on some inputs
             print(f"skipping {ex!r}: {error!r}", file=sys.stderr)
             continue
-        out.append(
-            f"  ({mbt_str(ex)}, {width}, {'true' if hyperlinks else 'false'}, "
-            f"{mbt_opt(justify)}, {mbt_opt(style)}, {mbt_str(rendered)}),"
-        )
+        opts = ";".join(f"{k}={v}" for k, v in options.items())
+        out.append(f"  ({mbt_str(ex)}, {width}, {mbt_str(opts)}, {mbt_str(rendered)}),")
     out.append("]")
     OUT.write_text("\n".join(out) + "\n", encoding="utf-8")
     print(f"wrote {OUT} ({len(spec)} spec examples, {len(CORPUS)} corpus, {len(cases)} renders)")

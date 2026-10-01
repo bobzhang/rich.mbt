@@ -104,18 +104,16 @@ let non_host_chars : Array[Char] = [
 ///|
 fn is_slashed_protocol(p : String) -> Bool {
   p
-  is (
-    "http"
-    | "https"
-    | "ftp"
-    | "gopher"
-    | "file"
-    | "http:"
-    | "https:"
-    | "ftp:"
-    | "gopher:"
-    | "file:"
-  )
+  is ("http"
+  | "https"
+  | "ftp"
+  | "gopher"
+  | "file"
+  | "http:"
+  | "https:"
+  | "ftp:"
+  | "gopher:"
+  | "file:")
 }
 
 ///|
@@ -603,13 +601,7 @@ fn punycode_decode(s : String) -> String? {
         return None
       }
       i += digit * w
-      let t = if k <= bias {
-        1
-      } else if k >= bias + 26 {
-        26
-      } else {
-        k - bias
-      }
+      let t = if k <= bias { 1 } else if k >= bias + 26 { 26 } else { k - bias }
       if digit < t {
         break
       }
@@ -675,19 +667,23 @@ fn has_non_ascii(s : String) -> Bool {
 
 ///|
 fn punycode_to_ascii(s : String) -> String? {
-  map_domain(s, label => if has_non_ascii(label) {
-    Some("xn--" + punycode_encode(label))
-  } else {
-    Some(label)
+  map_domain(s, label => {
+    if has_non_ascii(label) {
+      Some("xn--" + punycode_encode(label))
+    } else {
+      Some(label)
+    }
   })
 }
 
 ///|
 fn punycode_to_unicode(s : String) -> String? {
-  map_domain(s, label => if label.has_prefix("xn--") {
-    punycode_decode(substr(label, 4).to_lower())
-  } else {
-    Some(label)
+  map_domain(s, label => {
+    if label.has_prefix("xn--") {
+      punycode_decode(substr(label, 4).to_lower())
+    } else {
+      Some(label)
+    }
   })
 }
 

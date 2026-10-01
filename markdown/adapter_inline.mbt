@@ -17,6 +17,10 @@ priv struct InlineConv {
   defs : Map[String, @cmark.LabelDef]
   /// Whether `src` is an inline snippet (continuation lines indented by 4).
   snippet : Bool
+  /// Whether `<` were escaped in the snippet.
+  mut escaped_lt : Bool
+  /// Raw HTML joined into one line in the snippet -> original text.
+  joined_html : Map[String, String]
   out : Array[Token]
   scopes : Array[Array[Delim]]
 }
@@ -27,7 +31,15 @@ fn InlineConv::new(
   defs : Map[String, @cmark.LabelDef],
   snippet~ : Bool,
 ) -> InlineConv {
-  { src, defs, snippet, out: [], scopes: [] }
+  {
+    src,
+    defs,
+    snippet,
+    escaped_lt: false,
+    joined_html: Map([]),
+    out: [],
+    scopes: [],
+  }
 }
 
 ///|
@@ -51,8 +63,9 @@ fn InlineConv::push_text(self : InlineConv, s : String) -> Unit {
 ///|
 fn InlineConv::slice(self : InlineConv, first : Int, last : Int) -> String {
   let s = substr(self.src, first, end=last + 1)
-  if self.snippet {
-    s.replace_all(old="\n    ", new="\n")
+  let s = if self.snippet { s.replace_all(old="\n    ", new="\n") } else { s }
+  if self.escaped_lt {
+    s.replace_all(old="\\<", new="<")
   } else {
     s
   }
@@ -65,7 +78,10 @@ fn InlineConv::inline(
   scope : Int,
 ) -> Unit {
   match inline {
-    Inlines(seq) => for i in seq.v.iter() { self.inline(i, scope) }
+    Inlines(seq) =>
+      for i in seq.v.iter() {
+        self.inline(i, scope)
+      }
     Text(t) => self.text(t.v, t.meta.loc, scope)
     Break(b) =>
       match b.v.ty {
@@ -337,8 +353,7 @@ fn InlineConv::text(
         first=r,
         last=semi,
       )
-      guard substr(v, j, end=@cmp.minimum(vn, j + decoded.length())) ==
-        decoded else {
+      guard substr(v, j, end=@cmp.minimum(vn, j + decoded.length())) == decoded else {
         break
       }
       buf.write_string(decoded)
@@ -408,7 +423,10 @@ fn process_delimiters(delimiters : Array[Delim]) -> Unit {
 
 ///|
 /// markdown-it strikethrough `_postProcess` for one scope.
-fn InlineConv::post_process(self : InlineConv, delimiters : Array[Delim]) -> Unit {
+fn InlineConv::post_process(
+  self : InlineConv,
+  delimiters : Array[Delim],
+) -> Unit {
   let lone_markers : Array[Int] = []
   for start_delim in delimiters {
     if start_delim.end == -1 {
@@ -451,7 +469,10 @@ fn InlineConv::finish(self : InlineConv) -> Array[Token] {
       result.length() > 0 &&
       result[result.length() - 1].type_ == "text" {
       let prev = result[result.length() - 1]
-      result[result.length() - 1] = { ..prev, content: prev.content + t.content }
+      result[result.length() - 1] = {
+        ..prev,
+        content: prev.content + t.content,
+      }
     } else {
       result.push(t)
     }
@@ -493,10 +514,16 @@ fn Converter::inline_text(self : Converter, content : String) -> Unit {
   }
   // A dummy first line keeps the content a paragraph continuation, and the
   // indentation keeps its lines from starting blocks.
+  let joined_html : Map[String, String] = Map([])
+  let (escaped, escaped_lt) = escape_unmatched_html(content, joined_html)
   let snippet = "x\n" +
-    content.split("\n").map(l => "    " + l.to_owned()).join("\n")
+    escaped.split("\n").map(l => "    " + l.to_owned()).join("\n")
   let doc = self.parse(snippet)
   let conv = InlineConv::new(snippet, self.defs, snippet=true)
+  conv.escaped_lt = escaped_lt
+  for k, v in joined_html {
+    conv.joined_html[k] = v
+  }
   let scope = conv.new_scope()
   guard first_paragraph(doc.block) is Some(p) else {
     self.push(Token::make("text", "", 0, content~))
