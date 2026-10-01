@@ -19,6 +19,8 @@ pub(all) suberror RichError {
   NoAltScreen(String)
   /// Writing to the console file failed.
   WriteError(String)
+  /// No emoji by that name (upstream `emoji.NoEmoji`).
+  NoEmoji(String)
   /// An invalid argument (upstream `ValueError`/`TypeError`).
   ValueError(String)
 } derive(Debug)
@@ -34,6 +36,7 @@ pub impl Show for RichError with fn output(self, logger) {
     | LiveError(m)
     | NoAltScreen(m)
     | WriteError(m)
+    | NoEmoji(m)
     | ValueError(m) => m
   }
   logger.write_string(message)
