@@ -1065,6 +1065,68 @@ fn fake_file(tty : Bool) -> FakeFile {
 }
 
 ///|
+struct AsciiFile {
+  buffer : StringBuilder
+}
+
+///|
+impl @rich.ConsoleFile for AsciiFile with fn write(self, text) {
+  self.buffer.write_string(text)
+}
+
+///|
+impl @rich.ConsoleFile for AsciiFile with fn encoding(_self) {
+  "ascii"
+}
+
+///|
+test "ascii encoding substitutes boxes and rules" {
+  // computed with upstream Rich and a file whose encoding is "ascii"
+  let file = AsciiFile::{ buffer: StringBuilder(), }
+  let console = @rich.Console::new(
+    file~,
+    width=20,
+    color_system=None,
+    legacy_windows=false,
+    environ={},
+  )
+  assert_eq(console.encoding(), "ascii")
+  let table = @rich.Table::new(headers=["a", "b"])
+  table.add_row(["1", "2"])
+  console.print(table)
+  console.rule(title="x")
+  console.print(@rich.Rule::new(characters="*"))
+  console.print("café")
+  assert_eq(
+    file.buffer.to_string(),
+    "+-------+\n| a | b |\n|---+---|\n| 1 | 2 |\n+-------+\n-------- x ---------\n********************\ncafé\n",
+  )
+}
+
+///|
+test "legacy windows boxes and windows colors" {
+  // computed with upstream Rich
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=20,
+    color_system=Some("windows"),
+    force_terminal=true,
+    legacy_windows=true,
+    environ={},
+  )
+  assert_eq(console.size(), { width: 20, height: 25, })
+  let table = @rich.Table::new(headers=["a", "b"], border_style="#ff8800")
+  table.add_row(["[on #123456]1", "[bold bright_red]2"])
+  console.print(table)
+  console.rule(title="x")
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[33m┌───┬───┐\u{1b}[0m\n\u{1b}[33m│\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1ma\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[33m│\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1mb\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[33m│\u{1b}[0m\n\u{1b}[33m├───┼───┤\u{1b}[0m\n\u{1b}[33m│\u{1b}[0m \u{1b}[40m1\u{1b}[0m \u{1b}[33m│\u{1b}[0m \u{1b}[1;91m2\u{1b}[0m \u{1b}[33m│\u{1b}[0m\n\u{1b}[33m└───┴───┘\u{1b}[0m\n\u{1b}[92m──────── \u{1b}[0mx\u{1b}[92m ─────────\u{1b}[0m\n",
+  )
+}
+
+///|
 test "test_tty_compatible" {
   // Console file is not a TTY
   let file = fake_file(false)
