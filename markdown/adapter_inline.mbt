@@ -336,29 +336,18 @@ fn InlineConv::text(
       }
       r = e
       j += count
-    } else if c == v[j] {
-      buf.write_char(c.to_int().unsafe_to_char())
-      r += 1
-      j += 1
-    } else if c == '&' {
-      // an entity: find its decoded text in `v`
-      let mut semi = r + 1
-      while semi <= last && src[semi] != ';' {
-        semi += 1
-      }
-      guard semi <= last else { break }
-      let decoded = @cmark_char.utf_16_clean_unref(
-        StringBuilder(),
-        src,
-        first=r,
-        last=semi,
-      )
+    } else if c == '&' && self.entity_at(r, last) is Some((semi, decoded)) {
+      // an entity: its decoded text is in `v`
       guard substr(v, j, end=@cmp.minimum(vn, j + decoded.length())) == decoded else {
         break
       }
       buf.write_string(decoded)
       r = semi + 1
       j += decoded.length()
+    } else if c == v[j] {
+      buf.write_char(c.to_int().unsafe_to_char())
+      r += 1
+      j += 1
     } else {
       break
     }
@@ -367,6 +356,34 @@ fn InlineConv::text(
     buf.write_string(substr(v, j))
   }
   self.push_text(buf.to_string())
+}
+
+///|
+/// The entity reference starting at `src[r]` (`&...;`, ending at or before
+/// `last`): the offset of its `;` and its decoded text.
+fn InlineConv::entity_at(
+  self : InlineConv,
+  r : Int,
+  last : Int,
+) -> (Int, String)? {
+  let src = self.src
+  let mut semi = r + 1
+  while semi <= last && semi - r <= 32 && src[semi] != ';' {
+    semi += 1
+  }
+  guard semi <= last && src[semi] == ';' else { return None }
+  let raw = substr(src, r, end=semi + 1)
+  let decoded = @cmark_char.utf_16_clean_unref(
+    StringBuilder(),
+    src,
+    first=r,
+    last=semi,
+  )
+  if decoded == raw {
+    None
+  } else {
+    Some((semi, decoded))
+  }
 }
 
 ///|

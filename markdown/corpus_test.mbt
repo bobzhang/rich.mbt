@@ -91,5 +91,10 @@ test "rendered output matches upstream" {
       assert_eq(actual, expected, msg="\{markup} (width \{width}, \{options})")
     }
   }
-  debug_inspect((passed, render_cases.length()), content="(1103, 1111)")
+  debug_inspect(
+    (passed, render_cases.length()),
+    content=(
+      #|(1147, 1155)
+    ),
+  )
 }

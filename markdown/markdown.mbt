@@ -70,6 +70,8 @@ priv struct Context {
   style_stack : @rich.StyleStack
   stack : Array[Element]
   syntax : @syntax.Syntax?
+  /// Number of styles entered (and not left).
+  mut depth : Int
 }
 
 ///|
@@ -90,6 +92,7 @@ fn Context::new(
     style_stack: @rich.StyleStack::new(style),
     stack: [],
     syntax,
+    depth: 0,
   }
 }
 
@@ -139,12 +142,18 @@ fn Context::enter_style(
 ) -> @rich.Style raise {
   let style = self.console.get_style(style_name, default=Def("none"))
   self.style_stack.push(style)
+  self.depth += 1
   self.current_style()
 }
 
 ///|
-/// Leave a style context.
-fn Context::leave_style(self : Context) -> @rich.Style {
+/// Leave a style context. Raises (where upstream raises `IndexError`) when
+/// leaving more styles than were entered, e.g. on an unbalanced `</kbd>`.
+fn Context::leave_style(self : Context) -> @rich.Style raise {
+  if self.depth == 0 {
+    raise @rich.StyleStackError("pop from empty style stack")
+  }
+  self.depth -= 1
   self.style_stack.pop()
 }
 

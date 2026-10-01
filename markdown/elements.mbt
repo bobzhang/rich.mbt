@@ -214,7 +214,7 @@ fn Element::on_text(
 
 ///|
 /// `MarkdownElement.on_leave`.
-fn Element::on_leave(self : Element, context : Context) -> Unit {
+fn Element::on_leave(self : Element, context : Context) -> Unit raise {
   if self.is_text_element() {
     context.leave_style() |> ignore
   }

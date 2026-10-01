@@ -186,6 +186,18 @@ CORPUS = [
     "if a <b then\nc > d\n# heading",
     "<foo bar=baz\nbim!bop />\n",
     "x <!-- unterminated\ncomment\n\nnext",
+    # cmark / markdown-it block differences handled by the adapter
+    "- item\n<kbd>\nlazy",
+    "> - item\n<span>x</span>\n```\ncode\n```",
+    "2) a | b\n--|--\n| c | d |",
+    "# a | b\n--|--",
+    "> a | b\n--|--\n| c |",
+    "| single |\n---\n| row |\n\nafter",
+    "[ref]: http://r.com\n    indented code after a definition",
+    "[ref]: http://r.com\n2) list after a definition",
+    "  **lead**  \na | b\n|:-|-:|\n1. after",
+    "* ~~~unclosed\n",
+    "- a  \n<b>",
     # nesting and spacing
     "> # Heading in quote\n>\n> 1. one\n> 2. two\n>\n> ---\n>\n> | a |\n> |---|\n> | 1 |",
     "1. item\n\n   > quote in item\n\n   ```\n   code in item\n   ```\n\n2. next",

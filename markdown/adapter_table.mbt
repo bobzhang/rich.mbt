@@ -451,12 +451,20 @@ fn Converter::split_tables(
   self.push(Token::make("table_close", "table", -1))
   if next < n {
     // markdown-it starts new blocks at the line that ended the table.
-    let rest = lines[next:]
-      .map(l => " ".repeat(@cmp.maximum(l.indent, 0)) + l.text)
-      .join("\n")
-    let doc = self.parse(rest)
-    let sub = Converter::new(rest, self.defs, self.labels, self.out)
-    sub.document(doc.block)
+    self.reparse_lines(lines[next:])
   }
   true
+}
+
+///|
+/// Parse `lines` as a fresh sequence of blocks.
+fn Converter::reparse_lines(self : Converter, lines : ArrayView[Line]) -> Unit {
+  let rest = lines
+    .iter()
+    .map(l => " ".repeat(@cmp.maximum(l.indent, 0)) + l.text)
+    .collect()
+    .join("\n")
+  let doc = self.parse(rest)
+  let sub = Converter::new(rest, self.defs, self.labels, self.out)
+  sub.document(doc.block)
 }

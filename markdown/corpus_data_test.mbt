@@ -2156,6 +2156,39 @@ let corpus_token_cases : Array[(String, String)] = [
     "x <!-- unterminated\ncomment\n\nnext", "paragraph_open\tp\t1\t\t\t\ntext\t\t0\tx <!-- unterminated\t\t\nsoftbreak\tbr\t0\t\t\t\ntext\t\t0\tcomment\t\t\nparagraph_close\tp\t-1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\tnext\t\t\nparagraph_close\tp\t-1\t\t\t",
   ),
   (
+    "- item\n<kbd>\nlazy", "bullet_list_open\tul\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\titem\t\t\nsoftbreak\tbr\t0\t\t\t\nhtml_inline\t\t0\t<kbd>\t\t\nsoftbreak\tbr\t0\t\t\t\ntext\t\t0\tlazy\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nbullet_list_close\tul\t-1\t\t\t",
+  ),
+  (
+    "> - item\n<span>x</span>\n```\ncode\n```", "blockquote_open\tblockquote\t1\t\t\t\nbullet_list_open\tul\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\titem\t\t\nsoftbreak\tbr\t0\t\t\t\nhtml_inline\t\t0\t<span>\t\t\ntext\t\t0\tx\t\t\nhtml_inline\t\t0\t</span>\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nbullet_list_close\tul\t-1\t\t\t\nblockquote_close\tblockquote\t-1\t\t\t\nfence\tcode\t0\tcode\\n\t\t",
+  ),
+  (
+    "2) a | b\n--|--\n| c | d |", "table_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\t2) a\t\t\nth_close\tth\t-1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\tb\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntbody_open\ttbody\t1\t\t\t\ntr_open\ttr\t1\t\t\t\ntd_open\ttd\t1\t\t\t\ntext\t\t0\tc\t\t\ntd_close\ttd\t-1\t\t\t\ntd_open\ttd\t1\t\t\t\ntext\t\t0\td\t\t\ntd_close\ttd\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\ntbody_close\ttbody\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t",
+  ),
+  (
+    "# a | b\n--|--", "table_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\t# a\t\t\nth_close\tth\t-1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\tb\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t",
+  ),
+  (
+    "> a | b\n--|--\n| c |", "table_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\t> a\t\t\nth_close\tth\t-1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\tb\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntbody_open\ttbody\t1\t\t\t\ntr_open\ttr\t1\t\t\t\ntd_open\ttd\t1\t\t\t\ntext\t\t0\tc\t\t\ntd_close\ttd\t-1\t\t\t\ntd_open\ttd\t1\t\t\t\ninline\t\t0\t\t\t\ntd_close\ttd\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\ntbody_close\ttbody\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t",
+  ),
+  (
+    "| single |\n---\n| row |\n\nafter", "table_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\tsingle\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntbody_open\ttbody\t1\t\t\t\ntr_open\ttr\t1\t\t\t\ntd_open\ttd\t1\t\t\t\ntext\t\t0\trow\t\t\ntd_close\ttd\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\ntbody_close\ttbody\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\tafter\t\t\nparagraph_close\tp\t-1\t\t\t",
+  ),
+  (
+    "[ref]: http://r.com\n    indented code after a definition", "code_block\tcode\t0\tindented code after a definition\\n\t\t",
+  ),
+  (
+    "[ref]: http://r.com\n2) list after a definition", "ordered_list_open\tol\t1\t\tstart=2\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\tlist after a definition\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nordered_list_close\tol\t-1\t\t\t",
+  ),
+  (
+    "  **lead**  \na | b\n|:-|-:|\n1. after", "paragraph_open\tp\t1\t\t\t\ntext\t\t0\t\t\t\nstrong_open\tstrong\t1\t\t\t\ntext\t\t0\tlead\t\t\nstrong_close\tstrong\t-1\t\t\t\ntext\t\t0\t\t\t\nparagraph_close\tp\t-1\t\t\t\ntable_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\tstyle=text-align:left\t\ntext\t\t0\ta\t\t\nth_close\tth\t-1\t\t\t\nth_open\tth\t1\t\tstyle=text-align:right\t\ntext\t\t0\tb\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t\nordered_list_open\tol\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\tafter\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nordered_list_close\tol\t-1\t\t\t",
+  ),
+  (
+    "* ~~~unclosed\n", "bullet_list_open\tul\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nfence\tcode\t0\t\t\tunclosed\nlist_item_close\tli\t-1\t\t\t\nbullet_list_close\tul\t-1\t\t\t",
+  ),
+  (
+    "- a  \n<b>", "bullet_list_open\tul\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\ta\t\t\nhardbreak\tbr\t0\t\t\t\nhtml_inline\t\t0\t<b>\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nbullet_list_close\tul\t-1\t\t\t",
+  ),
+  (
     "> # Heading in quote\n>\n> 1. one\n> 2. two\n>\n> ---\n>\n> | a |\n> |---|\n> | 1 |",
     "blockquote_open\tblockquote\t1\t\t\t\nheading_open\th1\t1\t\t\t\ntext\t\t0\tHeading in quote\t\t\nheading_close\th1\t-1\t\t\t\nordered_list_open\tol\t1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\tone\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nlist_item_open\tli\t1\t\t\t\nparagraph_open\tp\t1\t\t\t\ntext\t\t0\ttwo\t\t\nparagraph_close\tp\t-1\t\t\t\nlist_item_close\tli\t-1\t\t\t\nordered_list_close\tol\t-1\t\t\t\nhr\thr\t0\t\t\t\ntable_open\ttable\t1\t\t\t\nthead_open\tthead\t1\t\t\t\ntr_open\ttr\t1\t\t\t\nth_open\tth\t1\t\t\t\ntext\t\t0\ta\t\t\nth_close\tth\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\nthead_close\tthead\t-1\t\t\t\ntbody_open\ttbody\t1\t\t\t\ntr_open\ttr\t1\t\t\t\ntd_open\ttd\t1\t\t\t\ntext\t\t0\t1\t\t\ntd_close\ttd\t-1\t\t\t\ntr_close\ttr\t-1\t\t\t\ntbody_close\ttbody\t-1\t\t\t\ntable_close\ttable\t-1\t\t\t\nblockquote_close\tblockquote\t-1\t\t\t",
   ),
@@ -3430,6 +3463,140 @@ let render_cases : Array[(String, Int, String, String)] = [
   ),
   (
     "x <!-- unterminated\ncomment\n\nnext", 80, "hyperlinks=false", "x <!-- unterminated comment                                                     \n\nnext                                                                            \n",
+  ),
+  (
+    "- item\n<kbd>\nlazy", 40, "", "\n\u{1b}[1m • \u{1b}[0mitem \u{1b}[1;93m \u{1b}[0m\u{1b}[1;93mlazy\u{1b}[0m                           \n",
+  ),
+  (
+    "- item\n<kbd>\nlazy", 80, "", "\n\u{1b}[1m • \u{1b}[0mitem \u{1b}[1;93m \u{1b}[0m\u{1b}[1;93mlazy\u{1b}[0m                                                                   \n",
+  ),
+  (
+    "- item\n<kbd>\nlazy", 120, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0mitem \u{1b}[1;93m \u{1b}[0m\u{1b}[1;93mlazy\u{1b}[0m                                                                                                           \n",
+  ),
+  (
+    "- item\n<kbd>\nlazy", 80, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0mitem \u{1b}[1;93m \u{1b}[0m\u{1b}[1;93mlazy\u{1b}[0m                                                                   \n",
+  ),
+  (
+    "> - item\n<span>x</span>\n```\ncode\n```", 40, "", "\n\u{1b}[35m▌ \u{1b}[0m\u{1b}[1;35m • \u{1b}[0m\u{1b}[35mitem\u{1b}[0m\u{1b}[35m \u{1b}[0m\u{1b}[35mx\u{1b}[0m\u{1b}[35m                           \u{1b}[0m\n\n\u{1b}[48;2;39;40;34m                                        \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mcode\u{1b}[0m\u{1b}[48;2;39;40;34m                                  \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                        \u{1b}[0m\n",
+  ),
+  (
+    "> - item\n<span>x</span>\n```\ncode\n```", 80, "", "\n\u{1b}[35m▌ \u{1b}[0m\u{1b}[1;35m • \u{1b}[0m\u{1b}[35mitem\u{1b}[0m\u{1b}[35m \u{1b}[0m\u{1b}[35mx\u{1b}[0m\u{1b}[35m                                                                   \u{1b}[0m\n\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mcode\u{1b}[0m\u{1b}[48;2;39;40;34m                                                                          \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n",
+  ),
+  (
+    "> - item\n<span>x</span>\n```\ncode\n```", 120, "hyperlinks=false", "\n\u{1b}[35m▌ \u{1b}[0m\u{1b}[1;35m • \u{1b}[0m\u{1b}[35mitem\u{1b}[0m\u{1b}[35m \u{1b}[0m\u{1b}[35mx\u{1b}[0m\u{1b}[35m                                                                                                           \u{1b}[0m\n\n\u{1b}[48;2;39;40;34m                                                                                                                        \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mcode\u{1b}[0m\u{1b}[48;2;39;40;34m                                                                                                                  \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                                                        \u{1b}[0m\n",
+  ),
+  (
+    "> - item\n<span>x</span>\n```\ncode\n```", 80, "hyperlinks=false", "\n\u{1b}[35m▌ \u{1b}[0m\u{1b}[1;35m • \u{1b}[0m\u{1b}[35mitem\u{1b}[0m\u{1b}[35m \u{1b}[0m\u{1b}[35mx\u{1b}[0m\u{1b}[35m                                                                   \u{1b}[0m\n\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mcode\u{1b}[0m\u{1b}[48;2;39;40;34m                                                                          \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n",
+  ),
+  (
+    "2) a | b\n--|--\n| c | d |", 40, "", "\n\u{1b}[36m         \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m2) a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ─────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc    \u{1b}[36m \u{1b}[0md\u{1b}[36m \u{1b}[0m\n\u{1b}[36m         \u{1b}[0m\n",
+  ),
+  (
+    "2) a | b\n--|--\n| c | d |", 80, "", "\n\u{1b}[36m         \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m2) a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ─────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc    \u{1b}[36m \u{1b}[0md\u{1b}[36m \u{1b}[0m\n\u{1b}[36m         \u{1b}[0m\n",
+  ),
+  (
+    "2) a | b\n--|--\n| c | d |", 120, "hyperlinks=false", "\n\u{1b}[36m         \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m2) a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ─────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc    \u{1b}[36m \u{1b}[0md\u{1b}[36m \u{1b}[0m\n\u{1b}[36m         \u{1b}[0m\n",
+  ),
+  (
+    "2) a | b\n--|--\n| c | d |", 80, "hyperlinks=false", "\n\u{1b}[36m         \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m2) a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ─────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc    \u{1b}[36m \u{1b}[0md\u{1b}[36m \u{1b}[0m\n\u{1b}[36m         \u{1b}[0m\n",
+  ),
+  (
+    "# a | b\n--|--", 40, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m# a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "# a | b\n--|--", 80, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m# a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "# a | b\n--|--", 120, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m# a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "# a | b\n--|--", 80, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m# a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "> a | b\n--|--\n| c |", 40, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m> a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc   \u{1b}[36m \u{1b}[0m \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "> a | b\n--|--\n| c |", 80, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m> a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc   \u{1b}[36m \u{1b}[0m \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "> a | b\n--|--\n| c |", 120, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m> a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc   \u{1b}[36m \u{1b}[0m \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "> a | b\n--|--\n| c |", 80, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36m> a\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mc   \u{1b}[36m \u{1b}[0m \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n",
+  ),
+  (
+    "| single |\n---\n| row |\n\nafter", 40, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36msingle\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mrow   \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n\nafter                                   \n",
+  ),
+  (
+    "| single |\n---\n| row |\n\nafter", 80, "", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36msingle\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mrow   \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n\nafter                                                                           \n",
+  ),
+  (
+    "| single |\n---\n| row |\n\nafter", 120, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36msingle\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mrow   \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n\nafter                                                                                                                   \n",
+  ),
+  (
+    "| single |\n---\n| row |\n\nafter", 80, "hyperlinks=false", "\n\u{1b}[36m        \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36msingle\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ────── \u{1b}[0m\n\u{1b}[36m \u{1b}[0mrow   \u{1b}[36m \u{1b}[0m\n\u{1b}[36m        \u{1b}[0m\n\nafter                                                                           \n",
+  ),
+  (
+    "[ref]: http://r.com\n    indented code after a definition", 40, "", "\u{1b}[48;2;39;40;34m                                        \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mindented code after a definition\u{1b}[0m\u{1b}[48;2;39;40;34m      \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                        \u{1b}[0m\n",
+  ),
+  (
+    "[ref]: http://r.com\n    indented code after a definition", 80, "", "\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mindented code after a definition\u{1b}[0m\u{1b}[48;2;39;40;34m                                              \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n",
+  ),
+  (
+    "[ref]: http://r.com\n    indented code after a definition", 120, "hyperlinks=false",
+    "\u{1b}[48;2;39;40;34m                                                                                                                        \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mindented code after a definition\u{1b}[0m\u{1b}[48;2;39;40;34m                                                                                      \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                                                        \u{1b}[0m\n",
+  ),
+  (
+    "[ref]: http://r.com\n    indented code after a definition", 80, "hyperlinks=false",
+    "\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[38;2;248;248;242;48;2;39;40;34mindented code after a definition\u{1b}[0m\u{1b}[48;2;39;40;34m                                              \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[48;2;39;40;34m                                                                                \u{1b}[0m\n",
+  ),
+  (
+    "[ref]: http://r.com\n2) list after a definition", 40, "", "\n\u{1b}[36m 2 \u{1b}[0mlist after a definition              \n",
+  ),
+  (
+    "[ref]: http://r.com\n2) list after a definition", 80, "", "\n\u{1b}[36m 2 \u{1b}[0mlist after a definition                                                      \n",
+  ),
+  (
+    "[ref]: http://r.com\n2) list after a definition", 120, "hyperlinks=false", "\n\u{1b}[36m 2 \u{1b}[0mlist after a definition                                                                                              \n",
+  ),
+  (
+    "[ref]: http://r.com\n2) list after a definition", 80, "hyperlinks=false", "\n\u{1b}[36m 2 \u{1b}[0mlist after a definition                                                      \n",
+  ),
+  (
+    "  **lead**  \na | b\n|:-|-:|\n1. after", 40, "", "\u{1b}[1mlead\u{1b}[0m                                    \n\n\u{1b}[36m      \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36ma\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ──── \u{1b}[0m\n\u{1b}[36m      \u{1b}[0m\n\n\u{1b}[36m 1 \u{1b}[0mafter                                \n",
+  ),
+  (
+    "  **lead**  \na | b\n|:-|-:|\n1. after", 80, "", "\u{1b}[1mlead\u{1b}[0m                                                                            \n\n\u{1b}[36m      \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36ma\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ──── \u{1b}[0m\n\u{1b}[36m      \u{1b}[0m\n\n\u{1b}[36m 1 \u{1b}[0mafter                                                                        \n",
+  ),
+  (
+    "  **lead**  \na | b\n|:-|-:|\n1. after", 120, "hyperlinks=false", "\u{1b}[1mlead\u{1b}[0m                                                                                                                    \n\n\u{1b}[36m      \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36ma\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ──── \u{1b}[0m\n\u{1b}[36m      \u{1b}[0m\n\n\u{1b}[36m 1 \u{1b}[0mafter                                                                                                                \n",
+  ),
+  (
+    "  **lead**  \na | b\n|:-|-:|\n1. after", 80, "hyperlinks=false", "\u{1b}[1mlead\u{1b}[0m                                                                            \n\n\u{1b}[36m      \u{1b}[0m\n\u{1b}[36m \u{1b}[0m\u{1b}[36ma\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mb\u{1b}[0m\u{1b}[36m \u{1b}[0m\n\u{1b}[36m ──── \u{1b}[0m\n\u{1b}[36m      \u{1b}[0m\n\n\u{1b}[36m 1 \u{1b}[0mafter                                                                        \n",
+  ),
+  (
+    "* ~~~unclosed\n", 40, "", "\n\u{1b}[1m • \u{1b}[0m\u{1b}[48;2;39;40;34m                                     \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[48;2;39;40;34m                                   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m                                     \u{1b}[0m\n",
+  ),
+  (
+    "* ~~~unclosed\n", 80, "", "\n\u{1b}[1m • \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                             \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                           \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                             \u{1b}[0m\n",
+  ),
+  (
+    "* ~~~unclosed\n", 120, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                                                                     \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                                                                   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                                                                     \u{1b}[0m\n",
+  ),
+  (
+    "* ~~~unclosed\n", 80, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                             \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                           \u{1b}[0m\u{1b}[48;2;39;40;34m \u{1b}[0m\n\u{1b}[1m   \u{1b}[0m\u{1b}[48;2;39;40;34m                                                                             \u{1b}[0m\n",
+  ),
+  (
+    "- a  \n<b>", 40, "", "\n\u{1b}[1m • \u{1b}[0ma                                    \n\u{1b}[1m   \u{1b}[0m                                     \n",
+  ),
+  (
+    "- a  \n<b>", 80, "", "\n\u{1b}[1m • \u{1b}[0ma                                                                            \n\u{1b}[1m   \u{1b}[0m                                                                             \n",
+  ),
+  (
+    "- a  \n<b>", 120, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0ma                                                                                                                    \n\u{1b}[1m   \u{1b}[0m                                                                                                                     \n",
+  ),
+  (
+    "- a  \n<b>", 80, "hyperlinks=false", "\n\u{1b}[1m • \u{1b}[0ma                                                                            \n\u{1b}[1m   \u{1b}[0m                                                                             \n",
   ),
   (
     "> # Heading in quote\n>\n> 1. one\n> 2. two\n>\n> ---\n>\n> | a |\n> |---|\n> | 1 |",

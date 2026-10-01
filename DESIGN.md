@@ -130,10 +130,17 @@ cloned at `.repos/rich`) to MoonBit. Module `bobzhang/rich`.
      `file_proxy` — not
      ported / reduced; listed as blocked.
 
-9. **Markdown.** Needs a parser producing markdown-it tokens. Options: use
-   `moonbit-community/cmark` (CommonMark AST) and walk the AST instead of
-   the token stream, matching markdown-it output for CommonMark + tables /
-   strikethrough as Rich enables them.
+9. **Markdown.** `moonbit-community/cmark` parses in strict CommonMark
+   mode; an adapter converts the AST into markdown-it's (flattened) token
+   stream so `rich/markdown.py`'s token loop and element classes port
+   literally. Inline content is converted from the AST, or re-parsed from
+   its source lines (a one-paragraph snippet) when markdown-it's
+   strikethrough or tables are involved; GFM tables use markdown-it's
+   table rule on paragraph lines. The adapter also works around cmark bugs
+   (lines lost after failed multi-line raw HTML, lazy HTML lines in list
+   items, ASCII-only label folding). `scripts/markdown_oracle.py` records
+   markdown-it tokens and Rich output for the CommonMark spec examples and
+   a corpus (`markdown/corpus_data_test.mbt`).
 
 10. **Conformance.** `.venv` with upstream Rich (+pygments, markdown-it).
     Upstream pytest files are ported test-by-test to MoonBit black-box tests

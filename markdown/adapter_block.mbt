@@ -19,6 +19,12 @@ priv struct Converter {
   covered : Array[Bool]
   /// Number of enclosing block quotes.
   mut quote_depth : Int
+  /// Lazy continuation lines cmark parsed as an HTML block, to append to
+  /// the paragraph ending on line `lazy_after` (see adapter_recover.mbt).
+  mut lazy_lines : Array[Line]
+  mut lazy_after : Int
+  /// Number of enclosing list items.
+  mut list_depth : Int
 }
 
 ///|
@@ -85,6 +91,9 @@ fn Converter::new(
     out,
     covered: Array::make(line_starts.length() + 2, false),
     quote_depth: 0,
+    lazy_lines: [],
+    lazy_after: -1,
+    list_depth: 0,
   }
 }
 
@@ -92,7 +101,16 @@ fn Converter::new(
 /// Convert a document parsed from `self.src`.
 fn Converter::document(self : Converter, block : @cmark.Block) -> Unit {
   self.mark_covered(block)
-  self.block(block)
+  self.container_content(block)
+}
+
+///|
+/// Convert the content of a document, block quote or list item.
+fn Converter::container_content(self : Converter, block : @cmark.Block) -> Unit {
+  match block {
+    Blocks(seq) => self.blocks(seq.v.to_array())
+    b => self.blocks([b])
+  }
 }
 
 ///|
@@ -147,15 +165,12 @@ fn Converter::push(self : Converter, token : Token) -> Unit {
 ///|
 fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
   match block {
-    Blocks(seq) =>
-      for b in seq.v.iter() {
-        self.block(b)
-      }
+    Blocks(seq) => self.blocks(seq.v.to_array())
     BlankLine(_) | LinkRefDefinition(_) => ()
     BlockQuote(q) => {
       self.push(Token::make("blockquote_open", "blockquote", 1))
       self.quote_depth += 1
-      self.block(q.v.block)
+      self.container_content(q.v.block)
       self.quote_depth -= 1
       self.push(Token::make("blockquote_close", "blockquote", -1))
     }
@@ -168,7 +183,8 @@ fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
         content.write_string(line.v)
         content.write_char('\n')
       }
-      self.push(Token::make("html_block", "", 0, content=content.to_string()))
+      let content = self.drop_final_newline(content.to_string(), h.v.0)
+      self.push(Token::make("html_block", "", 0, content~))
     }
     List(l) => self.list(l.v)
     Paragraph(p) => self.paragraph(p)
@@ -180,7 +196,16 @@ fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
 ///|
 fn Converter::code_block(self : Converter, cb : @cmark.CodeBlock) -> Unit {
   let content = StringBuilder()
-  for line in cb.code.iter() {
+  let code = cb.code.to_array()
+  // cmark gives an unclosed fence ending the source an extra empty line
+  if cb.layout is Fenced({ closing_fence: None, .. }) &&
+    code.last() is Some(last) &&
+    last.v == "" &&
+    !last.meta.loc.is_none() &&
+    last.meta.loc.first_ccode >= self.src.length() {
+    code.pop() |> ignore
+  }
+  for line in code {
     content.write_string(line.v)
     content.write_char('\n')
   }
@@ -208,18 +233,30 @@ fn Converter::code_block(self : Converter, cb : @cmark.CodeBlock) -> Unit {
         }
         substr(self.src, start, end=self.line_end(start))
       }
-      // An unclosed fence ending the source without a final newline.
-      let mut content = content.to_string()
-      if layout.closing_fence is None &&
-        cb.code.length() > 0 &&
-        !self.src.has_suffix("\n") {
-        let last = cb.code[cb.code.length() - 1].meta.loc
-        if !last.is_none() && last.last_ccode + 1 >= self.src.length() {
-          content = substr(content, 0, end=content.length() - 1)
-        }
+      let content = if layout.closing_fence is None {
+        self.drop_final_newline(content.to_string(), cb.code)
+      } else {
+        content.to_string()
       }
       self.push(Token::make("fence", "code", 0, content~, info~))
     }
+  }
+}
+
+///|
+/// markdown-it gives no final newline to a block whose last line ends the
+/// source without one.
+fn Converter::drop_final_newline(
+  self : Converter,
+  content : String,
+  lines : @cmark.Seq[@cmark.Node[String]],
+) -> String {
+  guard lines.length() > 0 && !self.src.has_suffix("\n") else { return content }
+  let last = lines[lines.length() - 1].meta.loc
+  if !last.is_none() && last.last_ccode + 1 >= self.src.length() {
+    substr(content, 0, end=content.length() - 1)
+  } else {
+    content
   }
 }
 
@@ -254,7 +291,9 @@ fn Converter::list(self : Converter, l : @cmark.BlockList) -> Unit {
   self.push(Token::make(open, tag, 1, attrs~))
   for item in l.items.iter() {
     self.push(Token::make("list_item_open", "li", 1))
-    self.block(item.v.block)
+    self.list_depth += 1
+    self.container_content(item.v.block)
+    self.list_depth -= 1
     self.push(Token::make("list_item_close", "li", -1))
   }
   self.push(Token::make(close, tag, -1))
@@ -269,18 +308,8 @@ fn Converter::heading(
   if heading.layout is Setext(_) {
     // A setext heading whose content holds a GFM table: markdown-it parses
     // the table first (the underline then ends it or becomes a row).
-    let lines = self.inline_lines(heading.inline, h.meta.loc)
-    let last_line = h.meta.loc.last_line.0
-    if last_line - 1 < self.line_starts.length() &&
-      lines.length() > 0 &&
-      lines.length() + 1 + lines[0].line - 1 == last_line {
-      let start = self.line_starts[last_line - 1]
-      let underline = self.make_line(last_line, start, self.line_end(start))
-      let all = lines.copy()
-      all.push(underline)
-      if self.split_tables(all, h.meta.loc) {
-        return
-      }
+    if self.setext_lines(h) is Some(all) && self.split_tables(all, h.meta.loc) {
+      return
     }
   }
   let tag = "h\{heading.level}"
@@ -290,14 +319,56 @@ fn Converter::heading(
 }
 
 ///|
+/// `line` with its text extended to the end of the source line.
+fn Converter::extend_to_line_end(self : Converter, line : Line) -> Line {
+  let start = self.line_starts[line.line - 1]
+  let end = self.line_end(start)
+  match self.src.view(start_offset=start, end_offset=end).find(line.text) {
+    Some(i) => { ..line, text: substr(self.src, start + i, end~), }
+    None => line
+  }
+}
+
+///|
+/// The content lines of a setext heading followed by its underline.
+fn Converter::setext_lines(
+  self : Converter,
+  h : @cmark.Node[@cmark.BlockHeading],
+) -> Array[Line]? {
+  let lines = self.inline_lines(h.v.inline, h.meta.loc)
+  let last_line = h.meta.loc.last_line.0
+  guard last_line - 1 < self.line_starts.length() &&
+    lines.length() > 0 &&
+    lines.length() + lines[0].line == last_line else {
+    return None
+  }
+  let start = self.content_start(last_line)
+  let all = lines.copy()
+  all.push(self.make_line(last_line, start, self.line_end(start)))
+  Some(all)
+}
+
+///|
 fn Converter::paragraph(
   self : Converter,
   p : @cmark.Node[@cmark.BlockParagraph],
 ) -> Unit {
-  let lines = self.inline_lines(p.v.inline, p.meta.loc)
+  let lines = self
+    .inline_lines(p.v.inline, p.meta.loc)
+    .map(l => { ..l, indent: l.indent + p.v.leading_indent, })
   // Lines cmark lost after a failed multi-line raw HTML attempt.
   let lost = self.lost_lines_after(lines)
+  if lines.last() is Some(last) && last.line == self.lazy_after {
+    lost.append(self.lazy_lines)
+    self.lazy_lines = []
+    self.lazy_after = -1
+  }
   let reparse = lost.length() > 0 || lines.iter().any(l => l.recovered)
+  if lost.length() > 0 && lines.length() > 0 {
+    // keep the trailing blanks (a hard break) of the last parsed line
+    let last = lines[lines.length() - 1]
+    lines[lines.length() - 1] = self.extend_to_line_end(last)
+  }
   lines.append(lost)
   if self.split_tables(lines, p.meta.loc) {
     return
