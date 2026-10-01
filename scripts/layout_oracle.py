@@ -710,6 +710,162 @@ add_render_case("rule style", Rule("x", style="bold red", end=""),
 add_render_case("rule odd width", Rule("ab"), '@rich.Rule::new(title="ab")', width=11)
 add_render_case("rule cjk title", Rule("中文标题"), '@rich.Rule::new(title="中文标题")', width=15)
 
+# --- misc renderables ------------------------------------------------------
+
+from rich.console import Group
+from rich.constrain import Constrain
+from rich.styled import Styled
+from rich.align import VerticalCenter
+from rich.screen import Screen
+
+MISC = [
+    ("group", lambda: Group("one", "[b]two[/b]", Rule("r")),
+     '@rich.Group::new(["one", "[b]two[/b]", @rich.Rule::new(title="r")])', {}),
+    ("group in table", lambda: _tbl(Group("a", "bb"), "c"),
+     None, {}),
+    ("constrain", lambda: Constrain("The quick brown fox jumps over the lazy dog", 12),
+     '@rich.Constrain::new("The quick brown fox jumps over the lazy dog", width=Some(12))', {}),
+    ("constrain none", lambda: Constrain("The quick brown fox", None),
+     '@rich.Constrain::new("The quick brown fox", width=None)', {}),
+    ("styled", lambda: Styled("styled [b]text[/b]\nsecond", "italic on blue"),
+     '@rich.Styled::new("styled [b]text[/b]\\nsecond", "italic on blue")', {}),
+    ("styled justify", lambda: Styled("x", "red"),
+     '@rich.Styled::new("x", "red")', {"justify": "right"}),
+    ("vertical center", lambda: VerticalCenter("foo\nbar", style="on red"),
+     '@rich.VerticalCenter::new("foo\\nbar", style="on red")', {"height": 6}),
+    ("screen", lambda: Screen("hello", "[red]world", style="on blue"),
+     '@rich.Screen::new(["hello", "[red]world"], style="on blue")', {}),
+    ("screen application mode", lambda: Screen("a\nb", application_mode=True),
+     '@rich.Screen::new(["a\\nb"], application_mode=true)', {}),
+    ("padding in align", lambda: Align(Padding("pad", (1, 2), style="on green", expand=False), "center"),
+     '@rich.Align::new(@rich.Padding::new("pad", pad=[1, 2], style="on green", expand=false), Center)', {}),
+    ("align in padding", lambda: Padding(Align("x", "right"), (0, 4)),
+     '@rich.Padding::new(@rich.Align::new("x", Right), pad=[0, 4])', {}),
+]
+
+
+def _tbl(*cells):
+    t = Table()
+    t.add_column("A")
+    t.add_column("B")
+    t.add_row(*cells)
+    return t
+
+
+for name, py_make, mbt_expr, print_kw in MISC:
+    if mbt_expr is None:
+        continue
+    add_render_case(f"misc {name}", py_make(), mbt_expr, width=30,
+                    height=5 if name.startswith("screen") else None,
+                    print_kw=print_kw)
+
+# nested tables
+inner = {"columns": [{"header": "x"}, {"header": "y"}], "rows": [["1", "2"]],
+         "box": "ROUNDED"}
+console, file = make_console(50)
+outer = Table("Outer", "Nested", expand=True)
+outer.add_row("left", py_table(inner))
+outer.add_row(Padding("padded", 1), Align("right", "right"))
+console.print(outer)
+body = (mbt_console(50) + "  let inner = {\n" + mbt_table(inner).replace("\n  ", "\n    ").replace("  let", "    let", 1)
+        + "    table\n  }\n"
+        + '  let outer = @rich.Table::new(headers=["Outer", "Nested"], expand=true)\n'
+        + '  outer.add_row(["left", inner])\n'
+        + '  outer.add_row([@rich.Padding::new("padded", pad=[1]), @rich.Align::new("right", Right)])\n'
+        + "  console.print(outer)\n")
+cases.append(("nested tables", body, file.getvalue()))
+
+# --- exports --------------------------------------------------------------
+
+from rich.terminal_theme import MONOKAI, DEFAULT_TERMINAL_THEME, SVG_EXPORT_THEME
+
+THEMES = {"monokai": (MONOKAI, "@color.monokai"),
+          "default": (DEFAULT_TERMINAL_THEME, "@color.default_terminal_theme"),
+          "svg": (SVG_EXPORT_THEME, "@color.svg_export_theme")}
+
+EXPORT_CONTENT = {
+    "styles": ["[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] "
+               "[dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] "
+               "[overline]o[/] [bold italic underline]all[/]"],
+    "colors": ["[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] "
+               "[on bright_green]bg[/] [default on default]def[/] "
+               "[reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] "
+               "[dim on red]dimbg[/] [bright_black]bb[/]"],
+    "escaping": ["<a href='x'>&amp;</a> \"quotes\" 'single' "
+                 "[link=https://example.org/?a=1&b=2]link[/link] tail"],
+    "wide": ["中文 💩 emoji :smile: café", "[on red]中文[/] [bold]💩[/]"],
+    "multiline": ["line one   ", "", "  indented [red]red[/]", "x " * 30,
+                  "\n".join(f"row {i}" for i in range(25))],
+    "table": [{"columns": [dict(c, style="cyan") for c in BASE_COLUMNS],
+               "rows": BASE_ROWS[:2], "title": "Movies",
+               "border_style": "magenta", "row_styles": ["", "on grey23"]}],
+    "rule": [{"rule": "Section"}, "after"],
+}
+
+
+def py_render_ops(console, ops):
+    for op in ops:
+        if isinstance(op, str):
+            console.print(op)
+        elif "rule" in op:
+            console.rule(op["rule"])
+        else:
+            console.print(py_table(op))
+
+
+def mbt_render_ops(ops):
+    out = ""
+    for op in ops:
+        if isinstance(op, str):
+            out += f"  console.print({mbt_str(op)})\n"
+        elif "rule" in op:
+            out += f"  console.rule(title={mbt_str(op['rule'])})\n"
+        else:
+            out += "  {\n" + mbt_table(op).replace("\n  ", "\n    ").replace("  let", "    let", 1) + "    console.print(table)\n  }\n"
+    return out
+
+
+def add_export_case(name, content, width, export, **kw):
+    console, file = make_console(width, record=True)
+    ops = EXPORT_CONTENT[content]
+    py_render_ops(console, ops)
+    pykw = dict(kw)
+    margs = []
+    for k, v in kw.items():
+        if k == "theme":
+            pykw["theme"] = THEMES[v][0]
+            margs.append(f"theme={THEMES[v][1]}")
+        elif isinstance(v, float):
+            margs.append(f"{k}={v!r}")
+        else:
+            margs.append(f"{k}={mbt_value(v)}")
+    result = getattr(console, export)(**pykw)
+    body = mbt_console(width, record=True) + mbt_render_ops(ops)
+    body += f"  let result = console.{export}({', '.join(margs)})\n"
+    body += "  ignore(file)\n"
+    cases.append((name, body, result, "result"))
+
+
+for content in EXPORT_CONTENT:
+    for width in [40, 100]:
+        add_export_case(f"export_text {content} {width}", content, width, "export_text")
+        add_export_case(f"export_text styles {content} {width}", content, width,
+                        "export_text", styles=True)
+        add_export_case(f"export_html {content} {width}", content, width, "export_html")
+        add_export_case(f"export_html inline {content} {width}", content, width,
+                        "export_html", inline_styles=True)
+        add_export_case(f"export_svg {content} {width}", content, width, "export_svg")
+    add_export_case(f"export_html monokai {content}", content, 60, "export_html",
+                    theme="monokai")
+    add_export_case(f"export_html inline default {content}", content, 60,
+                    "export_html", theme="default", inline_styles=True)
+    add_export_case(f"export_svg monokai {content}", content, 60, "export_svg",
+                    theme="monokai", title="Monokai <&> \"title\"")
+    add_export_case(f"export_svg no title {content}", content, 60, "export_svg",
+                    title="", font_aspect_ratio=0.5)
+    add_export_case(f"export_svg default theme {content}", content, 80, "export_svg",
+                    theme="default", unique_id="fixed")
+
 # --- output -----------------------------------------------------------------
 
 out = [
@@ -717,16 +873,17 @@ out = [
     "",
 ]
 LINK_ID = re.compile(r"id=\d+;")
-for name, body, expected in cases:
+for name, body, expected, *var in cases:
+    var = var[0] if var else "file.getvalue()"
     out.append("///|")
     out.append(f"test {mbt_str('oracle ' + name)} {{")
     out.append(body.rstrip("\n"))
     if LINK_ID.search(expected):
         # link ids are random
         expected = LINK_ID.sub("id=0;", expected)
-        out.append(f"  assert_eq(normalize_link_ids(file.getvalue()), {mbt_str(expected)})")
+        out.append(f"  assert_eq(normalize_link_ids({var}), {mbt_str(expected)})")
     else:
-        out.append(f"  assert_eq(file.getvalue(), {mbt_str(expected)})")
+        out.append(f"  assert_eq({var}, {mbt_str(expected)})")
     out.append("}")
     out.append("")
 OUT.write_text("\n".join(out))

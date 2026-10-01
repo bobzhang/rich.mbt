@@ -1413,7 +1413,10 @@ pub fn Console::update_screen(
         0,
         render_options.update_dimensions(
           render_options.max_width,
-          render_options.height.unwrap_or(self.height()),
+          match render_options.height {
+            Some(h) if h != 0 => h
+            _ => self.height()
+          },
         ),
       )
     Some(r) => (r.x, r.y, render_options.update_dimensions(r.width, r.height))

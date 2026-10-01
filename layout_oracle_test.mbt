@@ -10001,3 +10001,2913 @@ test "oracle rule cjk title" {
     "\u{1b}[92m── \u{1b}[0m中文标题\u{1b}[92m ───\u{1b}[0m\n",
   )
 }
+
+///|
+test "oracle misc group" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Group::new(["one", "[b]two[/b]", @rich.Rule::new(title="r")]),
+  )
+  assert_eq(
+    file.getvalue(),
+    "one\n\u{1b}[1mtwo\u{1b}[0m\n\u{1b}[92m───────────── \u{1b}[0mr\u{1b}[92m ──────────────\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle misc constrain" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Constrain::new(
+      "The quick brown fox jumps over the lazy dog",
+      width=Some(12),
+    ),
+  )
+  assert_eq(
+    file.getvalue(),
+    "The quick \nbrown fox \njumps over \nthe lazy dog\n",
+  )
+}
+
+///|
+test "oracle misc constrain none" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(@rich.Constrain::new("The quick brown fox", width=None))
+  assert_eq(file.getvalue(), "The quick brown fox\n")
+}
+
+///|
+test "oracle misc styled" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Styled::new("styled [b]text[/b]\nsecond", "italic on blue"),
+  )
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[3;44mstyled \u{1b}[0m\u{1b}[1;3;44mtext\u{1b}[0m\n\u{1b}[3;44msecond\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle misc styled justify" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(@rich.Styled::new("x", "red"), justify=Right)
+  assert_eq(
+    file.getvalue(),
+    "                             \u{1b}[31mx\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle misc vertical center" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(@rich.VerticalCenter::new("foo\nbar", style="on red"), height=6)
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[41m   \u{1b}[0m\n\u{1b}[41m   \u{1b}[0m\nfoo\nbar\n\u{1b}[41m   \u{1b}[0m\n\u{1b}[41m   \u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle misc screen" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    height=5,
+  )
+  console.print(@rich.Screen::new(["hello", "[red]world"], style="on blue"))
+  assert_eq(
+    file.getvalue(),
+    "\u{1b}[44mhello\u{1b}[0m\u{1b}[44m                         \u{1b}[0m\n\u{1b}[31;44mworld\u{1b}[0m\u{1b}[44m                         \u{1b}[0m\n\u{1b}[44m                              \u{1b}[0m\n\u{1b}[44m                              \u{1b}[0m\n\u{1b}[44m                              \u{1b}[0m",
+  )
+}
+
+///|
+test "oracle misc screen application mode" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    height=5,
+  )
+  console.print(@rich.Screen::new(["a\nb"], application_mode=true))
+  assert_eq(
+    file.getvalue(),
+    "a                             \n\rb                             \n\r                              \n\r                              \n\r                              ",
+  )
+}
+
+///|
+test "oracle misc padding in align" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(
+    @rich.Align::new(
+      @rich.Padding::new("pad", pad=[1, 2], style="on green", expand=false),
+      Center,
+    ),
+  )
+  assert_eq(
+    file.getvalue(),
+    "           \u{1b}[42m       \u{1b}[0m            \n           \u{1b}[42m  \u{1b}[0m\u{1b}[42mpad\u{1b}[0m\u{1b}[42m  \u{1b}[0m            \n           \u{1b}[42m       \u{1b}[0m            \n",
+  )
+}
+
+///|
+test "oracle misc align in padding" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=30,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  console.print(@rich.Padding::new(@rich.Align::new("x", Right), pad=[0, 4]))
+  assert_eq(file.getvalue(), "                         x    \n")
+}
+
+///|
+test "oracle nested tables" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=50,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+  )
+  let inner = {
+    let table = @rich.Table::new(box_=@rich.box_rounded)
+    table.add_column(header="x")
+    table.add_column(header="y")
+    table.add_row(["1", "2"])
+    table
+  }
+  let outer = @rich.Table::new(headers=["Outer", "Nested"], expand=true)
+  outer.add_row(["left", inner])
+  outer.add_row([
+    @rich.Padding::new("padded", pad=[1]),
+    @rich.Align::new("right", Right),
+  ])
+  console.print(outer)
+  assert_eq(
+    file.getvalue(),
+    "┏━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃\u{1b}[1m \u{1b}[0m\u{1b}[1mOuter                \u{1b}[0m\u{1b}[1m \u{1b}[0m┃\u{1b}[1m \u{1b}[0m\u{1b}[1mNested                \u{1b}[0m\u{1b}[1m \u{1b}[0m┃\n┡━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━┩\n│ left                  │ ╭───┬───╮              │\n│                       │ │\u{1b}[1m \u{1b}[0m\u{1b}[1mx\u{1b}[0m\u{1b}[1m \u{1b}[0m│\u{1b}[1m \u{1b}[0m\u{1b}[1my\u{1b}[0m\u{1b}[1m \u{1b}[0m│              │\n│                       │ ├───┼───┤              │\n│                       │ │ 1 │ 2 │              │\n│                       │ ╰───┴───╯              │\n│                       │                  right │\n│  padded               │                        │\n│                       │                        │\n└───────────────────────┴────────────────────────┘\n",
+  )
+}
+
+///|
+test "oracle export_text styles 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "bold italic u s dim rev blink c o all\n")
+}
+
+///|
+test "oracle export_text styles styles 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[1mbold\u{1b}[0m \u{1b}[3mitalic\u{1b}[0m \u{1b}[4mu\u{1b}[0m \u{1b}[9ms\u{1b}[0m \u{1b}[2mdim\u{1b}[0m \u{1b}[7mrev\u{1b}[0m \u{1b}[5mblink\u{1b}[0m \u{1b}[8mc\u{1b}[0m \u{1b}[53mo\u{1b}[0m \u{1b}[1;3;4mall\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html styles 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {font-style: italic}\n.r3 {text-decoration: underline}\n.r4 {text-decoration: line-through}\n.r5 {color: #7f7f7f; text-decoration-color: #7f7f7f}\n.r7 {text-decoration: overline}\n.r8 {font-weight: bold; font-style: italic; text-decoration: underline}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">bold</span> <span class=\"r2\">italic</span> <span class=\"r3\">u</span> <span class=\"r4\">s</span> <span class=\"r5\">dim</span> <span class=\"r6\">rev</span> <span class=\"r6\">blink</span> <span class=\"r6\">c</span> <span class=\"r7\">o</span> <span class=\"r8\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline styles 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">bold</span> <span style=\"font-style: italic\">italic</span> <span style=\"text-decoration: underline\">u</span> <span style=\"text-decoration: line-through\">s</span> <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">dim</span> rev blink c <span style=\"text-decoration: overline\">o</span> <span style=\"font-weight: bold; font-style: italic; text-decoration: underline\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg styles 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-2730669922-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-2730669922-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-2730669922-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-2730669922-r2 { fill: #c5c8c6 }\n.terminal-2730669922-r3 { fill: #c5c8c6;font-style: italic; }\n.terminal-2730669922-r4 { fill: #c5c8c6;text-decoration: underline; }\n.terminal-2730669922-r5 { fill: #c5c8c6;text-decoration: line-through; }\n.terminal-2730669922-r6 { fill: #868887 }\n.terminal-2730669922-r7 { fill: #292929 }\n.terminal-2730669922-r8 { fill: #c5c8c6;font-weight: bold;font-style: italic;;text-decoration: underline; }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-2730669922-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-2730669922-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-2730669922-clip-terminal)\">\n    <rect fill=\"#c5c8c6\" x=\"244\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-2730669922-matrix\">\n    <text class=\"terminal-2730669922-r1\" x=\"0\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-2730669922-line-0)\">bold</text><text class=\"terminal-2730669922-r3\" x=\"61\" y=\"20\" textLength=\"73.2\" clip-path=\"url(#terminal-2730669922-line-0)\">italic</text><text class=\"terminal-2730669922-r4\" x=\"146.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">u</text><text class=\"terminal-2730669922-r5\" x=\"170.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">s</text><text class=\"terminal-2730669922-r6\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">dim</text><text class=\"terminal-2730669922-r7\" x=\"244\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">rev</text><text class=\"terminal-2730669922-r2\" x=\"292.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-2730669922-line-0)\">blink</text><text class=\"terminal-2730669922-r2\" x=\"366\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">c</text><text class=\"terminal-2730669922-r2\" x=\"390.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">o</text><text class=\"terminal-2730669922-r8\" x=\"414.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">all</text><text class=\"terminal-2730669922-r2\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text styles 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "bold italic u s dim rev blink c o all\n")
+}
+
+///|
+test "oracle export_text styles styles 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[1mbold\u{1b}[0m \u{1b}[3mitalic\u{1b}[0m \u{1b}[4mu\u{1b}[0m \u{1b}[9ms\u{1b}[0m \u{1b}[2mdim\u{1b}[0m \u{1b}[7mrev\u{1b}[0m \u{1b}[5mblink\u{1b}[0m \u{1b}[8mc\u{1b}[0m \u{1b}[53mo\u{1b}[0m \u{1b}[1;3;4mall\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html styles 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {font-style: italic}\n.r3 {text-decoration: underline}\n.r4 {text-decoration: line-through}\n.r5 {color: #7f7f7f; text-decoration-color: #7f7f7f}\n.r7 {text-decoration: overline}\n.r8 {font-weight: bold; font-style: italic; text-decoration: underline}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">bold</span> <span class=\"r2\">italic</span> <span class=\"r3\">u</span> <span class=\"r4\">s</span> <span class=\"r5\">dim</span> <span class=\"r6\">rev</span> <span class=\"r6\">blink</span> <span class=\"r6\">c</span> <span class=\"r7\">o</span> <span class=\"r8\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline styles 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">bold</span> <span style=\"font-style: italic\">italic</span> <span style=\"text-decoration: underline\">u</span> <span style=\"text-decoration: line-through\">s</span> <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">dim</span> rev blink c <span style=\"text-decoration: overline\">o</span> <span style=\"font-weight: bold; font-style: italic; text-decoration: underline\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg styles 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-2730669922-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-2730669922-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-2730669922-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-2730669922-r2 { fill: #c5c8c6 }\n.terminal-2730669922-r3 { fill: #c5c8c6;font-style: italic; }\n.terminal-2730669922-r4 { fill: #c5c8c6;text-decoration: underline; }\n.terminal-2730669922-r5 { fill: #c5c8c6;text-decoration: line-through; }\n.terminal-2730669922-r6 { fill: #868887 }\n.terminal-2730669922-r7 { fill: #292929 }\n.terminal-2730669922-r8 { fill: #c5c8c6;font-weight: bold;font-style: italic;;text-decoration: underline; }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-2730669922-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-2730669922-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-2730669922-clip-terminal)\">\n    <rect fill=\"#c5c8c6\" x=\"244\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-2730669922-matrix\">\n    <text class=\"terminal-2730669922-r1\" x=\"0\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-2730669922-line-0)\">bold</text><text class=\"terminal-2730669922-r3\" x=\"61\" y=\"20\" textLength=\"73.2\" clip-path=\"url(#terminal-2730669922-line-0)\">italic</text><text class=\"terminal-2730669922-r4\" x=\"146.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">u</text><text class=\"terminal-2730669922-r5\" x=\"170.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">s</text><text class=\"terminal-2730669922-r6\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">dim</text><text class=\"terminal-2730669922-r7\" x=\"244\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">rev</text><text class=\"terminal-2730669922-r2\" x=\"292.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-2730669922-line-0)\">blink</text><text class=\"terminal-2730669922-r2\" x=\"366\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">c</text><text class=\"terminal-2730669922-r2\" x=\"390.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">o</text><text class=\"terminal-2730669922-r8\" x=\"414.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2730669922-line-0)\">all</text><text class=\"terminal-2730669922-r2\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2730669922-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai styles" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {font-style: italic}\n.r3 {text-decoration: underline}\n.r4 {text-decoration: line-through}\n.r5 {color: #727272; text-decoration-color: #727272}\n.r7 {text-decoration: overline}\n.r8 {font-weight: bold; font-style: italic; text-decoration: underline}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">bold</span> <span class=\"r2\">italic</span> <span class=\"r3\">u</span> <span class=\"r4\">s</span> <span class=\"r5\">dim</span> <span class=\"r6\">rev</span> <span class=\"r6\">blink</span> <span class=\"r6\">c</span> <span class=\"r7\">o</span> <span class=\"r8\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default styles" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">bold</span> <span style=\"font-style: italic\">italic</span> <span style=\"text-decoration: underline\">u</span> <span style=\"text-decoration: line-through\">s</span> <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f\">dim</span> rev blink c <span style=\"text-decoration: overline\">o</span> <span style=\"font-weight: bold; font-style: italic; text-decoration: underline\">all</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai styles" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-2260122608-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-2260122608-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-2260122608-r1 { fill: #d9d9d9;font-weight: bold }\n.terminal-2260122608-r2 { fill: #d9d9d9 }\n.terminal-2260122608-r3 { fill: #d9d9d9;font-style: italic; }\n.terminal-2260122608-r4 { fill: #d9d9d9;text-decoration: underline; }\n.terminal-2260122608-r5 { fill: #d9d9d9;text-decoration: line-through; }\n.terminal-2260122608-r6 { fill: #878787 }\n.terminal-2260122608-r7 { fill: #0c0c0c }\n.terminal-2260122608-r8 { fill: #d9d9d9;font-weight: bold;font-style: italic;;text-decoration: underline; }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-2260122608-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-2260122608-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-2260122608-clip-terminal)\">\n    <rect fill=\"#d9d9d9\" x=\"244\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-2260122608-matrix\">\n    <text class=\"terminal-2260122608-r1\" x=\"0\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-2260122608-line-0)\">bold</text><text class=\"terminal-2260122608-r3\" x=\"61\" y=\"20\" textLength=\"73.2\" clip-path=\"url(#terminal-2260122608-line-0)\">italic</text><text class=\"terminal-2260122608-r4\" x=\"146.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2260122608-line-0)\">u</text><text class=\"terminal-2260122608-r5\" x=\"170.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2260122608-line-0)\">s</text><text class=\"terminal-2260122608-r6\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2260122608-line-0)\">dim</text><text class=\"terminal-2260122608-r7\" x=\"244\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2260122608-line-0)\">rev</text><text class=\"terminal-2260122608-r2\" x=\"292.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-2260122608-line-0)\">blink</text><text class=\"terminal-2260122608-r2\" x=\"366\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2260122608-line-0)\">c</text><text class=\"terminal-2260122608-r2\" x=\"390.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2260122608-line-0)\">o</text><text class=\"terminal-2260122608-r8\" x=\"414.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-2260122608-line-0)\">all</text><text class=\"terminal-2260122608-r2\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2260122608-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title styles" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3346314716-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3346314716-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3346314716-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-3346314716-r2 { fill: #c5c8c6 }\n.terminal-3346314716-r3 { fill: #c5c8c6;font-style: italic; }\n.terminal-3346314716-r4 { fill: #c5c8c6;text-decoration: underline; }\n.terminal-3346314716-r5 { fill: #c5c8c6;text-decoration: line-through; }\n.terminal-3346314716-r6 { fill: #868887 }\n.terminal-3346314716-r7 { fill: #292929 }\n.terminal-3346314716-r8 { fill: #c5c8c6;font-weight: bold;font-style: italic;;text-decoration: underline; }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3346314716-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"72.4\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3346314716-clip-terminal)\">\n    <rect fill=\"#c5c8c6\" x=\"200\" y=\"1.5\" width=\"30\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3346314716-matrix\">\n    <text class=\"terminal-3346314716-r1\" x=\"0\" y=\"20\" textLength=\"40\" clip-path=\"url(#terminal-3346314716-line-0)\">bold</text><text class=\"terminal-3346314716-r3\" x=\"50\" y=\"20\" textLength=\"60\" clip-path=\"url(#terminal-3346314716-line-0)\">italic</text><text class=\"terminal-3346314716-r4\" x=\"120\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3346314716-line-0)\">u</text><text class=\"terminal-3346314716-r5\" x=\"140\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3346314716-line-0)\">s</text><text class=\"terminal-3346314716-r6\" x=\"160\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3346314716-line-0)\">dim</text><text class=\"terminal-3346314716-r7\" x=\"200\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3346314716-line-0)\">rev</text><text class=\"terminal-3346314716-r2\" x=\"240\" y=\"20\" textLength=\"50\" clip-path=\"url(#terminal-3346314716-line-0)\">blink</text><text class=\"terminal-3346314716-r2\" x=\"300\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3346314716-line-0)\">c</text><text class=\"terminal-3346314716-r2\" x=\"320\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3346314716-line-0)\">o</text><text class=\"terminal-3346314716-r8\" x=\"340\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3346314716-line-0)\">all</text><text class=\"terminal-3346314716-r2\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3346314716-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme styles" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[bold]bold[/] [italic]italic[/] [underline]u[/] [strike]s[/] [dim]dim[/] [reverse]rev[/] [blink]blink[/] [conceal]c[/] [overline]o[/] [bold italic underline]all[/]",
+  )
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #000000;font-weight: bold }\n.fixed-r2 { fill: #000000 }\n.fixed-r3 { fill: #000000;font-style: italic; }\n.fixed-r4 { fill: #000000;text-decoration: underline; }\n.fixed-r5 { fill: #000000;text-decoration: line-through; }\n.fixed-r6 { fill: #666666 }\n.fixed-r7 { fill: #ffffff }\n.fixed-r8 { fill: #000000;font-weight: bold;font-style: italic;;text-decoration: underline; }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"72.4\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    <rect fill=\"#000000\" x=\"244\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#fixed-line-0)\">bold</text><text class=\"fixed-r3\" x=\"61\" y=\"20\" textLength=\"73.2\" clip-path=\"url(#fixed-line-0)\">italic</text><text class=\"fixed-r4\" x=\"146.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">u</text><text class=\"fixed-r5\" x=\"170.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">s</text><text class=\"fixed-r6\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">dim</text><text class=\"fixed-r7\" x=\"244\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">rev</text><text class=\"fixed-r2\" x=\"292.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#fixed-line-0)\">blink</text><text class=\"fixed-r2\" x=\"366\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">c</text><text class=\"fixed-r2\" x=\"390.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">o</text><text class=\"fixed-r8\" x=\"414.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">all</text><text class=\"fixed-r2\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text colors 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "red hex c200 bg def rb dg r2 dimbg bb\n")
+}
+
+///|
+test "oracle export_text styles colors 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[31mred\u{1b}[0m \u{1b}[38;2;255;136;0;48;2;0;34;68mhex\u{1b}[0m \u{1b}[38;5;200mc200\u{1b}[0m \u{1b}[102mbg\u{1b}[0m \u{1b}[39;49mdef\u{1b}[0m \u{1b}[7;31;44mrb\u{1b}[0m \u{1b}[2;32mdg\u{1b}[0m \u{1b}[7mr2\u{1b}[0m \u{1b}[2;41mdimbg\u{1b}[0m \u{1b}[90mbb\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html colors 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #800000; text-decoration-color: #800000}\n.r2 {color: #ff8800; text-decoration-color: #ff8800; background-color: #002244}\n.r3 {color: #ff00d7; text-decoration-color: #ff00d7}\n.r4 {background-color: #00ff00}\n.r5 {color: #000000; text-decoration-color: #000000; background-color: #ffffff}\n.r6 {color: #000080; text-decoration-color: #000080; background-color: #800000}\n.r7 {color: #7fbf7f; text-decoration-color: #7fbf7f}\n.r9 {color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #800000}\n.r10 {color: #808080; text-decoration-color: #808080}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">red</span> <span class=\"r2\">hex</span> <span class=\"r3\">c200</span> <span class=\"r4\">bg</span> <span class=\"r5\">def</span> <span class=\"r6\">rb</span> <span class=\"r7\">dg</span> <span class=\"r8\">r2</span> <span class=\"r9\">dimbg</span> <span class=\"r10\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline colors 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #800000; text-decoration-color: #800000\">red</span> <span style=\"color: #ff8800; text-decoration-color: #ff8800; background-color: #002244\">hex</span> <span style=\"color: #ff00d7; text-decoration-color: #ff00d7\">c200</span> <span style=\"background-color: #00ff00\">bg</span> <span style=\"color: #000000; text-decoration-color: #000000; background-color: #ffffff\">def</span> <span style=\"color: #000080; text-decoration-color: #000080; background-color: #800000\">rb</span> <span style=\"color: #7fbf7f; text-decoration-color: #7fbf7f\">dg</span> r2 <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #800000\">dimbg</span> <span style=\"color: #808080; text-decoration-color: #808080\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg colors 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3051912447-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3051912447-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3051912447-r1 { fill: #cc555a }\n.terminal-3051912447-r2 { fill: #c5c8c6 }\n.terminal-3051912447-r3 { fill: #ff8800 }\n.terminal-3051912447-r4 { fill: #ff00d7 }\n.terminal-3051912447-r5 { fill: #608ab1 }\n.terminal-3051912447-r6 { fill: #6b753d }\n.terminal-3051912447-r7 { fill: #292929 }\n.terminal-3051912447-r8 { fill: #c79a9a }\n.terminal-3051912447-r9 { fill: #9a9b99 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3051912447-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-3051912447-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3051912447-clip-terminal)\">\n    <rect fill=\"#002244\" x=\"48.8\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#00823d\" x=\"158.6\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"244\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#c5c8c6\" x=\"317.2\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"353.8\" y=\"1.5\" width=\"61\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3051912447-matrix\">\n    <text class=\"terminal-3051912447-r1\" x=\"0\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">red</text><text class=\"terminal-3051912447-r3\" x=\"48.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">hex</text><text class=\"terminal-3051912447-r4\" x=\"97.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-3051912447-line-0)\">c200</text><text class=\"terminal-3051912447-r2\" x=\"158.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">bg</text><text class=\"terminal-3051912447-r2\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">def</text><text class=\"terminal-3051912447-r5\" x=\"244\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">rb</text><text class=\"terminal-3051912447-r6\" x=\"280.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">dg</text><text class=\"terminal-3051912447-r7\" x=\"317.2\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">r2</text><text class=\"terminal-3051912447-r8\" x=\"353.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-3051912447-line-0)\">dimbg</text><text class=\"terminal-3051912447-r9\" x=\"427\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">bb</text><text class=\"terminal-3051912447-r2\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3051912447-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text colors 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "red hex c200 bg def rb dg r2 dimbg bb\n")
+}
+
+///|
+test "oracle export_text styles colors 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[31mred\u{1b}[0m \u{1b}[38;2;255;136;0;48;2;0;34;68mhex\u{1b}[0m \u{1b}[38;5;200mc200\u{1b}[0m \u{1b}[102mbg\u{1b}[0m \u{1b}[39;49mdef\u{1b}[0m \u{1b}[7;31;44mrb\u{1b}[0m \u{1b}[2;32mdg\u{1b}[0m \u{1b}[7mr2\u{1b}[0m \u{1b}[2;41mdimbg\u{1b}[0m \u{1b}[90mbb\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html colors 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #800000; text-decoration-color: #800000}\n.r2 {color: #ff8800; text-decoration-color: #ff8800; background-color: #002244}\n.r3 {color: #ff00d7; text-decoration-color: #ff00d7}\n.r4 {background-color: #00ff00}\n.r5 {color: #000000; text-decoration-color: #000000; background-color: #ffffff}\n.r6 {color: #000080; text-decoration-color: #000080; background-color: #800000}\n.r7 {color: #7fbf7f; text-decoration-color: #7fbf7f}\n.r9 {color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #800000}\n.r10 {color: #808080; text-decoration-color: #808080}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">red</span> <span class=\"r2\">hex</span> <span class=\"r3\">c200</span> <span class=\"r4\">bg</span> <span class=\"r5\">def</span> <span class=\"r6\">rb</span> <span class=\"r7\">dg</span> <span class=\"r8\">r2</span> <span class=\"r9\">dimbg</span> <span class=\"r10\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline colors 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #800000; text-decoration-color: #800000\">red</span> <span style=\"color: #ff8800; text-decoration-color: #ff8800; background-color: #002244\">hex</span> <span style=\"color: #ff00d7; text-decoration-color: #ff00d7\">c200</span> <span style=\"background-color: #00ff00\">bg</span> <span style=\"color: #000000; text-decoration-color: #000000; background-color: #ffffff\">def</span> <span style=\"color: #000080; text-decoration-color: #000080; background-color: #800000\">rb</span> <span style=\"color: #7fbf7f; text-decoration-color: #7fbf7f\">dg</span> r2 <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #800000\">dimbg</span> <span style=\"color: #808080; text-decoration-color: #808080\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg colors 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3051912447-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3051912447-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3051912447-r1 { fill: #cc555a }\n.terminal-3051912447-r2 { fill: #c5c8c6 }\n.terminal-3051912447-r3 { fill: #ff8800 }\n.terminal-3051912447-r4 { fill: #ff00d7 }\n.terminal-3051912447-r5 { fill: #608ab1 }\n.terminal-3051912447-r6 { fill: #6b753d }\n.terminal-3051912447-r7 { fill: #292929 }\n.terminal-3051912447-r8 { fill: #c79a9a }\n.terminal-3051912447-r9 { fill: #9a9b99 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3051912447-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-3051912447-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3051912447-clip-terminal)\">\n    <rect fill=\"#002244\" x=\"48.8\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#00823d\" x=\"158.6\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"244\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#c5c8c6\" x=\"317.2\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"353.8\" y=\"1.5\" width=\"61\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3051912447-matrix\">\n    <text class=\"terminal-3051912447-r1\" x=\"0\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">red</text><text class=\"terminal-3051912447-r3\" x=\"48.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">hex</text><text class=\"terminal-3051912447-r4\" x=\"97.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-3051912447-line-0)\">c200</text><text class=\"terminal-3051912447-r2\" x=\"158.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">bg</text><text class=\"terminal-3051912447-r2\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3051912447-line-0)\">def</text><text class=\"terminal-3051912447-r5\" x=\"244\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">rb</text><text class=\"terminal-3051912447-r6\" x=\"280.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">dg</text><text class=\"terminal-3051912447-r7\" x=\"317.2\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">r2</text><text class=\"terminal-3051912447-r8\" x=\"353.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-3051912447-line-0)\">dimbg</text><text class=\"terminal-3051912447-r9\" x=\"427\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-3051912447-line-0)\">bb</text><text class=\"terminal-3051912447-r2\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3051912447-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai colors" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #f4005f; text-decoration-color: #f4005f}\n.r2 {color: #ff8800; text-decoration-color: #ff8800; background-color: #002244}\n.r3 {color: #ff00d7; text-decoration-color: #ff00d7}\n.r4 {background-color: #98e024}\n.r5 {color: #d9d9d9; text-decoration-color: #d9d9d9; background-color: #0c0c0c}\n.r6 {color: #9d65ff; text-decoration-color: #9d65ff; background-color: #f4005f}\n.r7 {color: #527618; text-decoration-color: #527618}\n.r9 {color: #727272; text-decoration-color: #727272; background-color: #f4005f}\n.r10 {color: #625e4c; text-decoration-color: #625e4c}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">red</span> <span class=\"r2\">hex</span> <span class=\"r3\">c200</span> <span class=\"r4\">bg</span> <span class=\"r5\">def</span> <span class=\"r6\">rb</span> <span class=\"r7\">dg</span> <span class=\"r8\">r2</span> <span class=\"r9\">dimbg</span> <span class=\"r10\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default colors" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #800000; text-decoration-color: #800000\">red</span> <span style=\"color: #ff8800; text-decoration-color: #ff8800; background-color: #002244\">hex</span> <span style=\"color: #ff00d7; text-decoration-color: #ff00d7\">c200</span> <span style=\"background-color: #00ff00\">bg</span> <span style=\"color: #000000; text-decoration-color: #000000; background-color: #ffffff\">def</span> <span style=\"color: #000080; text-decoration-color: #000080; background-color: #800000\">rb</span> <span style=\"color: #7fbf7f; text-decoration-color: #7fbf7f\">dg</span> r2 <span style=\"color: #7f7f7f; text-decoration-color: #7f7f7f; background-color: #800000\">dimbg</span> <span style=\"color: #808080; text-decoration-color: #808080\">bb</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai colors" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-769819021-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-769819021-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-769819021-r1 { fill: #f4005f }\n.terminal-769819021-r2 { fill: #d9d9d9 }\n.terminal-769819021-r3 { fill: #ff8800 }\n.terminal-769819021-r4 { fill: #ff00d7 }\n.terminal-769819021-r5 { fill: #9d65ff }\n.terminal-769819021-r6 { fill: #608b1a }\n.terminal-769819021-r7 { fill: #0c0c0c }\n.terminal-769819021-r8 { fill: #e382a8 }\n.terminal-769819021-r9 { fill: #625e4c }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-769819021-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-769819021-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-769819021-clip-terminal)\">\n    <rect fill=\"#002244\" x=\"48.8\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#98e024\" x=\"158.6\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#f4005f\" x=\"244\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#d9d9d9\" x=\"317.2\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#f4005f\" x=\"353.8\" y=\"1.5\" width=\"61\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-769819021-matrix\">\n    <text class=\"terminal-769819021-r1\" x=\"0\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-769819021-line-0)\">red</text><text class=\"terminal-769819021-r3\" x=\"48.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-769819021-line-0)\">hex</text><text class=\"terminal-769819021-r4\" x=\"97.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-769819021-line-0)\">c200</text><text class=\"terminal-769819021-r2\" x=\"158.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-769819021-line-0)\">bg</text><text class=\"terminal-769819021-r2\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-769819021-line-0)\">def</text><text class=\"terminal-769819021-r5\" x=\"244\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-769819021-line-0)\">rb</text><text class=\"terminal-769819021-r6\" x=\"280.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-769819021-line-0)\">dg</text><text class=\"terminal-769819021-r7\" x=\"317.2\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-769819021-line-0)\">r2</text><text class=\"terminal-769819021-r8\" x=\"353.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-769819021-line-0)\">dimbg</text><text class=\"terminal-769819021-r9\" x=\"427\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#terminal-769819021-line-0)\">bb</text><text class=\"terminal-769819021-r2\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-769819021-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title colors" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3291839353-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3291839353-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3291839353-r1 { fill: #cc555a }\n.terminal-3291839353-r2 { fill: #c5c8c6 }\n.terminal-3291839353-r3 { fill: #ff8800 }\n.terminal-3291839353-r4 { fill: #ff00d7 }\n.terminal-3291839353-r5 { fill: #608ab1 }\n.terminal-3291839353-r6 { fill: #6b753d }\n.terminal-3291839353-r7 { fill: #292929 }\n.terminal-3291839353-r8 { fill: #c79a9a }\n.terminal-3291839353-r9 { fill: #9a9b99 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3291839353-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"72.4\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3291839353-clip-terminal)\">\n    <rect fill=\"#002244\" x=\"40\" y=\"1.5\" width=\"30\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#00823d\" x=\"130\" y=\"1.5\" width=\"20\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"200\" y=\"1.5\" width=\"20\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#c5c8c6\" x=\"260\" y=\"1.5\" width=\"20\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#cc555a\" x=\"290\" y=\"1.5\" width=\"50\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3291839353-matrix\">\n    <text class=\"terminal-3291839353-r1\" x=\"0\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3291839353-line-0)\">red</text><text class=\"terminal-3291839353-r3\" x=\"40\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3291839353-line-0)\">hex</text><text class=\"terminal-3291839353-r4\" x=\"80\" y=\"20\" textLength=\"40\" clip-path=\"url(#terminal-3291839353-line-0)\">c200</text><text class=\"terminal-3291839353-r2\" x=\"130\" y=\"20\" textLength=\"20\" clip-path=\"url(#terminal-3291839353-line-0)\">bg</text><text class=\"terminal-3291839353-r2\" x=\"160\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3291839353-line-0)\">def</text><text class=\"terminal-3291839353-r5\" x=\"200\" y=\"20\" textLength=\"20\" clip-path=\"url(#terminal-3291839353-line-0)\">rb</text><text class=\"terminal-3291839353-r6\" x=\"230\" y=\"20\" textLength=\"20\" clip-path=\"url(#terminal-3291839353-line-0)\">dg</text><text class=\"terminal-3291839353-r7\" x=\"260\" y=\"20\" textLength=\"20\" clip-path=\"url(#terminal-3291839353-line-0)\">r2</text><text class=\"terminal-3291839353-r8\" x=\"290\" y=\"20\" textLength=\"50\" clip-path=\"url(#terminal-3291839353-line-0)\">dimbg</text><text class=\"terminal-3291839353-r9\" x=\"350\" y=\"20\" textLength=\"20\" clip-path=\"url(#terminal-3291839353-line-0)\">bb</text><text class=\"terminal-3291839353-r2\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3291839353-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme colors" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "[red]red[/] [#ff8800 on #002244]hex[/] [color(200)]c200[/] [on bright_green]bg[/] [default on default]def[/] [reverse red on blue]rb[/] [dim green]dg[/] [reverse]r2[/] [dim on red]dimbg[/] [bright_black]bb[/]",
+  )
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #800000 }\n.fixed-r2 { fill: #000000 }\n.fixed-r3 { fill: #ff8800 }\n.fixed-r4 { fill: #ff00d7 }\n.fixed-r5 { fill: #000080 }\n.fixed-r6 { fill: #66b266 }\n.fixed-r7 { fill: #ffffff }\n.fixed-r8 { fill: #330000 }\n.fixed-r9 { fill: #808080 }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"72.4\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    <rect fill=\"#002244\" x=\"48.8\" y=\"1.5\" width=\"36.6\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#00ff00\" x=\"158.6\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#800000\" x=\"244\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#000000\" x=\"317.2\" y=\"1.5\" width=\"24.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#800000\" x=\"353.8\" y=\"1.5\" width=\"61\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">red</text><text class=\"fixed-r3\" x=\"48.8\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">hex</text><text class=\"fixed-r4\" x=\"97.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#fixed-line-0)\">c200</text><text class=\"fixed-r2\" x=\"158.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#fixed-line-0)\">bg</text><text class=\"fixed-r2\" x=\"195.2\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">def</text><text class=\"fixed-r5\" x=\"244\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#fixed-line-0)\">rb</text><text class=\"fixed-r6\" x=\"280.6\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#fixed-line-0)\">dg</text><text class=\"fixed-r7\" x=\"317.2\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#fixed-line-0)\">r2</text><text class=\"fixed-r8\" x=\"353.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#fixed-line-0)\">dimbg</text><text class=\"fixed-r9\" x=\"427\" y=\"20\" textLength=\"24.4\" clip-path=\"url(#fixed-line-0)\">bb</text><text class=\"fixed-r2\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text escaping 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "<a href='x'>&amp;</a> \"quotes\" 'single' \nlink tail\n")
+}
+
+///|
+test "oracle export_text styles escaping 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    normalize_link_ids(result),
+    "\u{1b}[1m<\u{1b}[0m\u{1b}[1;95ma\u{1b}[0m\u{1b}[39m \u{1b}[0m\u{1b}[33mhref\u{1b}[0m\u{1b}[39m=\u{1b}[0m\u{1b}[32m'x'\u{1b}[0m\u{1b}[39m>&amp;<\u{1b}[0m\u{1b}[35m/\u{1b}[0m\u{1b}[95ma\u{1b}[0m\u{1b}[1m>\u{1b}[0m \u{1b}[32m\"quotes\"\u{1b}[0m \u{1b}[32m'single'\u{1b}[0m \n\u{1b}]8;id=0;https://example.org/?a=1&b=2\u{1b}\\link\u{1b}]8;;\u{1b}\\ tail\n",
+  )
+}
+
+///|
+test "oracle export_html escaping 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold}\n.r3 {color: #000000; text-decoration-color: #000000}\n.r4 {color: #808000; text-decoration-color: #808000}\n.r5 {color: #008000; text-decoration-color: #008000}\n.r6 {color: #800080; text-decoration-color: #800080}\n.r7 {color: #ff00ff; text-decoration-color: #ff00ff}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">&lt;</span><span class=\"r2\">a</span><span class=\"r3\"> </span><span class=\"r4\">href</span><span class=\"r3\">=</span><span class=\"r5\">&#x27;x&#x27;</span><span class=\"r3\">&gt;&amp;amp;&lt;</span><span class=\"r6\">/</span><span class=\"r7\">a</span><span class=\"r1\">&gt;</span> <span class=\"r5\">&quot;quotes&quot;</span> <span class=\"r5\">&#x27;single&#x27;</span> \n<a class=\"r8\" href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline escaping 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">&lt;</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold\">a</span><span style=\"color: #000000; text-decoration-color: #000000\"> </span><span style=\"color: #808000; text-decoration-color: #808000\">href</span><span style=\"color: #000000; text-decoration-color: #000000\">=</span><span style=\"color: #008000; text-decoration-color: #008000\">&#x27;x&#x27;</span><span style=\"color: #000000; text-decoration-color: #000000\">&gt;&amp;amp;&lt;</span><span style=\"color: #800080; text-decoration-color: #800080\">/</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff\">a</span><span style=\"font-weight: bold\">&gt;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&quot;quotes&quot;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&#x27;single&#x27;</span> \n<a href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg escaping 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-185884777-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-185884777-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-185884777-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-185884777-r2 { fill: #ff2c7a;font-weight: bold }\n.terminal-185884777-r3 { fill: #c5c8c6 }\n.terminal-185884777-r4 { fill: #d0b344 }\n.terminal-185884777-r5 { fill: #98a84b }\n.terminal-185884777-r6 { fill: #98729f }\n.terminal-185884777-r7 { fill: #ff2c7a }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-185884777-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-185884777-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-185884777-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-185884777-clip-terminal)\">\n    \n    <g class=\"terminal-185884777-matrix\">\n    <text class=\"terminal-185884777-r1\" x=\"0\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">&lt;</text><text class=\"terminal-185884777-r2\" x=\"12.2\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">a</text><text class=\"terminal-185884777-r4\" x=\"36.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-185884777-line-0)\">href</text><text class=\"terminal-185884777-r3\" x=\"85.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">=</text><text class=\"terminal-185884777-r5\" x=\"97.6\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-185884777-line-0)\">&#x27;x&#x27;</text><text class=\"terminal-185884777-r3\" x=\"134.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-185884777-line-0)\">&gt;&amp;amp;&lt;</text><text class=\"terminal-185884777-r6\" x=\"219.6\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">/</text><text class=\"terminal-185884777-r7\" x=\"231.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">a</text><text class=\"terminal-185884777-r1\" x=\"244\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">&gt;</text><text class=\"terminal-185884777-r5\" x=\"268.4\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-185884777-line-0)\">&quot;quotes&quot;</text><text class=\"terminal-185884777-r5\" x=\"378.2\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-185884777-line-0)\">&#x27;single&#x27;</text><text class=\"terminal-185884777-r3\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-0)\">\n</text><text class=\"terminal-185884777-r3\" x=\"0\" y=\"44.4\" textLength=\"48.8\" clip-path=\"url(#terminal-185884777-line-1)\">link</text><text class=\"terminal-185884777-r3\" x=\"48.8\" y=\"44.4\" textLength=\"61\" clip-path=\"url(#terminal-185884777-line-1)\">&#160;tail</text><text class=\"terminal-185884777-r3\" x=\"488\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-185884777-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text escaping 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "<a href='x'>&amp;</a> \"quotes\" 'single' link tail\n")
+}
+
+///|
+test "oracle export_text styles escaping 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    normalize_link_ids(result),
+    "\u{1b}[1m<\u{1b}[0m\u{1b}[1;95ma\u{1b}[0m\u{1b}[39m \u{1b}[0m\u{1b}[33mhref\u{1b}[0m\u{1b}[39m=\u{1b}[0m\u{1b}[32m'x'\u{1b}[0m\u{1b}[39m>&amp;<\u{1b}[0m\u{1b}[35m/\u{1b}[0m\u{1b}[95ma\u{1b}[0m\u{1b}[1m>\u{1b}[0m \u{1b}[32m\"quotes\"\u{1b}[0m \u{1b}[32m'single'\u{1b}[0m \u{1b}]8;id=0;https://example.org/?a=1&b=2\u{1b}\\link\u{1b}]8;;\u{1b}\\ tail\n",
+  )
+}
+
+///|
+test "oracle export_html escaping 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold}\n.r3 {color: #000000; text-decoration-color: #000000}\n.r4 {color: #808000; text-decoration-color: #808000}\n.r5 {color: #008000; text-decoration-color: #008000}\n.r6 {color: #800080; text-decoration-color: #800080}\n.r7 {color: #ff00ff; text-decoration-color: #ff00ff}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">&lt;</span><span class=\"r2\">a</span><span class=\"r3\"> </span><span class=\"r4\">href</span><span class=\"r3\">=</span><span class=\"r5\">&#x27;x&#x27;</span><span class=\"r3\">&gt;&amp;amp;&lt;</span><span class=\"r6\">/</span><span class=\"r7\">a</span><span class=\"r1\">&gt;</span> <span class=\"r5\">&quot;quotes&quot;</span> <span class=\"r5\">&#x27;single&#x27;</span> <a class=\"r8\" href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline escaping 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">&lt;</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold\">a</span><span style=\"color: #000000; text-decoration-color: #000000\"> </span><span style=\"color: #808000; text-decoration-color: #808000\">href</span><span style=\"color: #000000; text-decoration-color: #000000\">=</span><span style=\"color: #008000; text-decoration-color: #008000\">&#x27;x&#x27;</span><span style=\"color: #000000; text-decoration-color: #000000\">&gt;&amp;amp;&lt;</span><span style=\"color: #800080; text-decoration-color: #800080\">/</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff\">a</span><span style=\"font-weight: bold\">&gt;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&quot;quotes&quot;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&#x27;single&#x27;</span> <a href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg escaping 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1042897965-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1042897965-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1042897965-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-1042897965-r2 { fill: #ff2c7a;font-weight: bold }\n.terminal-1042897965-r3 { fill: #c5c8c6 }\n.terminal-1042897965-r4 { fill: #d0b344 }\n.terminal-1042897965-r5 { fill: #98a84b }\n.terminal-1042897965-r6 { fill: #98729f }\n.terminal-1042897965-r7 { fill: #ff2c7a }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1042897965-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-1042897965-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1042897965-clip-terminal)\">\n    \n    <g class=\"terminal-1042897965-matrix\">\n    <text class=\"terminal-1042897965-r1\" x=\"0\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">&lt;</text><text class=\"terminal-1042897965-r2\" x=\"12.2\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">a</text><text class=\"terminal-1042897965-r4\" x=\"36.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-1042897965-line-0)\">href</text><text class=\"terminal-1042897965-r3\" x=\"85.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">=</text><text class=\"terminal-1042897965-r5\" x=\"97.6\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-1042897965-line-0)\">&#x27;x&#x27;</text><text class=\"terminal-1042897965-r3\" x=\"134.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-1042897965-line-0)\">&gt;&amp;amp;&lt;</text><text class=\"terminal-1042897965-r6\" x=\"219.6\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">/</text><text class=\"terminal-1042897965-r7\" x=\"231.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">a</text><text class=\"terminal-1042897965-r1\" x=\"244\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">&gt;</text><text class=\"terminal-1042897965-r5\" x=\"268.4\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-1042897965-line-0)\">&quot;quotes&quot;</text><text class=\"terminal-1042897965-r5\" x=\"378.2\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-1042897965-line-0)\">&#x27;single&#x27;</text><text class=\"terminal-1042897965-r3\" x=\"488\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-1042897965-line-0)\">link</text><text class=\"terminal-1042897965-r3\" x=\"536.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-1042897965-line-0)\">&#160;tail</text><text class=\"terminal-1042897965-r3\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1042897965-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai escaping" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-weight: bold}\n.r2 {color: #f4005f; text-decoration-color: #f4005f; font-weight: bold}\n.r3 {color: #d9d9d9; text-decoration-color: #d9d9d9}\n.r4 {color: #fd971f; text-decoration-color: #fd971f}\n.r5 {color: #98e024; text-decoration-color: #98e024}\n.r6 {color: #f4005f; text-decoration-color: #f4005f}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">&lt;</span><span class=\"r2\">a</span><span class=\"r3\"> </span><span class=\"r4\">href</span><span class=\"r3\">=</span><span class=\"r5\">&#x27;x&#x27;</span><span class=\"r3\">&gt;&amp;amp;&lt;</span><span class=\"r6\">/</span><span class=\"r6\">a</span><span class=\"r1\">&gt;</span> <span class=\"r5\">&quot;quotes&quot;</span> <span class=\"r5\">&#x27;single&#x27;</span> <a class=\"r7\" href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default escaping" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-weight: bold\">&lt;</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff; font-weight: bold\">a</span><span style=\"color: #000000; text-decoration-color: #000000\"> </span><span style=\"color: #808000; text-decoration-color: #808000\">href</span><span style=\"color: #000000; text-decoration-color: #000000\">=</span><span style=\"color: #008000; text-decoration-color: #008000\">&#x27;x&#x27;</span><span style=\"color: #000000; text-decoration-color: #000000\">&gt;&amp;amp;&lt;</span><span style=\"color: #800080; text-decoration-color: #800080\">/</span><span style=\"color: #ff00ff; text-decoration-color: #ff00ff\">a</span><span style=\"font-weight: bold\">&gt;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&quot;quotes&quot;</span> <span style=\"color: #008000; text-decoration-color: #008000\">&#x27;single&#x27;</span> <a href=\"https://example.org/?a=1&b=2\">link</a> tail\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai escaping" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3383255227-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3383255227-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3383255227-r1 { fill: #d9d9d9;font-weight: bold }\n.terminal-3383255227-r2 { fill: #f4005f;font-weight: bold }\n.terminal-3383255227-r3 { fill: #d9d9d9 }\n.terminal-3383255227-r4 { fill: #fd971f }\n.terminal-3383255227-r5 { fill: #98e024 }\n.terminal-3383255227-r6 { fill: #f4005f }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3383255227-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"72.4\" rx=\"8\"/><text class=\"terminal-3383255227-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3383255227-clip-terminal)\">\n    \n    <g class=\"terminal-3383255227-matrix\">\n    <text class=\"terminal-3383255227-r1\" x=\"0\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">&lt;</text><text class=\"terminal-3383255227-r2\" x=\"12.2\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">a</text><text class=\"terminal-3383255227-r4\" x=\"36.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-3383255227-line-0)\">href</text><text class=\"terminal-3383255227-r3\" x=\"85.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">=</text><text class=\"terminal-3383255227-r5\" x=\"97.6\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#terminal-3383255227-line-0)\">&#x27;x&#x27;</text><text class=\"terminal-3383255227-r3\" x=\"134.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-3383255227-line-0)\">&gt;&amp;amp;&lt;</text><text class=\"terminal-3383255227-r6\" x=\"219.6\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">/</text><text class=\"terminal-3383255227-r6\" x=\"231.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">a</text><text class=\"terminal-3383255227-r1\" x=\"244\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">&gt;</text><text class=\"terminal-3383255227-r5\" x=\"268.4\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-3383255227-line-0)\">&quot;quotes&quot;</text><text class=\"terminal-3383255227-r5\" x=\"378.2\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#terminal-3383255227-line-0)\">&#x27;single&#x27;</text><text class=\"terminal-3383255227-r3\" x=\"488\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#terminal-3383255227-line-0)\">link</text><text class=\"terminal-3383255227-r3\" x=\"536.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#terminal-3383255227-line-0)\">&#160;tail</text><text class=\"terminal-3383255227-r3\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3383255227-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title escaping" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3485358759-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3485358759-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3485358759-r1 { fill: #c5c8c6;font-weight: bold }\n.terminal-3485358759-r2 { fill: #ff2c7a;font-weight: bold }\n.terminal-3485358759-r3 { fill: #c5c8c6 }\n.terminal-3485358759-r4 { fill: #d0b344 }\n.terminal-3485358759-r5 { fill: #98a84b }\n.terminal-3485358759-r6 { fill: #98729f }\n.terminal-3485358759-r7 { fill: #ff2c7a }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3485358759-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"72.4\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3485358759-clip-terminal)\">\n    \n    <g class=\"terminal-3485358759-matrix\">\n    <text class=\"terminal-3485358759-r1\" x=\"0\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">&lt;</text><text class=\"terminal-3485358759-r2\" x=\"10\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">a</text><text class=\"terminal-3485358759-r4\" x=\"30\" y=\"20\" textLength=\"40\" clip-path=\"url(#terminal-3485358759-line-0)\">href</text><text class=\"terminal-3485358759-r3\" x=\"70\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">=</text><text class=\"terminal-3485358759-r5\" x=\"80\" y=\"20\" textLength=\"30\" clip-path=\"url(#terminal-3485358759-line-0)\">&#x27;x&#x27;</text><text class=\"terminal-3485358759-r3\" x=\"110\" y=\"20\" textLength=\"70\" clip-path=\"url(#terminal-3485358759-line-0)\">&gt;&amp;amp;&lt;</text><text class=\"terminal-3485358759-r6\" x=\"180\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">/</text><text class=\"terminal-3485358759-r7\" x=\"190\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">a</text><text class=\"terminal-3485358759-r1\" x=\"200\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">&gt;</text><text class=\"terminal-3485358759-r5\" x=\"220\" y=\"20\" textLength=\"80\" clip-path=\"url(#terminal-3485358759-line-0)\">&quot;quotes&quot;</text><text class=\"terminal-3485358759-r5\" x=\"310\" y=\"20\" textLength=\"80\" clip-path=\"url(#terminal-3485358759-line-0)\">&#x27;single&#x27;</text><text class=\"terminal-3485358759-r3\" x=\"400\" y=\"20\" textLength=\"40\" clip-path=\"url(#terminal-3485358759-line-0)\">link</text><text class=\"terminal-3485358759-r3\" x=\"440\" y=\"20\" textLength=\"50\" clip-path=\"url(#terminal-3485358759-line-0)\">&#160;tail</text><text class=\"terminal-3485358759-r3\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3485358759-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme escaping" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print(
+    "<a href='x'>&amp;</a> \"quotes\" 'single' [link=https://example.org/?a=1&b=2]link[/link] tail",
+  )
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 74.4\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #000000;font-weight: bold }\n.fixed-r2 { fill: #ff00ff;font-weight: bold }\n.fixed-r3 { fill: #000000 }\n.fixed-r4 { fill: #808000 }\n.fixed-r5 { fill: #008000 }\n.fixed-r6 { fill: #800080 }\n.fixed-r7 { fill: #ff00ff }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"23.4\" />\n    </clipPath>\n    \n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"72.4\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    \n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">&lt;</text><text class=\"fixed-r2\" x=\"12.2\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">a</text><text class=\"fixed-r4\" x=\"36.6\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#fixed-line-0)\">href</text><text class=\"fixed-r3\" x=\"85.4\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">=</text><text class=\"fixed-r5\" x=\"97.6\" y=\"20\" textLength=\"36.6\" clip-path=\"url(#fixed-line-0)\">&#x27;x&#x27;</text><text class=\"fixed-r3\" x=\"134.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#fixed-line-0)\">&gt;&amp;amp;&lt;</text><text class=\"fixed-r6\" x=\"219.6\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">/</text><text class=\"fixed-r7\" x=\"231.8\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">a</text><text class=\"fixed-r1\" x=\"244\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">&gt;</text><text class=\"fixed-r5\" x=\"268.4\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#fixed-line-0)\">&quot;quotes&quot;</text><text class=\"fixed-r5\" x=\"378.2\" y=\"20\" textLength=\"97.6\" clip-path=\"url(#fixed-line-0)\">&#x27;single&#x27;</text><text class=\"fixed-r3\" x=\"488\" y=\"20\" textLength=\"48.8\" clip-path=\"url(#fixed-line-0)\">link</text><text class=\"fixed-r3\" x=\"536.8\" y=\"20\" textLength=\"61\" clip-path=\"url(#fixed-line-0)\">&#160;tail</text><text class=\"fixed-r3\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text wide 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "中文 💩 emoji 😄 café\n中文 💩\n")
+}
+
+///|
+test "oracle export_text styles wide 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "中文 💩 emoji 😄 café\n\u{1b}[41m中文\u{1b}[0m \u{1b}[1m💩\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html wide 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {background-color: #800000}\n.r2 {font-weight: bold}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span class=\"r1\">中文</span> <span class=\"r2\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline wide 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span style=\"background-color: #800000\">中文</span> <span style=\"font-weight: bold\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg wide 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3663284765-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3663284765-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3663284765-r1 { fill: #c5c8c6 }\n.terminal-3663284765-r2 { fill: #c5c8c6;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3663284765-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-3663284765-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-3663284765-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3663284765-clip-terminal)\">\n    <rect fill=\"#cc555a\" x=\"0\" y=\"25.9\" width=\"48.8\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3663284765-matrix\">\n    <text class=\"terminal-3663284765-r1\" x=\"0\" y=\"20\" textLength=\"207.4\" clip-path=\"url(#terminal-3663284765-line-0)\">中文&#160;💩&#160;emoji&#160;😄&#160;café</text><text class=\"terminal-3663284765-r1\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-0)\">\n</text><text class=\"terminal-3663284765-r1\" x=\"0\" y=\"44.4\" textLength=\"24.4\" clip-path=\"url(#terminal-3663284765-line-1)\">中文</text><text class=\"terminal-3663284765-r2\" x=\"61\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-1)\">💩</text><text class=\"terminal-3663284765-r1\" x=\"488\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text wide 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(result, "中文 💩 emoji 😄 café\n中文 💩\n")
+}
+
+///|
+test "oracle export_text styles wide 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "中文 💩 emoji 😄 café\n\u{1b}[41m中文\u{1b}[0m \u{1b}[1m💩\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html wide 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {background-color: #800000}\n.r2 {font-weight: bold}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span class=\"r1\">中文</span> <span class=\"r2\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline wide 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span style=\"background-color: #800000\">中文</span> <span style=\"font-weight: bold\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg wide 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3663284765-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3663284765-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3663284765-r1 { fill: #c5c8c6 }\n.terminal-3663284765-r2 { fill: #c5c8c6;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3663284765-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-3663284765-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-3663284765-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3663284765-clip-terminal)\">\n    <rect fill=\"#cc555a\" x=\"0\" y=\"25.9\" width=\"48.8\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3663284765-matrix\">\n    <text class=\"terminal-3663284765-r1\" x=\"0\" y=\"20\" textLength=\"207.4\" clip-path=\"url(#terminal-3663284765-line-0)\">中文&#160;💩&#160;emoji&#160;😄&#160;café</text><text class=\"terminal-3663284765-r1\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-0)\">\n</text><text class=\"terminal-3663284765-r1\" x=\"0\" y=\"44.4\" textLength=\"24.4\" clip-path=\"url(#terminal-3663284765-line-1)\">中文</text><text class=\"terminal-3663284765-r2\" x=\"61\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-1)\">💩</text><text class=\"terminal-3663284765-r1\" x=\"1220\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3663284765-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai wide" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {background-color: #f4005f}\n.r2 {font-weight: bold}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span class=\"r1\">中文</span> <span class=\"r2\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default wide" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">中文 💩 emoji 😄 café\n<span style=\"background-color: #800000\">中文</span> <span style=\"font-weight: bold\">💩</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai wide" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1458065067-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1458065067-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1458065067-r1 { fill: #d9d9d9 }\n.terminal-1458065067-r2 { fill: #d9d9d9;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1458065067-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-1458065067-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-1458065067-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1458065067-clip-terminal)\">\n    <rect fill=\"#f4005f\" x=\"0\" y=\"25.9\" width=\"48.8\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-1458065067-matrix\">\n    <text class=\"terminal-1458065067-r1\" x=\"0\" y=\"20\" textLength=\"207.4\" clip-path=\"url(#terminal-1458065067-line-0)\">中文&#160;💩&#160;emoji&#160;😄&#160;café</text><text class=\"terminal-1458065067-r1\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1458065067-line-0)\">\n</text><text class=\"terminal-1458065067-r1\" x=\"0\" y=\"44.4\" textLength=\"24.4\" clip-path=\"url(#terminal-1458065067-line-1)\">中文</text><text class=\"terminal-1458065067-r2\" x=\"61\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1458065067-line-1)\">💩</text><text class=\"terminal-1458065067-r1\" x=\"732\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1458065067-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title wide" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3023915159-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3023915159-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3023915159-r1 { fill: #c5c8c6 }\n.terminal-3023915159-r2 { fill: #c5c8c6;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3023915159-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-3023915159-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"96.8\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3023915159-clip-terminal)\">\n    <rect fill=\"#cc555a\" x=\"0\" y=\"25.9\" width=\"40\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3023915159-matrix\">\n    <text class=\"terminal-3023915159-r1\" x=\"0\" y=\"20\" textLength=\"170\" clip-path=\"url(#terminal-3023915159-line-0)\">中文&#160;💩&#160;emoji&#160;😄&#160;café</text><text class=\"terminal-3023915159-r1\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-3023915159-line-0)\">\n</text><text class=\"terminal-3023915159-r1\" x=\"0\" y=\"44.4\" textLength=\"20\" clip-path=\"url(#terminal-3023915159-line-1)\">中文</text><text class=\"terminal-3023915159-r2\" x=\"50\" y=\"44.4\" textLength=\"10\" clip-path=\"url(#terminal-3023915159-line-1)\">💩</text><text class=\"terminal-3023915159-r1\" x=\"600\" y=\"44.4\" textLength=\"10\" clip-path=\"url(#terminal-3023915159-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme wide" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("中文 💩 emoji :smile: café")
+  console.print("[on red]中文[/] [bold]💩[/]")
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #000000 }\n.fixed-r2 { fill: #000000;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"fixed-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"96.8\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    <rect fill=\"#800000\" x=\"0\" y=\"25.9\" width=\"48.8\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"207.4\" clip-path=\"url(#fixed-line-0)\">中文&#160;💩&#160;emoji&#160;😄&#160;café</text><text class=\"fixed-r1\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"44.4\" textLength=\"24.4\" clip-path=\"url(#fixed-line-1)\">中文</text><text class=\"fixed-r2\" x=\"61\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-1)\">💩</text><text class=\"fixed-r1\" x=\"976\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text multiline 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "line one   \n\n  indented red\nx x x x x x x x x x x x x x x x x x x x \nx x x x x x x x x x \nrow 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24\n",
+  )
+}
+
+///|
+test "oracle export_text styles multiline 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "line one   \n\n  indented \u{1b}[31mred\u{1b}[0m\nx x x x x x x x x x x x x x x x x x x x \nx x x x x x x x x x \nrow \u{1b}[1;36m0\u{1b}[0m\nrow \u{1b}[1;36m1\u{1b}[0m\nrow \u{1b}[1;36m2\u{1b}[0m\nrow \u{1b}[1;36m3\u{1b}[0m\nrow \u{1b}[1;36m4\u{1b}[0m\nrow \u{1b}[1;36m5\u{1b}[0m\nrow \u{1b}[1;36m6\u{1b}[0m\nrow \u{1b}[1;36m7\u{1b}[0m\nrow \u{1b}[1;36m8\u{1b}[0m\nrow \u{1b}[1;36m9\u{1b}[0m\nrow \u{1b}[1;36m10\u{1b}[0m\nrow \u{1b}[1;36m11\u{1b}[0m\nrow \u{1b}[1;36m12\u{1b}[0m\nrow \u{1b}[1;36m13\u{1b}[0m\nrow \u{1b}[1;36m14\u{1b}[0m\nrow \u{1b}[1;36m15\u{1b}[0m\nrow \u{1b}[1;36m16\u{1b}[0m\nrow \u{1b}[1;36m17\u{1b}[0m\nrow \u{1b}[1;36m18\u{1b}[0m\nrow \u{1b}[1;36m19\u{1b}[0m\nrow \u{1b}[1;36m20\u{1b}[0m\nrow \u{1b}[1;36m21\u{1b}[0m\nrow \u{1b}[1;36m22\u{1b}[0m\nrow \u{1b}[1;36m23\u{1b}[0m\nrow \u{1b}[1;36m24\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html multiline 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #800000; text-decoration-color: #800000}\n.r2 {color: #008080; text-decoration-color: #008080; font-weight: bold}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span class=\"r1\">red</span>\nx x x x x x x x x x x x x x x x x x x x \nx x x x x x x x x x \nrow <span class=\"r2\">0</span>\nrow <span class=\"r2\">1</span>\nrow <span class=\"r2\">2</span>\nrow <span class=\"r2\">3</span>\nrow <span class=\"r2\">4</span>\nrow <span class=\"r2\">5</span>\nrow <span class=\"r2\">6</span>\nrow <span class=\"r2\">7</span>\nrow <span class=\"r2\">8</span>\nrow <span class=\"r2\">9</span>\nrow <span class=\"r2\">10</span>\nrow <span class=\"r2\">11</span>\nrow <span class=\"r2\">12</span>\nrow <span class=\"r2\">13</span>\nrow <span class=\"r2\">14</span>\nrow <span class=\"r2\">15</span>\nrow <span class=\"r2\">16</span>\nrow <span class=\"r2\">17</span>\nrow <span class=\"r2\">18</span>\nrow <span class=\"r2\">19</span>\nrow <span class=\"r2\">20</span>\nrow <span class=\"r2\">21</span>\nrow <span class=\"r2\">22</span>\nrow <span class=\"r2\">23</span>\nrow <span class=\"r2\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline multiline 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span style=\"color: #800000; text-decoration-color: #800000\">red</span>\nx x x x x x x x x x x x x x x x x x x x \nx x x x x x x x x x \nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">0</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">1</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">2</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">3</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">4</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">5</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">6</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">7</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">8</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">9</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">10</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">11</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">12</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">13</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">14</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">15</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">16</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">17</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">18</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">19</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">20</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">21</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">22</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">23</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg multiline 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 782.0\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-278042124-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-278042124-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-278042124-r1 { fill: #c5c8c6 }\n.terminal-278042124-r2 { fill: #cc555a }\n.terminal-278042124-r3 { fill: #68a0b3;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-278042124-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"731.0\" />\n    </clipPath>\n    <clipPath id=\"terminal-278042124-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-11\">\n    <rect x=\"0\" y=\"269.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-12\">\n    <rect x=\"0\" y=\"294.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-13\">\n    <rect x=\"0\" y=\"318.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-14\">\n    <rect x=\"0\" y=\"343.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-15\">\n    <rect x=\"0\" y=\"367.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-16\">\n    <rect x=\"0\" y=\"391.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-17\">\n    <rect x=\"0\" y=\"416.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-18\">\n    <rect x=\"0\" y=\"440.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-19\">\n    <rect x=\"0\" y=\"465.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-20\">\n    <rect x=\"0\" y=\"489.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-21\">\n    <rect x=\"0\" y=\"513.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-22\">\n    <rect x=\"0\" y=\"538.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-23\">\n    <rect x=\"0\" y=\"562.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-24\">\n    <rect x=\"0\" y=\"587.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-25\">\n    <rect x=\"0\" y=\"611.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-26\">\n    <rect x=\"0\" y=\"635.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-27\">\n    <rect x=\"0\" y=\"660.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-278042124-line-28\">\n    <rect x=\"0\" y=\"684.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"780\" rx=\"8\"/><text class=\"terminal-278042124-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-278042124-clip-terminal)\">\n    \n    <g class=\"terminal-278042124-matrix\">\n    <text class=\"terminal-278042124-r1\" x=\"0\" y=\"20\" textLength=\"134.2\" clip-path=\"url(#terminal-278042124-line-0)\">line&#160;one&#160;&#160;&#160;</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-0)\">\n</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-1)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"68.8\" textLength=\"134.2\" clip-path=\"url(#terminal-278042124-line-2)\">&#160;&#160;indented&#160;</text><text class=\"terminal-278042124-r2\" x=\"134.2\" y=\"68.8\" textLength=\"36.6\" clip-path=\"url(#terminal-278042124-line-2)\">red</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-2)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"93.2\" textLength=\"488\" clip-path=\"url(#terminal-278042124-line-3)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-3)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"117.6\" textLength=\"244\" clip-path=\"url(#terminal-278042124-line-4)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-4)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"142\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-5)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-5)\">0</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-5)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"166.4\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-6)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-6)\">1</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-6)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"190.8\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-7)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-7)\">2</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-7)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"215.2\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-8)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-8)\">3</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-8)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"239.6\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-9)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-9)\">4</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-9)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"264\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-10)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-10)\">5</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-10)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"288.4\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-11)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-11)\">6</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-11)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"312.8\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-12)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-12)\">7</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-12)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"337.2\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-13)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-13)\">8</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-13)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"361.6\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-14)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"361.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-14)\">9</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"361.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-14)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"386\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-15)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"386\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-15)\">10</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"386\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-15)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"410.4\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-16)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"410.4\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-16)\">11</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"410.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-16)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"434.8\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-17)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"434.8\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-17)\">12</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"434.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-17)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"459.2\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-18)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"459.2\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-18)\">13</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"459.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-18)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"483.6\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-19)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"483.6\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-19)\">14</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"483.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-19)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"508\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-20)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"508\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-20)\">15</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"508\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-20)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"532.4\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-21)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"532.4\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-21)\">16</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"532.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-21)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"556.8\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-22)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"556.8\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-22)\">17</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"556.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-22)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"581.2\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-23)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"581.2\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-23)\">18</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"581.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-23)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"605.6\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-24)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"605.6\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-24)\">19</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"605.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-24)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"630\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-25)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"630\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-25)\">20</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"630\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-25)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"654.4\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-26)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"654.4\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-26)\">21</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"654.4\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-26)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"678.8\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-27)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"678.8\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-27)\">22</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"678.8\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-27)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"703.2\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-28)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"703.2\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-28)\">23</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"703.2\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-28)\">\n</text><text class=\"terminal-278042124-r1\" x=\"0\" y=\"727.6\" textLength=\"48.8\" clip-path=\"url(#terminal-278042124-line-29)\">row&#160;</text><text class=\"terminal-278042124-r3\" x=\"48.8\" y=\"727.6\" textLength=\"24.4\" clip-path=\"url(#terminal-278042124-line-29)\">24</text><text class=\"terminal-278042124-r1\" x=\"488\" y=\"727.6\" textLength=\"12.2\" clip-path=\"url(#terminal-278042124-line-29)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text multiline 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "line one   \n\n  indented red\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24\n",
+  )
+}
+
+///|
+test "oracle export_text styles multiline 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "line one   \n\n  indented \u{1b}[31mred\u{1b}[0m\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow \u{1b}[1;36m0\u{1b}[0m\nrow \u{1b}[1;36m1\u{1b}[0m\nrow \u{1b}[1;36m2\u{1b}[0m\nrow \u{1b}[1;36m3\u{1b}[0m\nrow \u{1b}[1;36m4\u{1b}[0m\nrow \u{1b}[1;36m5\u{1b}[0m\nrow \u{1b}[1;36m6\u{1b}[0m\nrow \u{1b}[1;36m7\u{1b}[0m\nrow \u{1b}[1;36m8\u{1b}[0m\nrow \u{1b}[1;36m9\u{1b}[0m\nrow \u{1b}[1;36m10\u{1b}[0m\nrow \u{1b}[1;36m11\u{1b}[0m\nrow \u{1b}[1;36m12\u{1b}[0m\nrow \u{1b}[1;36m13\u{1b}[0m\nrow \u{1b}[1;36m14\u{1b}[0m\nrow \u{1b}[1;36m15\u{1b}[0m\nrow \u{1b}[1;36m16\u{1b}[0m\nrow \u{1b}[1;36m17\u{1b}[0m\nrow \u{1b}[1;36m18\u{1b}[0m\nrow \u{1b}[1;36m19\u{1b}[0m\nrow \u{1b}[1;36m20\u{1b}[0m\nrow \u{1b}[1;36m21\u{1b}[0m\nrow \u{1b}[1;36m22\u{1b}[0m\nrow \u{1b}[1;36m23\u{1b}[0m\nrow \u{1b}[1;36m24\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html multiline 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #800000; text-decoration-color: #800000}\n.r2 {color: #008080; text-decoration-color: #008080; font-weight: bold}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span class=\"r1\">red</span>\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow <span class=\"r2\">0</span>\nrow <span class=\"r2\">1</span>\nrow <span class=\"r2\">2</span>\nrow <span class=\"r2\">3</span>\nrow <span class=\"r2\">4</span>\nrow <span class=\"r2\">5</span>\nrow <span class=\"r2\">6</span>\nrow <span class=\"r2\">7</span>\nrow <span class=\"r2\">8</span>\nrow <span class=\"r2\">9</span>\nrow <span class=\"r2\">10</span>\nrow <span class=\"r2\">11</span>\nrow <span class=\"r2\">12</span>\nrow <span class=\"r2\">13</span>\nrow <span class=\"r2\">14</span>\nrow <span class=\"r2\">15</span>\nrow <span class=\"r2\">16</span>\nrow <span class=\"r2\">17</span>\nrow <span class=\"r2\">18</span>\nrow <span class=\"r2\">19</span>\nrow <span class=\"r2\">20</span>\nrow <span class=\"r2\">21</span>\nrow <span class=\"r2\">22</span>\nrow <span class=\"r2\">23</span>\nrow <span class=\"r2\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline multiline 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span style=\"color: #800000; text-decoration-color: #800000\">red</span>\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">0</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">1</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">2</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">3</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">4</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">5</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">6</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">7</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">8</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">9</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">10</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">11</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">12</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">13</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">14</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">15</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">16</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">17</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">18</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">19</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">20</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">21</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">22</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">23</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg multiline 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 757.5999999999999\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1678937694-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1678937694-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1678937694-r1 { fill: #c5c8c6 }\n.terminal-1678937694-r2 { fill: #cc555a }\n.terminal-1678937694-r3 { fill: #68a0b3;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1678937694-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"706.5999999999999\" />\n    </clipPath>\n    <clipPath id=\"terminal-1678937694-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-11\">\n    <rect x=\"0\" y=\"269.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-12\">\n    <rect x=\"0\" y=\"294.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-13\">\n    <rect x=\"0\" y=\"318.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-14\">\n    <rect x=\"0\" y=\"343.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-15\">\n    <rect x=\"0\" y=\"367.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-16\">\n    <rect x=\"0\" y=\"391.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-17\">\n    <rect x=\"0\" y=\"416.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-18\">\n    <rect x=\"0\" y=\"440.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-19\">\n    <rect x=\"0\" y=\"465.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-20\">\n    <rect x=\"0\" y=\"489.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-21\">\n    <rect x=\"0\" y=\"513.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-22\">\n    <rect x=\"0\" y=\"538.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-23\">\n    <rect x=\"0\" y=\"562.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-24\">\n    <rect x=\"0\" y=\"587.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-25\">\n    <rect x=\"0\" y=\"611.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-26\">\n    <rect x=\"0\" y=\"635.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1678937694-line-27\">\n    <rect x=\"0\" y=\"660.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"755.6\" rx=\"8\"/><text class=\"terminal-1678937694-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1678937694-clip-terminal)\">\n    \n    <g class=\"terminal-1678937694-matrix\">\n    <text class=\"terminal-1678937694-r1\" x=\"0\" y=\"20\" textLength=\"134.2\" clip-path=\"url(#terminal-1678937694-line-0)\">line&#160;one&#160;&#160;&#160;</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-0)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-1)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"68.8\" textLength=\"134.2\" clip-path=\"url(#terminal-1678937694-line-2)\">&#160;&#160;indented&#160;</text><text class=\"terminal-1678937694-r2\" x=\"134.2\" y=\"68.8\" textLength=\"36.6\" clip-path=\"url(#terminal-1678937694-line-2)\">red</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-2)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"93.2\" textLength=\"732\" clip-path=\"url(#terminal-1678937694-line-3)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-3)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"117.6\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-4)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-4)\">0</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-4)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"142\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-5)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-5)\">1</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-5)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"166.4\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-6)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-6)\">2</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-6)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"190.8\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-7)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-7)\">3</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-7)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"215.2\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-8)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-8)\">4</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-8)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"239.6\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-9)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-9)\">5</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-9)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"264\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-10)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-10)\">6</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-10)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"288.4\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-11)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-11)\">7</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-11)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"312.8\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-12)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-12)\">8</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-12)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"337.2\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-13)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-13)\">9</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-13)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"361.6\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-14)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"361.6\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-14)\">10</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"361.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-14)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"386\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-15)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"386\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-15)\">11</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"386\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-15)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"410.4\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-16)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"410.4\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-16)\">12</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"410.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-16)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"434.8\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-17)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"434.8\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-17)\">13</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"434.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-17)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"459.2\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-18)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"459.2\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-18)\">14</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"459.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-18)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"483.6\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-19)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"483.6\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-19)\">15</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"483.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-19)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"508\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-20)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"508\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-20)\">16</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"508\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-20)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"532.4\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-21)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"532.4\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-21)\">17</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"532.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-21)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"556.8\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-22)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"556.8\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-22)\">18</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"556.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-22)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"581.2\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-23)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"581.2\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-23)\">19</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"581.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-23)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"605.6\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-24)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"605.6\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-24)\">20</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"605.6\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-24)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"630\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-25)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"630\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-25)\">21</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"630\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-25)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"654.4\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-26)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"654.4\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-26)\">22</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"654.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-26)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"678.8\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-27)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"678.8\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-27)\">23</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"678.8\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-27)\">\n</text><text class=\"terminal-1678937694-r1\" x=\"0\" y=\"703.2\" textLength=\"48.8\" clip-path=\"url(#terminal-1678937694-line-28)\">row&#160;</text><text class=\"terminal-1678937694-r3\" x=\"48.8\" y=\"703.2\" textLength=\"24.4\" clip-path=\"url(#terminal-1678937694-line-28)\">24</text><text class=\"terminal-1678937694-r1\" x=\"1220\" y=\"703.2\" textLength=\"12.2\" clip-path=\"url(#terminal-1678937694-line-28)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai multiline" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #f4005f; text-decoration-color: #f4005f}\n.r2 {color: #58d1eb; text-decoration-color: #58d1eb; font-weight: bold}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span class=\"r1\">red</span>\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow <span class=\"r2\">0</span>\nrow <span class=\"r2\">1</span>\nrow <span class=\"r2\">2</span>\nrow <span class=\"r2\">3</span>\nrow <span class=\"r2\">4</span>\nrow <span class=\"r2\">5</span>\nrow <span class=\"r2\">6</span>\nrow <span class=\"r2\">7</span>\nrow <span class=\"r2\">8</span>\nrow <span class=\"r2\">9</span>\nrow <span class=\"r2\">10</span>\nrow <span class=\"r2\">11</span>\nrow <span class=\"r2\">12</span>\nrow <span class=\"r2\">13</span>\nrow <span class=\"r2\">14</span>\nrow <span class=\"r2\">15</span>\nrow <span class=\"r2\">16</span>\nrow <span class=\"r2\">17</span>\nrow <span class=\"r2\">18</span>\nrow <span class=\"r2\">19</span>\nrow <span class=\"r2\">20</span>\nrow <span class=\"r2\">21</span>\nrow <span class=\"r2\">22</span>\nrow <span class=\"r2\">23</span>\nrow <span class=\"r2\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default multiline" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">line one   \n\n  indented <span style=\"color: #800000; text-decoration-color: #800000\">red</span>\nx x x x x x x x x x x x x x x x x x x x x x x x x x x x x x \nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">0</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">1</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">2</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">3</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">4</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">5</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">6</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">7</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">8</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">9</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">10</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">11</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">12</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">13</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">14</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">15</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">16</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">17</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">18</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">19</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">20</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">21</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">22</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">23</span>\nrow <span style=\"color: #008080; text-decoration-color: #008080; font-weight: bold\">24</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai multiline" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 757.5999999999999\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3768423148-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3768423148-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3768423148-r1 { fill: #d9d9d9 }\n.terminal-3768423148-r2 { fill: #f4005f }\n.terminal-3768423148-r3 { fill: #58d1eb;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3768423148-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"706.5999999999999\" />\n    </clipPath>\n    <clipPath id=\"terminal-3768423148-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-11\">\n    <rect x=\"0\" y=\"269.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-12\">\n    <rect x=\"0\" y=\"294.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-13\">\n    <rect x=\"0\" y=\"318.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-14\">\n    <rect x=\"0\" y=\"343.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-15\">\n    <rect x=\"0\" y=\"367.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-16\">\n    <rect x=\"0\" y=\"391.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-17\">\n    <rect x=\"0\" y=\"416.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-18\">\n    <rect x=\"0\" y=\"440.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-19\">\n    <rect x=\"0\" y=\"465.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-20\">\n    <rect x=\"0\" y=\"489.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-21\">\n    <rect x=\"0\" y=\"513.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-22\">\n    <rect x=\"0\" y=\"538.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-23\">\n    <rect x=\"0\" y=\"562.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-24\">\n    <rect x=\"0\" y=\"587.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-25\">\n    <rect x=\"0\" y=\"611.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-26\">\n    <rect x=\"0\" y=\"635.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3768423148-line-27\">\n    <rect x=\"0\" y=\"660.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"755.6\" rx=\"8\"/><text class=\"terminal-3768423148-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3768423148-clip-terminal)\">\n    \n    <g class=\"terminal-3768423148-matrix\">\n    <text class=\"terminal-3768423148-r1\" x=\"0\" y=\"20\" textLength=\"134.2\" clip-path=\"url(#terminal-3768423148-line-0)\">line&#160;one&#160;&#160;&#160;</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-0)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-1)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"68.8\" textLength=\"134.2\" clip-path=\"url(#terminal-3768423148-line-2)\">&#160;&#160;indented&#160;</text><text class=\"terminal-3768423148-r2\" x=\"134.2\" y=\"68.8\" textLength=\"36.6\" clip-path=\"url(#terminal-3768423148-line-2)\">red</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-2)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"93.2\" textLength=\"732\" clip-path=\"url(#terminal-3768423148-line-3)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-3)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"117.6\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-4)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-4)\">0</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-4)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"142\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-5)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-5)\">1</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-5)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"166.4\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-6)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-6)\">2</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-6)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"190.8\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-7)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-7)\">3</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-7)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"215.2\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-8)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-8)\">4</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-8)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"239.6\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-9)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-9)\">5</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-9)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"264\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-10)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-10)\">6</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-10)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"288.4\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-11)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-11)\">7</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-11)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"312.8\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-12)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-12)\">8</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-12)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"337.2\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-13)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-13)\">9</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-13)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"361.6\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-14)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"361.6\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-14)\">10</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"361.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-14)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"386\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-15)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"386\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-15)\">11</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"386\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-15)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"410.4\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-16)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"410.4\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-16)\">12</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"410.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-16)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"434.8\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-17)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"434.8\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-17)\">13</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"434.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-17)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"459.2\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-18)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"459.2\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-18)\">14</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"459.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-18)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"483.6\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-19)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"483.6\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-19)\">15</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"483.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-19)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"508\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-20)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"508\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-20)\">16</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"508\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-20)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"532.4\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-21)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"532.4\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-21)\">17</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"532.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-21)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"556.8\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-22)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"556.8\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-22)\">18</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"556.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-22)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"581.2\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-23)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"581.2\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-23)\">19</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"581.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-23)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"605.6\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-24)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"605.6\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-24)\">20</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"605.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-24)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"630\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-25)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"630\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-25)\">21</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"630\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-25)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"654.4\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-26)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"654.4\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-26)\">22</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"654.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-26)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"678.8\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-27)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"678.8\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-27)\">23</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"678.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-27)\">\n</text><text class=\"terminal-3768423148-r1\" x=\"0\" y=\"703.2\" textLength=\"48.8\" clip-path=\"url(#terminal-3768423148-line-28)\">row&#160;</text><text class=\"terminal-3768423148-r3\" x=\"48.8\" y=\"703.2\" textLength=\"24.4\" clip-path=\"url(#terminal-3768423148-line-28)\">24</text><text class=\"terminal-3768423148-r1\" x=\"732\" y=\"703.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3768423148-line-28)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title multiline" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 757.5999999999999\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-753110232-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-753110232-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-753110232-r1 { fill: #c5c8c6 }\n.terminal-753110232-r2 { fill: #cc555a }\n.terminal-753110232-r3 { fill: #68a0b3;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-753110232-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"706.5999999999999\" />\n    </clipPath>\n    <clipPath id=\"terminal-753110232-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-11\">\n    <rect x=\"0\" y=\"269.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-12\">\n    <rect x=\"0\" y=\"294.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-13\">\n    <rect x=\"0\" y=\"318.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-14\">\n    <rect x=\"0\" y=\"343.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-15\">\n    <rect x=\"0\" y=\"367.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-16\">\n    <rect x=\"0\" y=\"391.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-17\">\n    <rect x=\"0\" y=\"416.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-18\">\n    <rect x=\"0\" y=\"440.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-19\">\n    <rect x=\"0\" y=\"465.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-20\">\n    <rect x=\"0\" y=\"489.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-21\">\n    <rect x=\"0\" y=\"513.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-22\">\n    <rect x=\"0\" y=\"538.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-23\">\n    <rect x=\"0\" y=\"562.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-24\">\n    <rect x=\"0\" y=\"587.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-25\">\n    <rect x=\"0\" y=\"611.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-26\">\n    <rect x=\"0\" y=\"635.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753110232-line-27\">\n    <rect x=\"0\" y=\"660.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"755.6\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-753110232-clip-terminal)\">\n    \n    <g class=\"terminal-753110232-matrix\">\n    <text class=\"terminal-753110232-r1\" x=\"0\" y=\"20\" textLength=\"110\" clip-path=\"url(#terminal-753110232-line-0)\">line&#160;one&#160;&#160;&#160;</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-0)\">\n</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"44.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-1)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"68.8\" textLength=\"110\" clip-path=\"url(#terminal-753110232-line-2)\">&#160;&#160;indented&#160;</text><text class=\"terminal-753110232-r2\" x=\"110\" y=\"68.8\" textLength=\"30\" clip-path=\"url(#terminal-753110232-line-2)\">red</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-2)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"93.2\" textLength=\"600\" clip-path=\"url(#terminal-753110232-line-3)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"93.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-3)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"117.6\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-4)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-4)\">0</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-4)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"142\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-5)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-5)\">1</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-5)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"166.4\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-6)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-6)\">2</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-6)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"190.8\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-7)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"190.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-7)\">3</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"190.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-7)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"215.2\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-8)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"215.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-8)\">4</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"215.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-8)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"239.6\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-9)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"239.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-9)\">5</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"239.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-9)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"264\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-10)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"264\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-10)\">6</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"264\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-10)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"288.4\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-11)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"288.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-11)\">7</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"288.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-11)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"312.8\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-12)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"312.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-12)\">8</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"312.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-12)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"337.2\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-13)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"337.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-13)\">9</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"337.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-13)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"361.6\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-14)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"361.6\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-14)\">10</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"361.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-14)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"386\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-15)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"386\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-15)\">11</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"386\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-15)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"410.4\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-16)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"410.4\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-16)\">12</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"410.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-16)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"434.8\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-17)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"434.8\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-17)\">13</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"434.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-17)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"459.2\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-18)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"459.2\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-18)\">14</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"459.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-18)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"483.6\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-19)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"483.6\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-19)\">15</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"483.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-19)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"508\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-20)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"508\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-20)\">16</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"508\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-20)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"532.4\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-21)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"532.4\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-21)\">17</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"532.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-21)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"556.8\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-22)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"556.8\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-22)\">18</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"556.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-22)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"581.2\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-23)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"581.2\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-23)\">19</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"581.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-23)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"605.6\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-24)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"605.6\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-24)\">20</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"605.6\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-24)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"630\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-25)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"630\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-25)\">21</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"630\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-25)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"654.4\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-26)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"654.4\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-26)\">22</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"654.4\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-26)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"678.8\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-27)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"678.8\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-27)\">23</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"678.8\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-27)\">\n</text><text class=\"terminal-753110232-r1\" x=\"0\" y=\"703.2\" textLength=\"40\" clip-path=\"url(#terminal-753110232-line-28)\">row&#160;</text><text class=\"terminal-753110232-r3\" x=\"40\" y=\"703.2\" textLength=\"20\" clip-path=\"url(#terminal-753110232-line-28)\">24</text><text class=\"terminal-753110232-r1\" x=\"600\" y=\"703.2\" textLength=\"10\" clip-path=\"url(#terminal-753110232-line-28)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme multiline" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.print("line one   ")
+  console.print("")
+  console.print("  indented [red]red[/]")
+  console.print("x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ")
+  console.print(
+    "row 0\nrow 1\nrow 2\nrow 3\nrow 4\nrow 5\nrow 6\nrow 7\nrow 8\nrow 9\nrow 10\nrow 11\nrow 12\nrow 13\nrow 14\nrow 15\nrow 16\nrow 17\nrow 18\nrow 19\nrow 20\nrow 21\nrow 22\nrow 23\nrow 24",
+  )
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 757.5999999999999\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #000000 }\n.fixed-r2 { fill: #800000 }\n.fixed-r3 { fill: #008080;font-weight: bold }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"706.5999999999999\" />\n    </clipPath>\n    <clipPath id=\"fixed-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-11\">\n    <rect x=\"0\" y=\"269.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-12\">\n    <rect x=\"0\" y=\"294.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-13\">\n    <rect x=\"0\" y=\"318.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-14\">\n    <rect x=\"0\" y=\"343.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-15\">\n    <rect x=\"0\" y=\"367.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-16\">\n    <rect x=\"0\" y=\"391.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-17\">\n    <rect x=\"0\" y=\"416.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-18\">\n    <rect x=\"0\" y=\"440.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-19\">\n    <rect x=\"0\" y=\"465.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-20\">\n    <rect x=\"0\" y=\"489.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-21\">\n    <rect x=\"0\" y=\"513.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-22\">\n    <rect x=\"0\" y=\"538.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-23\">\n    <rect x=\"0\" y=\"562.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-24\">\n    <rect x=\"0\" y=\"587.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-25\">\n    <rect x=\"0\" y=\"611.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-26\">\n    <rect x=\"0\" y=\"635.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-27\">\n    <rect x=\"0\" y=\"660.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"755.6\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    \n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"134.2\" clip-path=\"url(#fixed-line-0)\">line&#160;one&#160;&#160;&#160;</text><text class=\"fixed-r1\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text><text class=\"fixed-r1\" x=\"976\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-1)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"68.8\" textLength=\"134.2\" clip-path=\"url(#fixed-line-2)\">&#160;&#160;indented&#160;</text><text class=\"fixed-r2\" x=\"134.2\" y=\"68.8\" textLength=\"36.6\" clip-path=\"url(#fixed-line-2)\">red</text><text class=\"fixed-r1\" x=\"976\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"93.2\" textLength=\"732\" clip-path=\"url(#fixed-line-3)\">x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;x&#160;</text><text class=\"fixed-r1\" x=\"976\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-3)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"117.6\" textLength=\"48.8\" clip-path=\"url(#fixed-line-4)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">0</text><text class=\"fixed-r1\" x=\"976\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"142\" textLength=\"48.8\" clip-path=\"url(#fixed-line-5)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">1</text><text class=\"fixed-r1\" x=\"976\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"166.4\" textLength=\"48.8\" clip-path=\"url(#fixed-line-6)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-6)\">2</text><text class=\"fixed-r1\" x=\"976\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-6)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"190.8\" textLength=\"48.8\" clip-path=\"url(#fixed-line-7)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-7)\">3</text><text class=\"fixed-r1\" x=\"976\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-7)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"215.2\" textLength=\"48.8\" clip-path=\"url(#fixed-line-8)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-8)\">4</text><text class=\"fixed-r1\" x=\"976\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-8)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"239.6\" textLength=\"48.8\" clip-path=\"url(#fixed-line-9)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-9)\">5</text><text class=\"fixed-r1\" x=\"976\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-9)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"264\" textLength=\"48.8\" clip-path=\"url(#fixed-line-10)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#fixed-line-10)\">6</text><text class=\"fixed-r1\" x=\"976\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#fixed-line-10)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"288.4\" textLength=\"48.8\" clip-path=\"url(#fixed-line-11)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-11)\">7</text><text class=\"fixed-r1\" x=\"976\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-11)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"312.8\" textLength=\"48.8\" clip-path=\"url(#fixed-line-12)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-12)\">8</text><text class=\"fixed-r1\" x=\"976\" y=\"312.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-12)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"337.2\" textLength=\"48.8\" clip-path=\"url(#fixed-line-13)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-13)\">9</text><text class=\"fixed-r1\" x=\"976\" y=\"337.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-13)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"361.6\" textLength=\"48.8\" clip-path=\"url(#fixed-line-14)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"361.6\" textLength=\"24.4\" clip-path=\"url(#fixed-line-14)\">10</text><text class=\"fixed-r1\" x=\"976\" y=\"361.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-14)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"386\" textLength=\"48.8\" clip-path=\"url(#fixed-line-15)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"386\" textLength=\"24.4\" clip-path=\"url(#fixed-line-15)\">11</text><text class=\"fixed-r1\" x=\"976\" y=\"386\" textLength=\"12.2\" clip-path=\"url(#fixed-line-15)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"410.4\" textLength=\"48.8\" clip-path=\"url(#fixed-line-16)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"410.4\" textLength=\"24.4\" clip-path=\"url(#fixed-line-16)\">12</text><text class=\"fixed-r1\" x=\"976\" y=\"410.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-16)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"434.8\" textLength=\"48.8\" clip-path=\"url(#fixed-line-17)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"434.8\" textLength=\"24.4\" clip-path=\"url(#fixed-line-17)\">13</text><text class=\"fixed-r1\" x=\"976\" y=\"434.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-17)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"459.2\" textLength=\"48.8\" clip-path=\"url(#fixed-line-18)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"459.2\" textLength=\"24.4\" clip-path=\"url(#fixed-line-18)\">14</text><text class=\"fixed-r1\" x=\"976\" y=\"459.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-18)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"483.6\" textLength=\"48.8\" clip-path=\"url(#fixed-line-19)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"483.6\" textLength=\"24.4\" clip-path=\"url(#fixed-line-19)\">15</text><text class=\"fixed-r1\" x=\"976\" y=\"483.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-19)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"508\" textLength=\"48.8\" clip-path=\"url(#fixed-line-20)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"508\" textLength=\"24.4\" clip-path=\"url(#fixed-line-20)\">16</text><text class=\"fixed-r1\" x=\"976\" y=\"508\" textLength=\"12.2\" clip-path=\"url(#fixed-line-20)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"532.4\" textLength=\"48.8\" clip-path=\"url(#fixed-line-21)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"532.4\" textLength=\"24.4\" clip-path=\"url(#fixed-line-21)\">17</text><text class=\"fixed-r1\" x=\"976\" y=\"532.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-21)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"556.8\" textLength=\"48.8\" clip-path=\"url(#fixed-line-22)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"556.8\" textLength=\"24.4\" clip-path=\"url(#fixed-line-22)\">18</text><text class=\"fixed-r1\" x=\"976\" y=\"556.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-22)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"581.2\" textLength=\"48.8\" clip-path=\"url(#fixed-line-23)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"581.2\" textLength=\"24.4\" clip-path=\"url(#fixed-line-23)\">19</text><text class=\"fixed-r1\" x=\"976\" y=\"581.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-23)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"605.6\" textLength=\"48.8\" clip-path=\"url(#fixed-line-24)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"605.6\" textLength=\"24.4\" clip-path=\"url(#fixed-line-24)\">20</text><text class=\"fixed-r1\" x=\"976\" y=\"605.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-24)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"630\" textLength=\"48.8\" clip-path=\"url(#fixed-line-25)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"630\" textLength=\"24.4\" clip-path=\"url(#fixed-line-25)\">21</text><text class=\"fixed-r1\" x=\"976\" y=\"630\" textLength=\"12.2\" clip-path=\"url(#fixed-line-25)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"654.4\" textLength=\"48.8\" clip-path=\"url(#fixed-line-26)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"654.4\" textLength=\"24.4\" clip-path=\"url(#fixed-line-26)\">22</text><text class=\"fixed-r1\" x=\"976\" y=\"654.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-26)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"678.8\" textLength=\"48.8\" clip-path=\"url(#fixed-line-27)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"678.8\" textLength=\"24.4\" clip-path=\"url(#fixed-line-27)\">23</text><text class=\"fixed-r1\" x=\"976\" y=\"678.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-27)\">\n</text><text class=\"fixed-r1\" x=\"0\" y=\"703.2\" textLength=\"48.8\" clip-path=\"url(#fixed-line-28)\">row&#160;</text><text class=\"fixed-r3\" x=\"48.8\" y=\"703.2\" textLength=\"24.4\" clip-path=\"url(#fixed-line-28)\">24</text><text class=\"fixed-r1\" x=\"976\" y=\"703.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-28)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text table 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "                 Movies                 \n┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓\n┃ Released   ┃   Title    ┃ Box Office ┃\n┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩\n│ Dec 20,    │ Star Wars: │ $952,110,… │\n│ 2019       │  The Rise  │            │\n│            │     of     │            │\n│            │ Skywalker  │            │\n│ May 25,    │  Solo: A   │ $393,151,… │\n│ 2018       │ Star Wars  │            │\n│            │   Story    │            │\n└────────────┴────────────┴────────────┘\n",
+  )
+}
+
+///|
+test "oracle export_text styles table 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[3m                 Movies                 \u{1b}[0m\n\u{1b}[35m┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓\u{1b}[0m\n\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1mReleased  \u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1m  Title   \u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1mBox Office\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\n\u{1b}[35m┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mDec 20,   \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mStar Wars:\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36m$952,110,…\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36m2019      \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36m The Rise \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36m    of    \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mSkywalker \u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237mMay 25,   \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m Solo: A  \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m$393,151,…\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m2018      \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237mStar Wars \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m  Story   \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m            \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m└────────────┴────────────┴────────────┘\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html table 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-style: italic}\n.r2 {color: #800080; text-decoration-color: #800080}\n.r3 {font-weight: bold}\n.r4 {color: #008080; text-decoration-color: #008080}\n.r5 {color: #008080; text-decoration-color: #008080; background-color: #3a3a3a}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">                 Movies                 </span>\n<span class=\"r2\">┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓</span>\n<span class=\"r2\">┃</span><span class=\"r3\"> Released   </span><span class=\"r2\">┃</span><span class=\"r3\">   Title    </span><span class=\"r2\">┃</span><span class=\"r3\"> Box Office </span><span class=\"r2\">┃</span>\n<span class=\"r2\">┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩</span>\n<span class=\"r2\">│</span><span class=\"r4\"> Dec 20,    </span><span class=\"r2\">│</span><span class=\"r4\"> Star Wars: </span><span class=\"r2\">│</span><span class=\"r4\"> $952,110,… </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r4\"> 2019       </span><span class=\"r2\">│</span><span class=\"r4\">  The Rise  </span><span class=\"r2\">│</span><span class=\"r4\">            </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r4\">            </span><span class=\"r2\">│</span><span class=\"r4\">     of     </span><span class=\"r2\">│</span><span class=\"r4\">            </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r4\">            </span><span class=\"r2\">│</span><span class=\"r4\"> Skywalker  </span><span class=\"r2\">│</span><span class=\"r4\">            </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r5\"> May 25,    </span><span class=\"r2\">│</span><span class=\"r5\">  Solo: A   </span><span class=\"r2\">│</span><span class=\"r5\"> $393,151,… </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r5\"> 2018       </span><span class=\"r2\">│</span><span class=\"r5\"> Star Wars  </span><span class=\"r2\">│</span><span class=\"r5\">            </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r5\">            </span><span class=\"r2\">│</span><span class=\"r5\">   Story    </span><span class=\"r2\">│</span><span class=\"r5\">            </span><span class=\"r2\">│</span>\n<span class=\"r2\">└────────────┴────────────┴────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline table 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-style: italic\">                 Movies                 </span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\"> Released   </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\">   Title    </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\"> Box Office </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Dec 20,    </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Star Wars: </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> $952,110,… </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> 2019       </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">  The Rise  </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">     of     </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Skywalker  </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> May 25,    </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">  Solo: A   </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> $393,151,… </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> 2018       </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> Star Wars  </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">   Story    </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">            </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">└────────────┴────────────┴────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg table 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 342.79999999999995\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-753658405-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-753658405-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-753658405-r1 { fill: #c5c8c6;font-style: italic; }\n.terminal-753658405-r2 { fill: #c5c8c6 }\n.terminal-753658405-r3 { fill: #98729f }\n.terminal-753658405-r4 { fill: #c5c8c6;font-weight: bold }\n.terminal-753658405-r5 { fill: #68a0b3 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-753658405-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"291.79999999999995\" />\n    </clipPath>\n    <clipPath id=\"terminal-753658405-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-7\">\n    <rect x=\"0\" y=\"172.3\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-8\">\n    <rect x=\"0\" y=\"196.7\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-9\">\n    <rect x=\"0\" y=\"221.1\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-753658405-line-10\">\n    <rect x=\"0\" y=\"245.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"340.8\" rx=\"8\"/><text class=\"terminal-753658405-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-753658405-clip-terminal)\">\n    <rect fill=\"#3a3a3a\" x=\"12.2\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"24.4\" y=\"196.7\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"146.4\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"183\" y=\"196.7\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"305\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"329.4\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"341.6\" y=\"196.7\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"463.6\" y=\"196.7\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"12.2\" y=\"221.1\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"24.4\" y=\"221.1\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"146.4\" y=\"221.1\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"221.1\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"183\" y=\"221.1\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"305\" y=\"221.1\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"329.4\" y=\"221.1\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"12.2\" y=\"245.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"245.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"183\" y=\"245.5\" width=\"122\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"305\" y=\"245.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"329.4\" y=\"245.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-753658405-matrix\">\n    <text class=\"terminal-753658405-r1\" x=\"0\" y=\"20\" textLength=\"488\" clip-path=\"url(#terminal-753658405-line-0)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Movies&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-0)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"44.4\" textLength=\"488\" clip-path=\"url(#terminal-753658405-line-1)\">┏━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-1)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-2)\">┃</text><text class=\"terminal-753658405-r4\" x=\"24.4\" y=\"68.8\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-2)\">Released&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-2)\">┃</text><text class=\"terminal-753658405-r4\" x=\"183\" y=\"68.8\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-2)\">&#160;&#160;Title&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-2)\">┃</text><text class=\"terminal-753658405-r4\" x=\"341.6\" y=\"68.8\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-2)\">Box&#160;Office</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-2)\">┃</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-2)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"93.2\" textLength=\"488\" clip-path=\"url(#terminal-753658405-line-3)\">┡━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━┩</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-3)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-4)\">│</text><text class=\"terminal-753658405-r5\" x=\"24.4\" y=\"117.6\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-4)\">Dec&#160;20,&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-4)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"117.6\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-4)\">Star&#160;Wars:</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-4)\">│</text><text class=\"terminal-753658405-r5\" x=\"341.6\" y=\"117.6\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-4)\">$952,110,…</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-4)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-4)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-5)\">│</text><text class=\"terminal-753658405-r5\" x=\"24.4\" y=\"142\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-5)\">2019&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-5)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"142\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-5)\">&#160;The&#160;Rise&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-5)\">│</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-5)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-5)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-6)\">│</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-6)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"166.4\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-6)\">&#160;&#160;&#160;&#160;of&#160;&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-6)\">│</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-6)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-6)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-7)\">│</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-7)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"190.8\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-7)\">Skywalker&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-7)\">│</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-7)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-7)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-8)\">│</text><text class=\"terminal-753658405-r5\" x=\"24.4\" y=\"215.2\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-8)\">May&#160;25,&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-8)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"215.2\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-8)\">&#160;Solo:&#160;A&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-8)\">│</text><text class=\"terminal-753658405-r5\" x=\"341.6\" y=\"215.2\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-8)\">$393,151,…</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-8)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"215.2\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-8)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-9)\">│</text><text class=\"terminal-753658405-r5\" x=\"24.4\" y=\"239.6\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-9)\">2018&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-9)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"239.6\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-9)\">Star&#160;Wars&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-9)\">│</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-9)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"239.6\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-9)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-10)\">│</text><text class=\"terminal-753658405-r3\" x=\"158.6\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-10)\">│</text><text class=\"terminal-753658405-r5\" x=\"183\" y=\"264\" textLength=\"122\" clip-path=\"url(#terminal-753658405-line-10)\">&#160;&#160;Story&#160;&#160;&#160;</text><text class=\"terminal-753658405-r3\" x=\"317.2\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-10)\">│</text><text class=\"terminal-753658405-r3\" x=\"475.8\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-10)\">│</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"264\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-10)\">\n</text><text class=\"terminal-753658405-r3\" x=\"0\" y=\"288.4\" textLength=\"488\" clip-path=\"url(#terminal-753658405-line-11)\">└────────────┴────────────┴────────────┘</text><text class=\"terminal-753658405-r2\" x=\"488\" y=\"288.4\" textLength=\"12.2\" clip-path=\"url(#terminal-753658405-line-11)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text table 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "                              Movies                              \n┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓\n┃ Released     ┃              Title               ┃   Box Office ┃\n┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩\n│ Dec 20, 2019 │ Star Wars: The Rise of Skywalker │ $952,110,690 │\n│ May 25, 2018 │     Solo: A Star Wars Story      │ $393,151,347 │\n└──────────────┴──────────────────────────────────┴──────────────┘\n",
+  )
+}
+
+///|
+test "oracle export_text styles table 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[3m                              Movies                              \u{1b}[0m\n\u{1b}[35m┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓\u{1b}[0m\n\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1mReleased    \u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1m             Title              \u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[1m  Box Office\u{1b}[0m\u{1b}[1m \u{1b}[0m\u{1b}[35m┃\u{1b}[0m\n\u{1b}[35m┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mDec 20, 2019\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36mStar Wars: The Rise of Skywalker\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[36m$952,110,690\u{1b}[0m\u{1b}[36m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237mMay 25, 2018\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m    Solo: A Star Wars Story     \u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[36;48;5;237m$393,151,347\u{1b}[0m\u{1b}[36;48;5;237m \u{1b}[0m\u{1b}[35m│\u{1b}[0m\n\u{1b}[35m└──────────────┴──────────────────────────────────┴──────────────┘\u{1b}[0m\n",
+  )
+}
+
+///|
+test "oracle export_html table 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-style: italic}\n.r2 {color: #800080; text-decoration-color: #800080}\n.r3 {font-weight: bold}\n.r4 {color: #008080; text-decoration-color: #008080}\n.r5 {color: #008080; text-decoration-color: #008080; background-color: #3a3a3a}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">                              Movies                              </span>\n<span class=\"r2\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</span>\n<span class=\"r2\">┃</span><span class=\"r3\"> Released     </span><span class=\"r2\">┃</span><span class=\"r3\">              Title               </span><span class=\"r2\">┃</span><span class=\"r3\">   Box Office </span><span class=\"r2\">┃</span>\n<span class=\"r2\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</span>\n<span class=\"r2\">│</span><span class=\"r4\"> Dec 20, 2019 </span><span class=\"r2\">│</span><span class=\"r4\"> Star Wars: The Rise of Skywalker </span><span class=\"r2\">│</span><span class=\"r4\"> $952,110,690 </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r5\"> May 25, 2018 </span><span class=\"r2\">│</span><span class=\"r5\">     Solo: A Star Wars Story      </span><span class=\"r2\">│</span><span class=\"r5\"> $393,151,347 </span><span class=\"r2\">│</span>\n<span class=\"r2\">└──────────────┴──────────────────────────────────┴──────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline table 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-style: italic\">                              Movies                              </span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\"> Released     </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\">              Title               </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\">   Box Office </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Dec 20, 2019 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Star Wars: The Rise of Skywalker </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> $952,110,690 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> May 25, 2018 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">     Solo: A Star Wars Story      </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> $393,151,347 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">└──────────────┴──────────────────────────────────┴──────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg table 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 220.79999999999998\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3216241922-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3216241922-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3216241922-r1 { fill: #c5c8c6;font-style: italic; }\n.terminal-3216241922-r2 { fill: #c5c8c6 }\n.terminal-3216241922-r3 { fill: #98729f }\n.terminal-3216241922-r4 { fill: #c5c8c6;font-weight: bold }\n.terminal-3216241922-r5 { fill: #68a0b3 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3216241922-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"169.79999999999998\" />\n    </clipPath>\n    <clipPath id=\"terminal-3216241922-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3216241922-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3216241922-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3216241922-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3216241922-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-3216241922-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"218.8\" rx=\"8\"/><text class=\"terminal-3216241922-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3216241922-clip-terminal)\">\n    <rect fill=\"#3a3a3a\" x=\"12.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"24.4\" y=\"123.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"195.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"207.4\" y=\"123.5\" width=\"390.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"597.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"622.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"634.4\" y=\"123.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"780.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-3216241922-matrix\">\n    <text class=\"terminal-3216241922-r1\" x=\"0\" y=\"20\" textLength=\"805.2\" clip-path=\"url(#terminal-3216241922-line-0)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Movies&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-0)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"44.4\" textLength=\"805.2\" clip-path=\"url(#terminal-3216241922-line-1)\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-1)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-2)\">┃</text><text class=\"terminal-3216241922-r4\" x=\"24.4\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-2)\">Released&#160;&#160;&#160;&#160;</text><text class=\"terminal-3216241922-r3\" x=\"183\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-2)\">┃</text><text class=\"terminal-3216241922-r4\" x=\"207.4\" y=\"68.8\" textLength=\"390.4\" clip-path=\"url(#terminal-3216241922-line-2)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Title&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-3216241922-r3\" x=\"610\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-2)\">┃</text><text class=\"terminal-3216241922-r4\" x=\"634.4\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-2)\">&#160;&#160;Box&#160;Office</text><text class=\"terminal-3216241922-r3\" x=\"793\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-2)\">┃</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-2)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"93.2\" textLength=\"805.2\" clip-path=\"url(#terminal-3216241922-line-3)\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-3)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-4)\">│</text><text class=\"terminal-3216241922-r5\" x=\"24.4\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-4)\">Dec&#160;20,&#160;2019</text><text class=\"terminal-3216241922-r3\" x=\"183\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-4)\">│</text><text class=\"terminal-3216241922-r5\" x=\"207.4\" y=\"117.6\" textLength=\"390.4\" clip-path=\"url(#terminal-3216241922-line-4)\">Star&#160;Wars:&#160;The&#160;Rise&#160;of&#160;Skywalker</text><text class=\"terminal-3216241922-r3\" x=\"610\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-4)\">│</text><text class=\"terminal-3216241922-r5\" x=\"634.4\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-4)\">$952,110,690</text><text class=\"terminal-3216241922-r3\" x=\"793\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-4)\">│</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-4)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-5)\">│</text><text class=\"terminal-3216241922-r5\" x=\"24.4\" y=\"142\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-5)\">May&#160;25,&#160;2018</text><text class=\"terminal-3216241922-r3\" x=\"183\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-5)\">│</text><text class=\"terminal-3216241922-r5\" x=\"207.4\" y=\"142\" textLength=\"390.4\" clip-path=\"url(#terminal-3216241922-line-5)\">&#160;&#160;&#160;&#160;Solo:&#160;A&#160;Star&#160;Wars&#160;Story&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-3216241922-r3\" x=\"610\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-5)\">│</text><text class=\"terminal-3216241922-r5\" x=\"634.4\" y=\"142\" textLength=\"146.4\" clip-path=\"url(#terminal-3216241922-line-5)\">$393,151,347</text><text class=\"terminal-3216241922-r3\" x=\"793\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-5)\">│</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-5)\">\n</text><text class=\"terminal-3216241922-r3\" x=\"0\" y=\"166.4\" textLength=\"805.2\" clip-path=\"url(#terminal-3216241922-line-6)\">└──────────────┴──────────────────────────────────┴──────────────┘</text><text class=\"terminal-3216241922-r2\" x=\"1220\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3216241922-line-6)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {font-style: italic}\n.r2 {color: #f4005f; text-decoration-color: #f4005f}\n.r3 {font-weight: bold}\n.r4 {color: #58d1eb; text-decoration-color: #58d1eb}\n.r5 {color: #58d1eb; text-decoration-color: #58d1eb; background-color: #3a3a3a}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">                           Movies                           </span>\n<span class=\"r2\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</span>\n<span class=\"r2\">┃</span><span class=\"r3\"> Released     </span><span class=\"r2\">┃</span><span class=\"r3\">           Title            </span><span class=\"r2\">┃</span><span class=\"r3\">   Box Office </span><span class=\"r2\">┃</span>\n<span class=\"r2\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</span>\n<span class=\"r2\">│</span><span class=\"r4\"> Dec 20, 2019 </span><span class=\"r2\">│</span><span class=\"r4\">   Star Wars: The Rise of   </span><span class=\"r2\">│</span><span class=\"r4\"> $952,110,690 </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r4\">              </span><span class=\"r2\">│</span><span class=\"r4\">         Skywalker          </span><span class=\"r2\">│</span><span class=\"r4\">              </span><span class=\"r2\">│</span>\n<span class=\"r2\">│</span><span class=\"r5\"> May 25, 2018 </span><span class=\"r2\">│</span><span class=\"r5\">  Solo: A Star Wars Story   </span><span class=\"r2\">│</span><span class=\"r5\"> $393,151,347 </span><span class=\"r2\">│</span>\n<span class=\"r2\">└──────────────┴────────────────────────────┴──────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"font-style: italic\">                           Movies                           </span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\"> Released     </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\">           Title            </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span><span style=\"font-weight: bold\">   Box Office </span><span style=\"color: #800080; text-decoration-color: #800080\">┃</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> Dec 20, 2019 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">   Star Wars: The Rise of   </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\"> $952,110,690 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">              </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">         Skywalker          </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080\">              </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> May 25, 2018 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\">  Solo: A Star Wars Story   </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span><span style=\"color: #008080; text-decoration-color: #008080; background-color: #3a3a3a\"> $393,151,347 </span><span style=\"color: #800080; text-decoration-color: #800080\">│</span>\n<span style=\"color: #800080; text-decoration-color: #800080\">└──────────────┴────────────────────────────┴──────────────┘</span>\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 245.2\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-2154280296-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-2154280296-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-2154280296-r1 { fill: #d9d9d9;font-style: italic; }\n.terminal-2154280296-r2 { fill: #d9d9d9 }\n.terminal-2154280296-r3 { fill: #f4005f }\n.terminal-2154280296-r4 { fill: #d9d9d9;font-weight: bold }\n.terminal-2154280296-r5 { fill: #58d1eb }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-2154280296-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"194.2\" />\n    </clipPath>\n    <clipPath id=\"terminal-2154280296-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-2154280296-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"243.2\" rx=\"8\"/><text class=\"terminal-2154280296-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-2154280296-clip-terminal)\">\n    <rect fill=\"#3a3a3a\" x=\"12.2\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"24.4\" y=\"147.9\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"195.2\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"207.4\" y=\"147.9\" width=\"317.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"524.6\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"549\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"561.2\" y=\"147.9\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"707.6\" y=\"147.9\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-2154280296-matrix\">\n    <text class=\"terminal-2154280296-r1\" x=\"0\" y=\"20\" textLength=\"732\" clip-path=\"url(#terminal-2154280296-line-0)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Movies&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-0)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"44.4\" textLength=\"732\" clip-path=\"url(#terminal-2154280296-line-1)\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-1)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-2)\">┃</text><text class=\"terminal-2154280296-r4\" x=\"24.4\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-2)\">Released&#160;&#160;&#160;&#160;</text><text class=\"terminal-2154280296-r3\" x=\"183\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-2)\">┃</text><text class=\"terminal-2154280296-r4\" x=\"207.4\" y=\"68.8\" textLength=\"317.2\" clip-path=\"url(#terminal-2154280296-line-2)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Title&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-2154280296-r3\" x=\"536.8\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-2)\">┃</text><text class=\"terminal-2154280296-r4\" x=\"561.2\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-2)\">&#160;&#160;Box&#160;Office</text><text class=\"terminal-2154280296-r3\" x=\"719.8\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-2)\">┃</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-2)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"93.2\" textLength=\"732\" clip-path=\"url(#terminal-2154280296-line-3)\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-3)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-4)\">│</text><text class=\"terminal-2154280296-r5\" x=\"24.4\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-4)\">Dec&#160;20,&#160;2019</text><text class=\"terminal-2154280296-r3\" x=\"183\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-4)\">│</text><text class=\"terminal-2154280296-r5\" x=\"207.4\" y=\"117.6\" textLength=\"317.2\" clip-path=\"url(#terminal-2154280296-line-4)\">&#160;&#160;Star&#160;Wars:&#160;The&#160;Rise&#160;of&#160;&#160;</text><text class=\"terminal-2154280296-r3\" x=\"536.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-4)\">│</text><text class=\"terminal-2154280296-r5\" x=\"561.2\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-4)\">$952,110,690</text><text class=\"terminal-2154280296-r3\" x=\"719.8\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-4)\">│</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-4)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-5)\">│</text><text class=\"terminal-2154280296-r3\" x=\"183\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-5)\">│</text><text class=\"terminal-2154280296-r5\" x=\"207.4\" y=\"142\" textLength=\"317.2\" clip-path=\"url(#terminal-2154280296-line-5)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Skywalker&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-2154280296-r3\" x=\"536.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-5)\">│</text><text class=\"terminal-2154280296-r3\" x=\"719.8\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-5)\">│</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-5)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-6)\">│</text><text class=\"terminal-2154280296-r5\" x=\"24.4\" y=\"166.4\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-6)\">May&#160;25,&#160;2018</text><text class=\"terminal-2154280296-r3\" x=\"183\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-6)\">│</text><text class=\"terminal-2154280296-r5\" x=\"207.4\" y=\"166.4\" textLength=\"317.2\" clip-path=\"url(#terminal-2154280296-line-6)\">&#160;Solo:&#160;A&#160;Star&#160;Wars&#160;Story&#160;&#160;</text><text class=\"terminal-2154280296-r3\" x=\"536.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-6)\">│</text><text class=\"terminal-2154280296-r5\" x=\"561.2\" y=\"166.4\" textLength=\"146.4\" clip-path=\"url(#terminal-2154280296-line-6)\">$393,151,347</text><text class=\"terminal-2154280296-r3\" x=\"719.8\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-6)\">│</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-6)\">\n</text><text class=\"terminal-2154280296-r3\" x=\"0\" y=\"190.8\" textLength=\"732\" clip-path=\"url(#terminal-2154280296-line-7)\">└──────────────┴────────────────────────────┴──────────────┘</text><text class=\"terminal-2154280296-r2\" x=\"732\" y=\"190.8\" textLength=\"12.2\" clip-path=\"url(#terminal-2154280296-line-7)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 245.2\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1028435796-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1028435796-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1028435796-r1 { fill: #c5c8c6;font-style: italic; }\n.terminal-1028435796-r2 { fill: #c5c8c6 }\n.terminal-1028435796-r3 { fill: #98729f }\n.terminal-1028435796-r4 { fill: #c5c8c6;font-weight: bold }\n.terminal-1028435796-r5 { fill: #68a0b3 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1028435796-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"194.2\" />\n    </clipPath>\n    <clipPath id=\"terminal-1028435796-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"terminal-1028435796-line-6\">\n    <rect x=\"0\" y=\"147.9\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"243.2\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1028435796-clip-terminal)\">\n    <rect fill=\"#3a3a3a\" x=\"10\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"20\" y=\"147.9\" width=\"120\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"140\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"160\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170\" y=\"147.9\" width=\"260\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"430\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"450\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"460\" y=\"147.9\" width=\"120\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"580\" y=\"147.9\" width=\"10\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"terminal-1028435796-matrix\">\n    <text class=\"terminal-1028435796-r1\" x=\"0\" y=\"20\" textLength=\"600\" clip-path=\"url(#terminal-1028435796-line-0)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Movies&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-0)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"44.4\" textLength=\"600\" clip-path=\"url(#terminal-1028435796-line-1)\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"44.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-1)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-2)\">┃</text><text class=\"terminal-1028435796-r4\" x=\"20\" y=\"68.8\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-2)\">Released&#160;&#160;&#160;&#160;</text><text class=\"terminal-1028435796-r3\" x=\"150\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-2)\">┃</text><text class=\"terminal-1028435796-r4\" x=\"170\" y=\"68.8\" textLength=\"260\" clip-path=\"url(#terminal-1028435796-line-2)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Title&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-1028435796-r3\" x=\"440\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-2)\">┃</text><text class=\"terminal-1028435796-r4\" x=\"460\" y=\"68.8\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-2)\">&#160;&#160;Box&#160;Office</text><text class=\"terminal-1028435796-r3\" x=\"590\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-2)\">┃</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"68.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-2)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"93.2\" textLength=\"600\" clip-path=\"url(#terminal-1028435796-line-3)\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"93.2\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-3)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-4)\">│</text><text class=\"terminal-1028435796-r5\" x=\"20\" y=\"117.6\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-4)\">Dec&#160;20,&#160;2019</text><text class=\"terminal-1028435796-r3\" x=\"150\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-4)\">│</text><text class=\"terminal-1028435796-r5\" x=\"170\" y=\"117.6\" textLength=\"260\" clip-path=\"url(#terminal-1028435796-line-4)\">&#160;&#160;Star&#160;Wars:&#160;The&#160;Rise&#160;of&#160;&#160;</text><text class=\"terminal-1028435796-r3\" x=\"440\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-4)\">│</text><text class=\"terminal-1028435796-r5\" x=\"460\" y=\"117.6\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-4)\">$952,110,690</text><text class=\"terminal-1028435796-r3\" x=\"590\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-4)\">│</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"117.6\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-4)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-5)\">│</text><text class=\"terminal-1028435796-r3\" x=\"150\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-5)\">│</text><text class=\"terminal-1028435796-r5\" x=\"170\" y=\"142\" textLength=\"260\" clip-path=\"url(#terminal-1028435796-line-5)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Skywalker&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"terminal-1028435796-r3\" x=\"440\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-5)\">│</text><text class=\"terminal-1028435796-r3\" x=\"590\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-5)\">│</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"142\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-5)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-6)\">│</text><text class=\"terminal-1028435796-r5\" x=\"20\" y=\"166.4\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-6)\">May&#160;25,&#160;2018</text><text class=\"terminal-1028435796-r3\" x=\"150\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-6)\">│</text><text class=\"terminal-1028435796-r5\" x=\"170\" y=\"166.4\" textLength=\"260\" clip-path=\"url(#terminal-1028435796-line-6)\">&#160;Solo:&#160;A&#160;Star&#160;Wars&#160;Story&#160;&#160;</text><text class=\"terminal-1028435796-r3\" x=\"440\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-6)\">│</text><text class=\"terminal-1028435796-r5\" x=\"460\" y=\"166.4\" textLength=\"120\" clip-path=\"url(#terminal-1028435796-line-6)\">$393,151,347</text><text class=\"terminal-1028435796-r3\" x=\"590\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-6)\">│</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"166.4\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-6)\">\n</text><text class=\"terminal-1028435796-r3\" x=\"0\" y=\"190.8\" textLength=\"600\" clip-path=\"url(#terminal-1028435796-line-7)\">└──────────────┴────────────────────────────┴──────────────┘</text><text class=\"terminal-1028435796-r2\" x=\"600\" y=\"190.8\" textLength=\"10\" clip-path=\"url(#terminal-1028435796-line-7)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme table" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  {
+    let table = @rich.Table::new(border_style="magenta", title="Movies", row_styles=[
+      "", "on grey23",
+    ])
+    table.add_column(
+      header="Released",
+      footer="Total",
+      style="cyan",
+      justify=Left,
+    )
+    table.add_column(header="Title", footer="", style="cyan", justify=Center)
+    table.add_column(
+      header="Box Office",
+      footer="$4,429,254,000",
+      style="cyan",
+      justify=Right,
+    )
+    table.add_row([
+      "Dec 20, 2019", "Star Wars: The Rise of Skywalker", "$952,110,690",
+    ])
+    table.add_row(["May 25, 2018", "Solo: A Star Wars Story", "$393,151,347"])
+    console.print(table)
+  }
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 220.79999999999998\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #000000;font-style: italic; }\n.fixed-r2 { fill: #000000 }\n.fixed-r3 { fill: #800080 }\n.fixed-r4 { fill: #000000;font-weight: bold }\n.fixed-r5 { fill: #008080 }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"169.79999999999998\" />\n    </clipPath>\n    <clipPath id=\"fixed-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-1\">\n    <rect x=\"0\" y=\"25.9\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-2\">\n    <rect x=\"0\" y=\"50.3\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-3\">\n    <rect x=\"0\" y=\"74.7\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-4\">\n    <rect x=\"0\" y=\"99.1\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n<clipPath id=\"fixed-line-5\">\n    <rect x=\"0\" y=\"123.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"218.8\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    <rect fill=\"#3a3a3a\" x=\"12.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"24.4\" y=\"123.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"170.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"195.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"207.4\" y=\"123.5\" width=\"390.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"597.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"622.2\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"634.4\" y=\"123.5\" width=\"146.4\" height=\"24.65\" shape-rendering=\"crispEdges\"/><rect fill=\"#3a3a3a\" x=\"780.8\" y=\"123.5\" width=\"12.2\" height=\"24.65\" shape-rendering=\"crispEdges\"/>\n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"805.2\" clip-path=\"url(#fixed-line-0)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Movies&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"fixed-r2\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"44.4\" textLength=\"805.2\" clip-path=\"url(#fixed-line-1)\">┏━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┓</text><text class=\"fixed-r2\" x=\"976\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-1)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">┃</text><text class=\"fixed-r4\" x=\"24.4\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#fixed-line-2)\">Released&#160;&#160;&#160;&#160;</text><text class=\"fixed-r3\" x=\"183\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">┃</text><text class=\"fixed-r4\" x=\"207.4\" y=\"68.8\" textLength=\"390.4\" clip-path=\"url(#fixed-line-2)\">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;Title&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</text><text class=\"fixed-r3\" x=\"610\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">┃</text><text class=\"fixed-r4\" x=\"634.4\" y=\"68.8\" textLength=\"146.4\" clip-path=\"url(#fixed-line-2)\">&#160;&#160;Box&#160;Office</text><text class=\"fixed-r3\" x=\"793\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">┃</text><text class=\"fixed-r2\" x=\"976\" y=\"68.8\" textLength=\"12.2\" clip-path=\"url(#fixed-line-2)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"93.2\" textLength=\"805.2\" clip-path=\"url(#fixed-line-3)\">┡━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━┩</text><text class=\"fixed-r2\" x=\"976\" y=\"93.2\" textLength=\"12.2\" clip-path=\"url(#fixed-line-3)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">│</text><text class=\"fixed-r5\" x=\"24.4\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#fixed-line-4)\">Dec&#160;20,&#160;2019</text><text class=\"fixed-r3\" x=\"183\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">│</text><text class=\"fixed-r5\" x=\"207.4\" y=\"117.6\" textLength=\"390.4\" clip-path=\"url(#fixed-line-4)\">Star&#160;Wars:&#160;The&#160;Rise&#160;of&#160;Skywalker</text><text class=\"fixed-r3\" x=\"610\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">│</text><text class=\"fixed-r5\" x=\"634.4\" y=\"117.6\" textLength=\"146.4\" clip-path=\"url(#fixed-line-4)\">$952,110,690</text><text class=\"fixed-r3\" x=\"793\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">│</text><text class=\"fixed-r2\" x=\"976\" y=\"117.6\" textLength=\"12.2\" clip-path=\"url(#fixed-line-4)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">│</text><text class=\"fixed-r5\" x=\"24.4\" y=\"142\" textLength=\"146.4\" clip-path=\"url(#fixed-line-5)\">May&#160;25,&#160;2018</text><text class=\"fixed-r3\" x=\"183\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">│</text><text class=\"fixed-r5\" x=\"207.4\" y=\"142\" textLength=\"390.4\" clip-path=\"url(#fixed-line-5)\">&#160;&#160;&#160;&#160;Solo:&#160;A&#160;Star&#160;Wars&#160;Story&#160;&#160;&#160;&#160;&#160;</text><text class=\"fixed-r3\" x=\"610\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">│</text><text class=\"fixed-r5\" x=\"634.4\" y=\"142\" textLength=\"146.4\" clip-path=\"url(#fixed-line-5)\">$393,151,347</text><text class=\"fixed-r3\" x=\"793\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">│</text><text class=\"fixed-r2\" x=\"976\" y=\"142\" textLength=\"12.2\" clip-path=\"url(#fixed-line-5)\">\n</text><text class=\"fixed-r3\" x=\"0\" y=\"166.4\" textLength=\"805.2\" clip-path=\"url(#fixed-line-6)\">└──────────────┴──────────────────────────────────┴──────────────┘</text><text class=\"fixed-r2\" x=\"976\" y=\"166.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-6)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text rule 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "─────────────── Section ────────────────\nafter\n",
+  )
+}
+
+///|
+test "oracle export_text styles rule 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[92m─────────────── \u{1b}[0mSection\u{1b}[92m ────────────────\u{1b}[0m\nafter\n",
+  )
+}
+
+///|
+test "oracle export_html rule 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #00ff00; text-decoration-color: #00ff00}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">─────────────── </span>Section<span class=\"r1\"> ────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline rule 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #00ff00; text-decoration-color: #00ff00\">─────────────── </span>Section<span style=\"color: #00ff00; text-decoration-color: #00ff00\"> ────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg rule 40" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=40,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 506 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1751222612-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1751222612-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1751222612-r1 { fill: #00823d }\n.terminal-1751222612-r2 { fill: #c5c8c6 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1751222612-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"487.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-1751222612-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"488\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"504\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-1751222612-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"252\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1751222612-clip-terminal)\">\n    \n    <g class=\"terminal-1751222612-matrix\">\n    <text class=\"terminal-1751222612-r1\" x=\"0\" y=\"20\" textLength=\"195.2\" clip-path=\"url(#terminal-1751222612-line-0)\">───────────────&#160;</text><text class=\"terminal-1751222612-r2\" x=\"195.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-1751222612-line-0)\">Section</text><text class=\"terminal-1751222612-r1\" x=\"280.6\" y=\"20\" textLength=\"207.4\" clip-path=\"url(#terminal-1751222612-line-0)\">&#160;────────────────</text><text class=\"terminal-1751222612-r2\" x=\"488\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-1751222612-line-0)\">\n</text><text class=\"terminal-1751222612-r2\" x=\"0\" y=\"44.4\" textLength=\"61\" clip-path=\"url(#terminal-1751222612-line-1)\">after</text><text class=\"terminal-1751222612-r2\" x=\"488\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-1751222612-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_text rule 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_text()
+  ignore(file)
+  assert_eq(
+    result, "───────────────────────────────────────────── Section ──────────────────────────────────────────────\nafter\n",
+  )
+}
+
+///|
+test "oracle export_text styles rule 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_text(styles=true)
+  ignore(file)
+  assert_eq(
+    result, "\u{1b}[92m───────────────────────────────────────────── \u{1b}[0mSection\u{1b}[92m ──────────────────────────────────────────────\u{1b}[0m\nafter\n",
+  )
+}
+
+///|
+test "oracle export_html rule 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html()
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #00ff00; text-decoration-color: #00ff00}\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">───────────────────────────────────────────── </span>Section<span class=\"r1\"> ──────────────────────────────────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline rule 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html(inline_styles=true)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #00ff00; text-decoration-color: #00ff00\">───────────────────────────────────────────── </span>Section<span style=\"color: #00ff00; text-decoration-color: #00ff00\"> ──────────────────────────────────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg rule 100" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=100,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_svg()
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 1238 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-3721527036-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-3721527036-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-3721527036-r1 { fill: #00823d }\n.terminal-3721527036-r2 { fill: #c5c8c6 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-3721527036-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"1219.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-3721527036-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"1220\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"1236\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-3721527036-title\" fill=\"#c5c8c6\" text-anchor=\"middle\" x=\"618\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-3721527036-clip-terminal)\">\n    \n    <g class=\"terminal-3721527036-matrix\">\n    <text class=\"terminal-3721527036-r1\" x=\"0\" y=\"20\" textLength=\"561.2\" clip-path=\"url(#terminal-3721527036-line-0)\">─────────────────────────────────────────────&#160;</text><text class=\"terminal-3721527036-r2\" x=\"561.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-3721527036-line-0)\">Section</text><text class=\"terminal-3721527036-r1\" x=\"646.6\" y=\"20\" textLength=\"573.4\" clip-path=\"url(#terminal-3721527036-line-0)\">&#160;──────────────────────────────────────────────</text><text class=\"terminal-3721527036-r2\" x=\"1220\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-3721527036-line-0)\">\n</text><text class=\"terminal-3721527036-r2\" x=\"0\" y=\"44.4\" textLength=\"61\" clip-path=\"url(#terminal-3721527036-line-1)\">after</text><text class=\"terminal-3721527036-r2\" x=\"1220\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-3721527036-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_html monokai rule" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html(theme=@color.monokai)
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n.r1 {color: #98e024; text-decoration-color: #98e024}\nbody {\n    color: #d9d9d9;\n    background-color: #0c0c0c;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span class=\"r1\">───────────────────────── </span>Section<span class=\"r1\"> ──────────────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_html inline default rule" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_html(
+    theme=@color.default_terminal_theme,
+    inline_styles=true,
+  )
+  ignore(file)
+  assert_eq(
+    result, "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\"><span style=\"color: #00ff00; text-decoration-color: #00ff00\">───────────────────────── </span>Section<span style=\"color: #00ff00; text-decoration-color: #00ff00\"> ──────────────────────────</span>\nafter\n</code></pre>\n</body>\n</html>\n",
+  )
+}
+
+///|
+test "oracle export_svg monokai rule" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_svg(
+    theme=@color.monokai,
+    title="Monokai <&> \"title\"",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 750 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-2246751514-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-2246751514-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-2246751514-r1 { fill: #98e024 }\n.terminal-2246751514-r2 { fill: #d9d9d9 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-2246751514-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"731.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-2246751514-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"732\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#0c0c0c\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"748\" height=\"96.8\" rx=\"8\"/><text class=\"terminal-2246751514-title\" fill=\"#d9d9d9\" text-anchor=\"middle\" x=\"374\" y=\"27\">Monokai&#160;&lt;&amp;&gt;&#160;&quot;title&quot;</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-2246751514-clip-terminal)\">\n    \n    <g class=\"terminal-2246751514-matrix\">\n    <text class=\"terminal-2246751514-r1\" x=\"0\" y=\"20\" textLength=\"317.2\" clip-path=\"url(#terminal-2246751514-line-0)\">─────────────────────────&#160;</text><text class=\"terminal-2246751514-r2\" x=\"317.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#terminal-2246751514-line-0)\">Section</text><text class=\"terminal-2246751514-r1\" x=\"402.6\" y=\"20\" textLength=\"329.4\" clip-path=\"url(#terminal-2246751514-line-0)\">&#160;──────────────────────────</text><text class=\"terminal-2246751514-r2\" x=\"732\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#terminal-2246751514-line-0)\">\n</text><text class=\"terminal-2246751514-r2\" x=\"0\" y=\"44.4\" textLength=\"61\" clip-path=\"url(#terminal-2246751514-line-1)\">after</text><text class=\"terminal-2246751514-r2\" x=\"732\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#terminal-2246751514-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg no title rule" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=60,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_svg(title="", font_aspect_ratio=0.5)
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 618 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .terminal-1218031366-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .terminal-1218031366-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .terminal-1218031366-r1 { fill: #00823d }\n.terminal-1218031366-r2 { fill: #c5c8c6 }\n    </style>\n\n    <defs>\n    <clipPath id=\"terminal-1218031366-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"599.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"terminal-1218031366-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"600\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#292929\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"616\" height=\"96.8\" rx=\"8\"/>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#terminal-1218031366-clip-terminal)\">\n    \n    <g class=\"terminal-1218031366-matrix\">\n    <text class=\"terminal-1218031366-r1\" x=\"0\" y=\"20\" textLength=\"260\" clip-path=\"url(#terminal-1218031366-line-0)\">─────────────────────────&#160;</text><text class=\"terminal-1218031366-r2\" x=\"260\" y=\"20\" textLength=\"70\" clip-path=\"url(#terminal-1218031366-line-0)\">Section</text><text class=\"terminal-1218031366-r1\" x=\"330\" y=\"20\" textLength=\"270\" clip-path=\"url(#terminal-1218031366-line-0)\">&#160;──────────────────────────</text><text class=\"terminal-1218031366-r2\" x=\"600\" y=\"20\" textLength=\"10\" clip-path=\"url(#terminal-1218031366-line-0)\">\n</text><text class=\"terminal-1218031366-r2\" x=\"0\" y=\"44.4\" textLength=\"50\" clip-path=\"url(#terminal-1218031366-line-1)\">after</text><text class=\"terminal-1218031366-r2\" x=\"600\" y=\"44.4\" textLength=\"10\" clip-path=\"url(#terminal-1218031366-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}
+
+///|
+test "oracle export_svg default theme rule" {
+  let file = @rich.StringIO::new()
+  let console = @rich.Console::new(
+    file~,
+    width=80,
+    color_system=Some("truecolor"),
+    force_terminal=true,
+    legacy_windows=false,
+    environ={},
+    record=true,
+  )
+  console.rule(title="Section")
+  console.print("after")
+  let result = console.export_svg(
+    theme=@color.default_terminal_theme,
+    unique_id="fixed",
+  )
+  ignore(file)
+  assert_eq(
+    result, "<svg class=\"rich-terminal\" viewBox=\"0 0 994 98.8\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Generated with Rich https://www.textualize.io -->\n    <style>\n\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Regular\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff\") format(\"woff\");\n        font-style: normal;\n        font-weight: 400;\n    }\n    @font-face {\n        font-family: \"Fira Code\";\n        src: local(\"FiraCode-Bold\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2\") format(\"woff2\"),\n                url(\"https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff\") format(\"woff\");\n        font-style: bold;\n        font-weight: 700;\n    }\n\n    .fixed-matrix {\n        font-family: Fira Code, monospace;\n        font-size: 20px;\n        line-height: 24.4px;\n        font-variant-east-asian: full-width;\n    }\n\n    .fixed-title {\n        font-size: 18px;\n        font-weight: bold;\n        font-family: arial;\n    }\n\n    .fixed-r1 { fill: #00ff00 }\n.fixed-r2 { fill: #000000 }\n    </style>\n\n    <defs>\n    <clipPath id=\"fixed-clip-terminal\">\n      <rect x=\"0\" y=\"0\" width=\"975.0\" height=\"47.8\" />\n    </clipPath>\n    <clipPath id=\"fixed-line-0\">\n    <rect x=\"0\" y=\"1.5\" width=\"976\" height=\"24.65\"/>\n            </clipPath>\n    </defs>\n\n    <rect fill=\"#ffffff\" stroke=\"rgba(255,255,255,0.35)\" stroke-width=\"1\" x=\"1\" y=\"1\" width=\"992\" height=\"96.8\" rx=\"8\"/><text class=\"fixed-title\" fill=\"#000000\" text-anchor=\"middle\" x=\"496\" y=\"27\">Rich</text>\n            <g transform=\"translate(26,22)\">\n            <circle cx=\"0\" cy=\"0\" r=\"7\" fill=\"#ff5f57\"/>\n            <circle cx=\"22\" cy=\"0\" r=\"7\" fill=\"#febc2e\"/>\n            <circle cx=\"44\" cy=\"0\" r=\"7\" fill=\"#28c840\"/>\n            </g>\n        \n    <g transform=\"translate(9, 41)\" clip-path=\"url(#fixed-clip-terminal)\">\n    \n    <g class=\"fixed-matrix\">\n    <text class=\"fixed-r1\" x=\"0\" y=\"20\" textLength=\"439.2\" clip-path=\"url(#fixed-line-0)\">───────────────────────────────────&#160;</text><text class=\"fixed-r2\" x=\"439.2\" y=\"20\" textLength=\"85.4\" clip-path=\"url(#fixed-line-0)\">Section</text><text class=\"fixed-r1\" x=\"524.6\" y=\"20\" textLength=\"451.4\" clip-path=\"url(#fixed-line-0)\">&#160;────────────────────────────────────</text><text class=\"fixed-r2\" x=\"976\" y=\"20\" textLength=\"12.2\" clip-path=\"url(#fixed-line-0)\">\n</text><text class=\"fixed-r2\" x=\"0\" y=\"44.4\" textLength=\"61\" clip-path=\"url(#fixed-line-1)\">after</text><text class=\"fixed-r2\" x=\"976\" y=\"44.4\" textLength=\"12.2\" clip-path=\"url(#fixed-line-1)\">\n</text>\n    </g>\n    </g>\n</svg>\n",
+  )
+}

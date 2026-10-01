@@ -339,10 +339,18 @@ test "test_get_style_default" {
 ///|
 test "test_get_style_error" {
   let console = @rich.Console::new()
-  let r1 = try? console.get_style("nosuchstyle")
-  assert_true(r1 is Err(MissingStyle(_)))
-  let r2 = try? console.get_style("foo bar")
-  assert_true(r2 is Err(MissingStyle(_)))
+  try console.get_style("nosuchstyle") catch {
+    MissingStyle(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected MissingStyle")
+  }
+  try console.get_style("foo bar") catch {
+    MissingStyle(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected MissingStyle")
+  }
 }
 
 // test_render_error / test_render_broken_renderable: rendering a
@@ -765,8 +773,12 @@ test "test_set_console_title" {
 ///|
 test "test_update_screen" {
   let console = @rich.Console::new(force_terminal=true, width=20, height=5, environ={})
-  let r = try? console.update_screen("foo")
-  assert_true(r is Err(@rich.NoAltScreen(_)))
+  try console.update_screen("foo") catch {
+    @rich.NoAltScreen(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected NoAltScreen")
+  }
   console.begin_capture()
   console.screen(_ => {
     console.update_screen("foo")
@@ -780,8 +792,12 @@ test "test_update_screen" {
 ///|
 test "test_update_screen_lines" {
   let console = @rich.Console::new(force_terminal=true, width=20, height=5, environ={})
-  let r = try? console.update_screen_lines([])
-  assert_true(r is Err(@rich.NoAltScreen(_)))
+  try console.update_screen_lines([]) catch {
+    @rich.NoAltScreen(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected NoAltScreen")
+  }
 }
 
 ///|
@@ -931,7 +947,7 @@ test "test_reenable_highlighting" {
   )
   console.print("[1, 2, 3]")
   console.print("[1, 2, 3]", highlight=true)
-  let lines = file.getvalue().split("\n").map(s => s.to_string()).collect()
+  let lines = file.getvalue().split("\n").map(s => s.to_owned()).collect()
   // First line not highlighted
   assert_eq(lines[0], "[1, 2, 3]")
   // Second line highlighted

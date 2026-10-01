@@ -132,8 +132,12 @@ test "test_repr" {
 
 ///|
 test "test_error" {
-  let result = try? @rich.Rule::new(characters="")
-  assert_true(result is Err(ValueError(_)))
+  try @rich.Rule::new(characters="") catch {
+    ValueError(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected ValueError")
+  }
 }
 
 ///|

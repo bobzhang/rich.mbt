@@ -20,8 +20,12 @@ test "test_unpack" {
   assert_eq(@rich.unpack_padding([3]), (3, 3, 3, 3))
   assert_eq(@rich.unpack_padding([3, 4]), (3, 4, 3, 4))
   assert_eq(@rich.unpack_padding([3, 4, 5, 6]), (3, 4, 5, 6))
-  let result = try? @rich.unpack_padding([1, 2, 3])
-  assert_true(result is Err(ValueError(_)))
+  try @rich.unpack_padding([1, 2, 3]) catch {
+    ValueError(_) => ()
+    e => fail("unexpected error \{e}")
+  } noraise {
+    _ => fail("expected ValueError")
+  }
 }
 
 ///|
