@@ -420,7 +420,7 @@ pub fn Color::default() -> Color {
 }
 
 ///|
-let parse_cache : Map[String, Color] = Map([])
+let parse_cache : @memo.Memo[String, Color] = @memo.Memo::new(1024)
 
 ///|
 /// Python `str.isspace()` for a single character (also what `\s` matches).
@@ -560,7 +560,7 @@ pub fn Color::parse(color : String) -> Color raise ColorParseError {
     return c
   }
   let result = parse_color(color)
-  parse_cache[color] = result
+  parse_cache.set(color, result)
   result
 }
 

@@ -631,7 +631,7 @@ pub fn Text::get_style_at_offset(
   offset : Int,
 ) -> Style raise {
   let offset = if offset < 0 { self.length_ + offset } else { offset }
-  let mut style = console.get_style(self.style).copy()
+  let mut style = console.get_style(self.style).copy_value()
   for span in self.spans_ {
     if span.end > offset && offset >= span.start {
       style = style + console.get_style(span.style, default=Def(""))
@@ -665,7 +665,7 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
 }
 
 ///|
-let regex_cache : Map[(String, Int), @regex.Regex] = Map([])
+let regex_cache : @memo.Memo[(String, Int), @regex.Regex] = @memo.Memo::new(512)
 
 ///|
 /// Compile a regular expression (Python `re` syntax), with caching.
@@ -678,7 +678,7 @@ pub fn compile_regex(
     Some(re) => re
     None => {
       let re = @regex.compile(pattern, flags~)
-      regex_cache[key] = re
+      regex_cache.set(key, re)
       re
     }
   }
@@ -931,62 +931,78 @@ pub fn Text::render(
     return result
   }
   let null = Def("")
-  let style_map : Map[Int, Style] = Map([])
+  let n = self.spans_.length()
+  let style_map : FixedArray[Style] = FixedArray::make(n + 1, null_style)
   for i, span in self.spans_ {
     style_map[i + 1] = console.get_style(span.style, default=null)
   }
   style_map[0] = console.get_style(self.style, default=null)
-  let spans : Array[(Int, Bool, Int)] = [(0, false, 0)]
+  // Events `(offset, leaving, style_id)` sorted by `(offset, leaving)`,
+  // stable (upstream `spans.sort(key=itemgetter(0, 1))`): packed in a
+  // UInt64 as biased offset, leaving flag and the event's sequence number
+  // (which also identifies its style id).
+  fn event(offset : Int, leaving : Bool, seq : Int) -> UInt64 {
+    ((offset.to_int64() + 0x8000_0000L).reinterpret_as_uint64() << 32) |
+    (if leaving { 0x8000_0000UL } else { 0UL }) |
+    seq.to_uint64()
+  }
+
+  let events : Array[UInt64] = Array(capacity=2 * n + 2)
+  events.push(event(0, false, 0))
   for i, span in self.spans_ {
-    spans.push((span.start, false, i + 1))
+    events.push(event(span.start, false, i + 1))
   }
   for i, span in self.spans_ {
-    spans.push((span.end, true, i + 1))
+    events.push(event(span.end, true, n + i + 1))
   }
-  spans.push((text.length(), true, 0))
-  stable_sort_by(spans, (a, b) => {
-    let c = a.0.compare(b.0)
-    if c != 0 {
-      c
-    } else {
-      a.1.compare(b.1)
-    }
-  })
+  events.push(event(text.length(), true, 2 * n + 1))
+  events.sort()
+  fn offset_of(e : UInt64) -> Int {
+    ((e >> 32).reinterpret_as_int64() - 0x8000_0000L).to_int()
+  }
+
+  // ids of the open styles, kept sorted (upstream sorts the stack)
   let stack : Array[Int] = []
-  let style_cache : Map[String, Style] = Map([])
+  let style_cache : Map[Array[Int], Style] = Map([])
   fn get_current_style() -> Style {
-    let ids = stack.copy()
-    ids.sort()
-    let key = ids.map(i => i.to_string()).join(",")
-    match style_cache.get(key) {
+    match style_cache.get(stack) {
       Some(s) => s
       None => {
-        let styles = ids.map(i => style_map[i])
-        let s = Style::combine(styles)
-        style_cache[key] = s
+        let mut s = style_map[stack[0]]
+        for k in 1..<stack.length() {
+          s = s + style_map[stack[k]]
+        }
+        style_cache[stack.copy()] = s
         s
       }
     }
   }
 
-  for i in 0..<(spans.length() - 1) {
-    let (offset, leaving, style_id) = spans[i]
-    let next_offset = spans[i + 1].0
-    if leaving {
-      match stack.search(style_id) {
-        Some(idx) => stack.remove(idx) |> ignore
-        None => ()
+  let text_length = text.length()
+  for i in 0..<(events.length() - 1) {
+    let e = events[i]
+    let offset = offset_of(e)
+    let seq = (e & 0x7FFF_FFFFUL).to_int()
+    let next_offset = offset_of(events[i + 1])
+    if (e & 0x8000_0000UL) != 0 {
+      let style_id = if seq > n { seq - n } else { 0 }
+      match stack.binary_search(style_id) {
+        Ok(idx) => stack.remove(idx) |> ignore
+        Err(_) => ()
       }
     } else {
-      stack.push(style_id)
+      let style_id = seq
+      match stack.binary_search(style_id) {
+        Ok(idx) | Err(idx) => stack.insert(idx, style_id)
+      }
     }
     if next_offset > offset {
-      result.push(
-        Segment::new(
-          text.view(start_offset=offset, end_offset=next_offset).to_owned(),
-          style=get_current_style(),
-        ),
-      )
+      let segment_text = if offset == 0 && next_offset == text_length {
+        text
+      } else {
+        text.view(start_offset=offset, end_offset=next_offset).to_owned()
+      }
+      result.push(Segment::new(segment_text, style=get_current_style()))
     }
   }
   if end != "" {

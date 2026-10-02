@@ -13,7 +13,12 @@ pub struct Style {
   priv link_id_ : String
   priv meta_ : Map[String, Json]?
   priv null : Bool
-  priv ansi_cache : Map[Int, String]
+  /// Color system (`ColorSystem::to_int`) of `ansi_codes`, or -1.
+  priv mut ansi_system : Int
+  /// Cached SGR parameters for `ansi_system` (upstream `_ansi`).
+  priv mut ansi_codes : String
+  /// Cached hash of the compared fields, 0 when not computed yet.
+  priv mut hash_ : Int
   priv mut definition : String?
 }
 
@@ -158,7 +163,9 @@ fn make_style(
     link_id_: link_id,
     meta_: meta,
     null,
-    ansi_cache: Map([]),
+    ansi_system: -1,
+    ansi_codes: "",
+    hash_: 0,
     definition,
   }
 }
@@ -510,12 +517,26 @@ pub impl Eq for Style with fn equal(self, other) {
 
 ///|
 pub impl Hash for Style with fn hash_combine(self, hasher) {
+  hasher.combine(self.hash_value())
+}
+
+///|
+/// Hash of the fields compared by `Eq`, computed once (styles are immutable).
+fn Style::hash_value(self : Style) -> Int {
+  if self.hash_ != 0 {
+    return self.hash_
+  }
+  let hasher = Hasher()
   hasher.combine(color_key(self.color_))
   hasher.combine(color_key(self.bgcolor_))
   hasher.combine(self.attributes)
   hasher.combine(self.set_attributes)
   hasher.combine(self.link_.unwrap_or(""))
   hasher.combine(meta_key(self.meta_))
+  let h = hasher.finalize()
+  let h = if h == 0 { 1 } else { h }
+  self.hash_ = h
+  h
 }
 
 ///|
@@ -525,8 +546,8 @@ fn Style::make_ansi_codes(
   color_system : @color.ColorSystem,
 ) -> String {
   let key = color_system.to_int()
-  if self.ansi_cache.get(key) is Some(codes) {
-    return codes
+  if self.ansi_system == key {
+    return self.ansi_codes
   }
   let sgr = []
   let attributes = self.attributes & self.set_attributes
@@ -544,12 +565,13 @@ fn Style::make_ansi_codes(
     sgr.append(c.downgrade(color_system).get_ansi_codes(foreground=false))
   }
   let codes = sgr.join(";")
-  self.ansi_cache[key] = codes
+  self.ansi_system = key
+  self.ansi_codes = codes
   codes
 }
 
 ///|
-let normalize_cache : Map[String, String] = Map([])
+let normalize_cache : @memo.Memo[String, String] = @memo.Memo::new(1024)
 
 ///|
 /// Normalize a style definition so that styles with the same effect have
@@ -561,12 +583,12 @@ pub fn Style::normalize(style : String) -> String {
   let result = Style::parse(style).to_definition() catch {
     _ => @pystr.lower(py_strip(style))
   }
-  normalize_cache[style] = result
+  normalize_cache.set(style, result)
   result
 }
 
 ///|
-let parse_cache : Map[String, Style] = Map([])
+let parse_cache : @memo.Memo[String, Style] = @memo.Memo::new(4096)
 
 ///|
 fn split_words(s : String) -> Array[String] {
@@ -625,7 +647,7 @@ pub fn Style::parse(style_definition : String) -> Style raise RichError {
     return s
   }
   let style = parse_style(style_definition)
-  parse_cache[style_definition] = style
+  parse_cache.set(style_definition, style)
   style
 }
 
@@ -812,10 +834,21 @@ pub fn Style::copy(self : Style) -> Style {
     null=false,
     definition=self.definition,
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
+}
+
+///|
+/// `copy()` for internal callers that do not depend on the copy being a
+/// distinct object: styles are immutable, so without a link (id) the copy
+/// would be indistinguishable from `self`.
+fn Style::copy_value(self : Style) -> Style {
+  if self.link_id_ == "" && non_empty(self.link_) is None {
+    self
+  } else {
+    self.copy()
+  }
 }
 
 ///|
@@ -857,9 +890,8 @@ pub fn Style::clear_meta_and_links(self : Style) -> Style {
     null=false,
     // the cached definition mentions the link: do not reuse it (upstream does)
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
 }
 
@@ -877,9 +909,8 @@ pub fn Style::update_link(self : Style, link : String?) -> Style {
     null=false,
     // the cached definition mentions the link: do not reuse it (upstream does)
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
 }
 
@@ -914,6 +945,29 @@ fn Style::add_style(self : Style, style : Style) -> Style {
   if self.null {
     return style
   }
+  // Without meta the result only depends on the fields compared by `Eq`
+  // (and is copied by `+` when it has a link), so it can be memoized like
+  // upstream's `lru_cache`d `_add`.
+  if self.meta_ is None && style.meta_ is None {
+    let key = (self, style)
+    match add_cache.get(key) {
+      Some(combined) => return combined
+      None => {
+        let combined = self.add_style_uncached(style)
+        add_cache.set(key, combined)
+        return combined
+      }
+    }
+  }
+  self.add_style_uncached(style)
+}
+
+///|
+/// Memo table of `Style::add_style` (upstream `lru_cache(maxsize=1024)`).
+let add_cache : @memo.Memo[(Style, Style), Style] = @memo.Memo::new(1024)
+
+///|
+fn Style::add_style_uncached(self : Style, style : Style) -> Style {
   let meta = if meta_truthy(self.meta_) && meta_truthy(style.meta_) {
     let m = self.meta_.unwrap().copy()
     for k, v in style.meta_.unwrap() {

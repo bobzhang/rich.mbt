@@ -1,0 +1,20 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/internal/memo"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Memo[K, V] {
+  // private fields
+}
+pub fn[K, V] Memo::clear(Self[K, V]) -> Unit
+pub fn[K : Hash + Eq, V] Memo::get(Self[K, V], K) -> V?
+pub fn[K, V] Memo::length(Self[K, V]) -> Int
+pub fn[K : Hash + Eq, V] Memo::new(Int) -> Self[K, V]
+pub fn[K : Hash + Eq, V] Memo::set(Self[K, V], K, V) -> Unit
+
+// Type aliases
+
+// Traits
