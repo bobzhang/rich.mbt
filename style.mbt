@@ -405,6 +405,13 @@ pub fn Style::is_null(self : Style) -> Bool {
 }
 
 ///|
+/// No link and no meta: combining such styles gives a style that only
+/// depends on the inputs' compared fields.
+fn Style::is_plain(self : Style) -> Bool {
+  self.meta_ is None && non_empty(self.link_) is None && self.link_id_ == ""
+}
+
+///|
 /// Upstream `bool(style)`.
 pub fn Style::to_bool(self : Style) -> Bool {
   !self.null

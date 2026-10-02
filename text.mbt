@@ -522,9 +522,10 @@ pub fn Text::set_spans(self : Text, spans : Array[Span]) -> Unit {
 ///|
 /// A new Text instance with copied metadata (but not the string or spans).
 pub fn Text::blank_copy(self : Text, plain? : String = "") -> Text {
+  let plain = strip_control_codes(plain)
   {
-    parts: [strip_control_codes(plain)],
-    length_: strip_control_codes(plain).length(),
+    parts: [plain],
+    length_: plain.length(),
     spans_: [],
     style: self.style,
     justify: self.justify,
@@ -999,16 +1000,36 @@ fn Text::render_into(
 
   // ids of the open styles, kept sorted (upstream sorts the stack)
   let stack : Array[Int] = []
-  let style_cache : Map[Array[Int], Style] = Map([])
+  let mut style_cache : Map[Array[Int], Style]? = None
   fn get_current_style() -> Style {
-    match style_cache.get(stack) {
+    // Fast paths: one style, or two plain styles (`+` is memoized and
+    // without links/meta the result does not depend on the cache).
+    if stack.length() == 1 {
+      return style_map[stack[0]]
+    }
+    if stack.length() == 2 {
+      let a = style_map[stack[0]]
+      let b = style_map[stack[1]]
+      if a.is_plain() && b.is_plain() {
+        return a + b
+      }
+    }
+    let cache = match style_cache {
+      Some(cache) => cache
+      None => {
+        let cache = Map([])
+        style_cache = Some(cache)
+        cache
+      }
+    }
+    match cache.get(stack) {
       Some(s) => s
       None => {
         let mut s = style_map[stack[0]]
         for k in 1..<stack.length() {
           s = s + style_map[stack[k]]
         }
-        style_cache[stack.copy()] = s
+        cache[stack.copy()] = s
         s
       }
     }
@@ -1413,29 +1434,32 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
   }
   let text = self.plain()
   let text_length = text.length()
-  let divide_offsets = [0]
-  for o in offsets {
-    divide_offsets.push(o)
+  // line `i` covers `bounds[i]..bounds[i + 1]` (upstream `line_ranges`)
+  let line_count = offsets.length() + 1
+  let bounds : FixedArray[Int] = FixedArray::make(line_count + 1, 0)
+  for i, o in offsets {
+    bounds[i + 1] = o
   }
-  divide_offsets.push(text_length)
-  let line_ranges = []
-  for i in 0..<(divide_offsets.length() - 1) {
-    line_ranges.push((divide_offsets[i], divide_offsets[i + 1]))
+  bounds[line_count] = text_length
+  let lines : Array[Text] = Array(capacity=line_count)
+  for i in 0..<line_count {
+    let plain = strip_control_codes(py_slice(text, bounds[i], bounds[i + 1]))
+    lines.push({
+      parts: [plain],
+      length_: plain.length(),
+      spans_: [],
+      style: self.style,
+      justify: self.justify,
+      overflow: self.overflow,
+      no_wrap: None,
+      end: "\n",
+      tab_size: None,
+    })
   }
-  let new_lines = Lines::new(
-    line_ranges.map(range => {
-      Text::new(
-        text=py_slice(text, range.0, range.1),
-        style=self.style,
-        justify?=self.justify,
-        overflow?=self.overflow,
-      )
-    }),
-  )
+  let new_lines : Lines = { lines, }
   if self.spans_.is_empty() {
     return new_lines
   }
-  let line_count = line_ranges.length()
   for span in self.spans_ {
     let span_start = span.start
     let span_end = span.end
@@ -1444,8 +1468,8 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
     let mut start_line_no = floor_div(lower_bound + upper_bound, 2)
     let mut line_end = 0
     while true {
-      let (line_start, le) = line_ranges[start_line_no]
-      line_end = le
+      let line_start = bounds[start_line_no]
+      line_end = bounds[start_line_no + 1]
       if span_start < line_start {
         upper_bound = start_line_no - 1
       } else if span_start > line_end {
@@ -1462,7 +1486,8 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
       lower_bound = start_line_no
       upper_bound = line_count
       while true {
-        let (line_start, le) = line_ranges[end_line_no]
+        let line_start = bounds[end_line_no]
+        let le = bounds[end_line_no + 1]
         if span_end < line_start {
           upper_bound = end_line_no - 1
         } else if span_end > le {
@@ -1475,11 +1500,12 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
       end_line_no
     }
     for line_no in start_line_no..<=end_line_no {
-      let (line_start, line_end) = line_ranges[line_no]
+      let line_start = bounds[line_no]
+      let line_end = bounds[line_no + 1]
       let new_start = @cmp.maximum(0, span_start - line_start)
       let new_end = @cmp.minimum(span_end - line_start, line_end - line_start)
       if new_end > new_start {
-        new_lines.lines[line_no].spans_.push({
+        lines[line_no].spans_.push({
           start: new_start,
           end: new_end,
           style: span.style,
