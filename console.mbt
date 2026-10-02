@@ -950,11 +950,22 @@ fn Console::render_into(
     NotText => ()
   }
   let items = renderable.rich_console(self, options)
-  let child_options = options.reset_height()
+  // one copy shared by all the children, made when the first one is seen
+  let mut child_options = None
   for item in items {
     match item {
       Seg(s) => out.push(s)
-      Child(r) => self.render_into(r, child_options, out, depth + 1)
+      Child(r) => {
+        let opts = match child_options {
+          Some(o) => o
+          None => {
+            let o = options.reset_height()
+            child_options = Some(o)
+            o
+          }
+        }
+        self.render_into(r, opts, out, depth + 1)
+      }
     }
   }
 }
@@ -990,11 +1001,11 @@ pub fn Console::render_lines(
     if extra_lines > 0 {
       let pad_line = if new_lines {
         [
-          Segment::new(" ".repeat(render_options.max_width), style?),
+          Segment::new(space_string(render_options.max_width), style?),
           Segment::new("\n"),
         ]
       } else {
-        [Segment::new(" ".repeat(render_options.max_width), style?)]
+        [Segment::new(space_string(render_options.max_width), style?)]
       }
       for _ in 0..<extra_lines {
         lines.push(pad_line)

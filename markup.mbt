@@ -176,14 +176,16 @@ pub fn render_markup(
   emoji? : Bool = true,
   emoji_variant? : EmojiVariant,
 ) -> Text raise RichError {
-  let variant = emoji_variant.map(v => v.to_string())
-  fn emoji_replace(s : String) -> String {
-    @emoji.replace(s, default_variant?=variant)
-  }
-
-  if !markup.contains("[") {
+  if !markup.contains_char('[') {
     return Text::new(
-      text=if emoji { emoji_replace(markup) } else { markup },
+      text=if emoji {
+        @emoji.replace(
+          markup,
+          default_variant?=emoji_variant.map(v => v.to_string()),
+        )
+      } else {
+        markup
+      },
       style~,
     )
   }

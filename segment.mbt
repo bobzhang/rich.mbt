@@ -431,7 +431,7 @@ fn adjust_line_length_owned(
   if line_length < length {
     if pad {
       line.push({
-        text: " ".repeat(length - line_length),
+        text: space_string(length - line_length),
         style,
         control: None,
       })
@@ -493,9 +493,9 @@ pub fn Segment::set_shape(
     _ => lines.length()
   }
   let blank = if new_lines {
-    [Segment::new(" ".repeat(width) + "\n", style?)]
+    [Segment::new(space_string(width) + "\n", style?)]
   } else {
-    [Segment::new(" ".repeat(width), style?)]
+    [Segment::new(space_string(width), style?)]
   }
   // upstream adjusts *all* lines (the slice assignment replaces the
   // truncated list), so `height` only ever adds lines
@@ -511,9 +511,9 @@ pub fn Segment::set_shape(
 ///|
 fn blank_line(width : Int, style : Style?, new_lines : Bool) -> Segment {
   if new_lines {
-    { text: " ".repeat(width) + "\n", style, control: None, }
+    { text: space_string(width) + "\n", style, control: None, }
   } else {
-    { text: " ".repeat(width), style, control: None, }
+    { text: space_string(width), style, control: None, }
   }
 }
 

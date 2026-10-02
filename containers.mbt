@@ -204,7 +204,7 @@ pub fn Lines::justify(
               line.style
             }
             tokens.push(
-              Text::new(text=" ".repeat(spaces[index]), style=space_style),
+              Text::new(text=space_string(spaces[index]), style=space_style),
             )
           }
         }

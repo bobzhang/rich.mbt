@@ -648,7 +648,7 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
   if spaces <= 0 {
     return
   }
-  let new_spaces = " ".repeat(spaces)
+  let new_spaces = space_string(spaces)
   if !self.spans_.is_empty() {
     let end_offset = self.length_
     self.spans_ = self.spans_.map(span => {
@@ -1180,7 +1180,7 @@ pub fn Text::truncate(
     }
     if pad && length < max_width {
       let spaces = max_width - length
-      self.parts = [self.plain() + " ".repeat(spaces)]
+      self.parts = [self.plain() + space_string(spaces)]
       self.length_ = self.plain().length()
     }
   }
@@ -1702,7 +1702,7 @@ pub fn Text::with_indent_guides(
   }
   let text = self.copy()
   text.expand_tabs()
-  let indent_line = character + " ".repeat(indent_size - 1)
+  let indent_line = character + space_string(indent_size - 1)
   let new_lines : Array[Text] = []
   let mut blank_lines = 0
   for line in text.split(allow_blank=true).lines {
@@ -1718,7 +1718,7 @@ pub fn Text::with_indent_guides(
     let full_indents = n / indent_size
     let remaining_space = n % indent_size
     let new_indent = indent_line.repeat(full_indents) +
-      " ".repeat(remaining_space)
+      space_string(remaining_space)
     // upstream slices the line by the (code point) length of the new indent
     let skip = utf16_offset_of_codepoint(plain, new_indent.char_length())
     line.set_plain(new_indent + py_slice(plain, skip, plain.length()))

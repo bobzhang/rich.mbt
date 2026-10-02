@@ -95,16 +95,16 @@ pub impl Renderable for Padding with fn rich_console(self, console, options) {
   )
   let out = []
   let left = if self.left != 0 {
-    Some(Segment::new(" ".repeat(self.left), style~))
+    Some(Segment::new(space_string(self.left), style~))
   } else {
     None
   }
   let right = if self.right != 0 {
-    [Segment::new(" ".repeat(self.right), style~), Segment::line()]
+    [Segment::new(space_string(self.right), style~), Segment::line()]
   } else {
     [Segment::line()]
   }
-  let blank_line = Segment::new(" ".repeat(width) + "\n", style~)
+  let blank_line = Segment::new(space_string(width) + "\n", style~)
   for _ in 0..<self.top {
     out.push(Seg(blank_line))
   }
