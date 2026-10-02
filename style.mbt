@@ -593,21 +593,39 @@ let parse_cache : @memo.Memo[String, Style] = @memo.Memo::new(4096)
 ///|
 fn split_words(s : String) -> Array[String] {
   let words = []
-  let buf = StringBuilder()
-  for c in s {
-    if is_py_whitespace(c) {
-      if buf.to_string() != "" {
-        words.push(buf.to_string())
-        buf.reset()
-      }
-    } else {
-      buf.write_char(c)
+  for_each_word(s, (start, end) => words.push(s.unsafe_substring(start~, end~)))
+  words
+}
+
+///|
+/// Call `f(start, end)` for each maximal run of non-whitespace code units
+/// (Python `str.split()`; whitespace characters are all in the BMP, so
+/// scanning UTF-16 code units is exact).
+fn for_each_word(s : String, f : (Int, Int) -> Unit) -> Unit {
+  let n = s.length()
+  let mut i = 0
+  while i < n {
+    while i < n && is_py_space_unit(s.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    let start = i
+    while i < n && !is_py_space_unit(s.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    if i > start {
+      f(start, i)
     }
   }
-  if buf.to_string() != "" {
-    words.push(buf.to_string())
+}
+
+///|
+/// `is_py_whitespace` for a UTF-16 code unit (surrogates are not spaces).
+fn is_py_space_unit(u : Int) -> Bool {
+  if u < 0x80 {
+    u == 0x20 || (u >= 0x09 && u <= 0x0d) || (u >= 0x1c && u <= 0x1f)
+  } else {
+    is_py_whitespace(u.unsafe_to_char())
   }
-  words
 }
 
 ///|
@@ -627,17 +645,21 @@ fn is_py_whitespace(c : Char) -> Bool {
 }
 
 ///|
+/// Python `str.strip()`.
 fn py_strip(s : String) -> String {
-  let chars = s.to_array()
   let mut start = 0
-  let mut end = chars.length()
-  while start < end && is_py_whitespace(chars[start]) {
+  let mut end = s.length()
+  while start < end && is_py_space_unit(s.unsafe_get(start).to_int()) {
     start += 1
   }
-  while end > start && is_py_whitespace(chars[end - 1]) {
+  while end > start && is_py_space_unit(s.unsafe_get(end - 1).to_int()) {
     end -= 1
   }
-  String::from_array(chars[start:end])
+  if start == 0 && end == s.length() {
+    s
+  } else {
+    s.unsafe_substring(start~, end~)
+  }
 }
 
 ///|

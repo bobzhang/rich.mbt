@@ -35,9 +35,6 @@ fn must_compile(pattern : String) -> @regex.Regex {
 }
 
 ///|
-let re_tags : @regex.Regex = must_compile("((\\\\*)\\[([a-z#/@][^[]*?)])")
-
-///|
 let re_handler : @regex.Regex = must_compile("^([\\w.]*?)(\\(.*?\\))?$")
 
 ///|
@@ -78,34 +75,65 @@ pub(all) enum MarkupItem {
 pub fn parse_markup(markup : String) -> Array[MarkupItem] {
   let out = []
   let mut position = 0
-  let matches = re_tags.find_all(markup) catch { _ => [] }
-  for m in matches {
-    let full_text = m.group(1).unwrap_or("")
-    let escapes = m.group(2).unwrap_or("")
-    let tag_text = m.group(3).unwrap_or("")
-    let mut start = m.start()
-    let end = m.end()
-    if start > position {
-      out.push(PlainText(start, py_slice(markup, position, start)))
+  let n = markup.length()
+  // Hand-written equivalent of `re_tags.finditer(markup)`, i.e. the regex
+  // `((\\*)\[([a-z#/@][^[]*?)])`: a run of backslashes, `[`, a tag start
+  // character and the shortest run of non-`[` characters up to `]`.
+  let mut p = 0
+  while p < n {
+    let c = markup.unsafe_get(p).to_int()
+    if c != '\\' && c != '[' {
+      p += 1
+      continue
     }
-    if escapes != "" {
-      let backslashes = escapes.length() / 2
-      let escaped = escapes.length() % 2
+    let mut q = p
+    while q < n && markup.unsafe_get(q).to_int() == '\\' {
+      q += 1
+    }
+    let tag_start = q + 1
+    if q >= n ||
+      markup.unsafe_get(q).to_int() != '[' ||
+      tag_start >= n ||
+      !is_tag_start(markup.unsafe_get(tag_start).to_int()) {
+      p += 1
+      continue
+    }
+    let mut r = tag_start + 1
+    while r < n {
+      let d = markup.unsafe_get(r).to_int()
+      if d == '[' || d == ']' {
+        break
+      }
+      r += 1
+    }
+    if r >= n || markup.unsafe_get(r).to_int() != ']' {
+      p += 1
+      continue
+    }
+    // match: whole `p..r+1`, escapes `p..q`, tag text `tag_start..r`
+    let end = r + 1
+    let escapes_length = q - p
+    let mut start = p
+    p = end
+    if start > position {
+      out.push(
+        PlainText(start, markup.unsafe_substring(start=position, end=start)),
+      )
+    }
+    if escapes_length != 0 {
+      let backslashes = escapes_length / 2
+      let escaped = escapes_length % 2
       if backslashes != 0 {
         out.push(PlainText(start, "\\".repeat(backslashes)))
         start += backslashes * 2
       }
       if escaped != 0 {
-        out.push(
-          PlainText(
-            start,
-            py_slice(full_text, escapes.length(), full_text.length()),
-          ),
-        )
+        out.push(PlainText(start, markup.unsafe_substring(start=q, end~)))
         position = end
         continue
       }
     }
+    let tag_text = markup.unsafe_substring(start=tag_start, end=r)
     let (text, equals, parameters) = partition(tag_text, "=")
     out.push(
       TagAt(start, {
@@ -123,6 +151,12 @@ pub fn parse_markup(markup : String) -> Array[MarkupItem] {
     out.push(PlainText(position, py_slice(markup, position, markup.length())))
   }
   out
+}
+
+///|
+/// `[a-z#/@]`: the first character of a markup tag.
+fn is_tag_start(c : Int) -> Bool {
+  (c >= 'a' && c <= 'z') || c == '#' || c == '/' || c == '@'
 }
 
 ///|

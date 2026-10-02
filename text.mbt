@@ -852,20 +852,24 @@ pub impl Renderable for Text with fn rich_console(self, console, options) {
 ///|
 pub impl Renderable for Text with fn rich_measure(self, _console, _options) {
   let text = self.plain()
-  let lines = py_splitlines(text)
   let mut max_text_width = 0
-  for line in lines {
-    max_text_width = @cmp.maximum(max_text_width, @cells.cell_len(line))
-  }
-  let words = split_words(text)
-  let min_text_width = if words.is_empty() {
-    max_text_width
-  } else {
-    let mut m = 0
-    for word in words {
-      m = @cmp.maximum(m, @cells.cell_len(word))
+  for_each_splitline(text, (start, end) => {
+    let width = @cells.cell_len(text.view(start_offset=start, end_offset=end))
+    if width > max_text_width {
+      max_text_width = width
     }
-    m
+  })
+  let mut has_words = false
+  let mut min_text_width = 0
+  for_each_word(text, (start, end) => {
+    has_words = true
+    let width = @cells.cell_len(text.view(start_offset=start, end_offset=end))
+    if width > min_text_width {
+      min_text_width = width
+    }
+  })
+  if !has_words {
+    min_text_width = max_text_width
   }
   Some({ minimum: min_text_width, maximum: max_text_width, })
 }
@@ -879,12 +883,21 @@ pub impl Renderable for Text with fn text_kind(self) {
 /// Python `str.splitlines()` (without keepends).
 fn py_splitlines(s : String) -> Array[String] {
   let lines = []
-  let buf = StringBuilder()
+  for_each_splitline(s, (start, end) => {
+    lines.push(s.unsafe_substring(start~, end~))
+  })
+  lines
+}
+
+///|
+/// Call `f(start, end)` for each line of `s` as split by Python's
+/// `str.splitlines()`.
+fn for_each_splitline(s : String, f : (Int, Int) -> Unit) -> Unit {
   let n = s.length()
+  let mut start = 0
   let mut i = 0
-  let mut pending = false
   while i < n {
-    let c = s[i].to_int()
+    let c = s.unsafe_get(i).to_int()
     let is_break = c == 0x0a ||
       c == 0x0d ||
       c == 0x0b ||
@@ -896,22 +909,19 @@ fn py_splitlines(s : String) -> Array[String] {
       c == 0x2028 ||
       c == 0x2029
     if is_break {
-      lines.push(buf.to_string())
-      buf.reset()
-      pending = false
-      if c == 0x0d && i + 1 < n && s[i + 1].to_int() == 0x0a {
+      f(start, i)
+      if c == 0x0d && i + 1 < n && s.unsafe_get(i + 1).to_int() == 0x0a {
         i += 1
       }
+      i += 1
+      start = i
     } else {
-      buf.write_char(c.unsafe_to_char())
-      pending = true
+      i += 1
     }
-    i += 1
   }
-  if pending {
-    lines.push(buf.to_string())
+  if start < n {
+    f(start, n)
   }
-  lines
 }
 
 ///|
