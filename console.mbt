@@ -1342,7 +1342,7 @@ pub fn Console::print_many(
     match style {
       None =>
         for renderable in renderables {
-          new_segments.append(self.render(renderable, options=render_options))
+          self.render_into(renderable, render_options, new_segments, 0)
         }
       Some(style) => {
         let render_style = self.get_style(style)
@@ -1615,9 +1615,7 @@ fn Console::render_buffer(self : Console, buffer : Array[Segment]) -> String {
   for segment in buffer {
     match segment.style {
       Some(style) if style.to_bool() =>
-        output.write_string(
-          style.render(text=segment.text, color_system~, legacy_windows~),
-        )
+        style.render_to(output, segment.text, color_system, legacy_windows)
       _ =>
         if !(not_terminal && segment.has_codes()) {
           output.write_string(segment.text)

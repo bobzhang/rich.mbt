@@ -960,6 +960,45 @@ pub fn Style::render(
 }
 
 ///|
+/// `render` writing into `out` (the console's output buffer).
+fn Style::render_to(
+  self : Style,
+  out : StringBuilder,
+  text : String,
+  color_system : @color.ColorSystem?,
+  legacy_windows : Bool,
+) -> Unit {
+  guard text != "" && color_system is Some(color_system) else {
+    out.write_string(text)
+    return
+  }
+  let attrs = self.make_ansi_codes(color_system)
+  let link = match non_empty(self.link_) {
+    Some(link) if !legacy_windows => {
+      out.write_string("\u{1b}]8;id=")
+      out.write_string(self.link_id_)
+      out.write_char(';')
+      out.write_string(link)
+      out.write_string("\u{1b}\\")
+      true
+    }
+    _ => false
+  }
+  if attrs != "" {
+    out.write_string("\u{1b}[")
+    out.write_string(attrs)
+    out.write_char('m')
+    out.write_string(text)
+    out.write_string("\u{1b}[0m")
+  } else {
+    out.write_string(text)
+  }
+  if link {
+    out.write_string("\u{1b}]8;;\u{1b}\\")
+  }
+}
+
+///|
 fn Style::add_style(self : Style, style : Style) -> Style {
   if style.null {
     return self

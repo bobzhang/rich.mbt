@@ -199,6 +199,10 @@ pub fn codepoint_cell_size(
 ///|
 /// `codepoint_cell_size` with the table already loaded.
 fn cell_size_in(table : CellTable, codepoint : Int) -> Int {
+  if is_single_cell_char(codepoint) {
+    // one cell in every table (checked by a test)
+    return 1
+  }
   if (codepoint != 0 && codepoint < 32) ||
     (codepoint >= 0x7F && codepoint < 0xA0) {
     return 0
