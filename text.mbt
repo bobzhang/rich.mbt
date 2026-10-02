@@ -864,8 +864,7 @@ fn Text::render_console_into(
     tab_size=if tab_size == 0 { 8 } else { tab_size },
     no_wrap=pick_bool([self.no_wrap, options.no_wrap, Some(false)]),
   )
-  let all_lines = Text::new(text="\n").join(lines.lines)
-  all_lines.render_into(console, self.end, out)
+  render_joined_lines(lines.lines, console, self.end, out)
 }
 
 ///|
@@ -953,122 +952,6 @@ pub fn Text::render(
   let result = []
   self.render_into(console, end, result)
   result
-}
-
-///|
-/// `render` appending the segments to `result`.
-fn Text::render_into(
-  self : Text,
-  console : Console,
-  end : String,
-  result : Array[Segment],
-) -> Unit raise {
-  let text = self.plain()
-  if self.spans_.is_empty() {
-    result.push(Segment::new(text))
-    if end != "" {
-      result.push(Segment::new(end))
-    }
-    return
-  }
-  let null = Def("")
-  let n = self.spans_.length()
-  let style_map : FixedArray[Style] = FixedArray::make(n + 1, null_style)
-  for i, span in self.spans_ {
-    style_map[i + 1] = console.get_style(span.style, default=null)
-  }
-  style_map[0] = console.get_style(self.style, default=null)
-  // Events `(offset, leaving, style_id)` sorted by `(offset, leaving)`,
-  // stable (upstream `spans.sort(key=itemgetter(0, 1))`): packed in a
-  // UInt64 as biased offset, leaving flag and the event's sequence number
-  // (which also identifies its style id).
-  fn event(offset : Int, leaving : Bool, seq : Int) -> UInt64 {
-    ((offset.to_int64() + 0x8000_0000L).reinterpret_as_uint64() << 32) |
-    (if leaving { 0x8000_0000UL } else { 0UL }) |
-    seq.to_uint64()
-  }
-
-  let events : Array[UInt64] = Array(capacity=2 * n + 2)
-  events.push(event(0, false, 0))
-  for i, span in self.spans_ {
-    events.push(event(span.start, false, i + 1))
-  }
-  for i, span in self.spans_ {
-    events.push(event(span.end, true, n + i + 1))
-  }
-  events.push(event(text.length(), true, 2 * n + 1))
-  events.sort()
-  fn offset_of(e : UInt64) -> Int {
-    ((e >> 32).reinterpret_as_int64() - 0x8000_0000L).to_int()
-  }
-
-  // ids of the open styles, kept sorted (upstream sorts the stack)
-  let stack : Array[Int] = []
-  let mut style_cache : Map[Array[Int], Style]? = None
-  fn get_current_style() -> Style {
-    // Fast paths: one style, or two plain styles (`+` is memoized and
-    // without links/meta the result does not depend on the cache).
-    if stack.length() == 1 {
-      return style_map[stack[0]]
-    }
-    if stack.length() == 2 {
-      let a = style_map[stack[0]]
-      let b = style_map[stack[1]]
-      if a.is_plain() && b.is_plain() {
-        return a + b
-      }
-    }
-    let cache = match style_cache {
-      Some(cache) => cache
-      None => {
-        let cache = Map([])
-        style_cache = Some(cache)
-        cache
-      }
-    }
-    match cache.get(stack) {
-      Some(s) => s
-      None => {
-        let mut s = style_map[stack[0]]
-        for k in 1..<stack.length() {
-          s = s + style_map[stack[k]]
-        }
-        cache[stack.copy()] = s
-        s
-      }
-    }
-  }
-
-  let text_length = text.length()
-  for i in 0..<(events.length() - 1) {
-    let e = events[i]
-    let offset = offset_of(e)
-    let seq = (e & 0x7FFF_FFFFUL).to_int()
-    let next_offset = offset_of(events[i + 1])
-    if (e & 0x8000_0000UL) != 0 {
-      let style_id = if seq > n { seq - n } else { 0 }
-      match stack.binary_search(style_id) {
-        Ok(idx) => stack.remove(idx) |> ignore
-        Err(_) => ()
-      }
-    } else {
-      let style_id = seq
-      match stack.binary_search(style_id) {
-        Ok(idx) | Err(idx) => stack.insert(idx, style_id)
-      }
-    }
-    if next_offset > offset {
-      let segment_text = if offset == 0 && next_offset == text_length {
-        text
-      } else {
-        text.view(start_offset=offset, end_offset=next_offset).to_owned()
-      }
-      result.push(Segment::new(segment_text, style=get_current_style()))
-    }
-  }
-  if end != "" {
-    result.push(Segment::new(end))
-  }
 }
 
 ///|
