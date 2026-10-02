@@ -896,7 +896,11 @@ pub fn Console::measure(
   renderable : &Renderable,
   options? : ConsoleOptions,
 ) -> Measurement raise {
-  Measurement::get(self, options.unwrap_or(self.options()), renderable)
+  Measurement::get(
+    self,
+    options.unwrap_or_else(() => self.options()),
+    renderable,
+  )
 }
 
 ///|
@@ -907,7 +911,12 @@ pub fn Console::render(
   options? : ConsoleOptions,
 ) -> Array[Segment] raise {
   let out = []
-  self.render_into(renderable, options.unwrap_or(self.options()), out, 0)
+  self.render_into(
+    renderable,
+    options.unwrap_or_else(() => self.options()),
+    out,
+    0,
+  )
   out
 }
 
@@ -945,7 +954,7 @@ pub fn Console::render_lines(
   pad? : Bool = true,
   new_lines? : Bool = false,
 ) -> Array[Array[Segment]] raise {
-  let render_options = options.unwrap_or(self.options())
+  let render_options = options.unwrap_or_else(() => self.options())
   let mut rendered = self.render(renderable, options=render_options)
   if style is Some(s) && s.to_bool() {
     rendered = Segment::apply_style(rendered, style=s)
@@ -1398,7 +1407,7 @@ pub fn Console::update_screen(
   if !self.is_alt_screen() {
     raise NoAltScreen("Alt screen must be enabled to call update_screen")
   }
-  let render_options = options.unwrap_or(self.options())
+  let render_options = options.unwrap_or_else(() => self.options())
   let (x, y, render_options) = match region {
     None =>
       (
