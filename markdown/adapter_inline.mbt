@@ -17,10 +17,11 @@ priv struct InlineConv {
   defs : Map[String, @cmark.LabelDef]
   /// Whether `src` is an inline snippet (continuation lines indented by 4).
   snippet : Bool
-  /// Whether `<` were escaped in the snippet.
+  /// Content column of the innermost container when it is a list item
+  /// (-1 otherwise).
+  list_indent : Int
+  /// Whether `<` were escaped in the snippet (see escape_unmatched_html).
   mut escaped_lt : Bool
-  /// Raw HTML joined into one line in the snippet -> original text.
-  joined_html : Map[String, String]
   out : Array[Token]
   scopes : Array[Array[Delim]]
 }
@@ -30,16 +31,9 @@ fn InlineConv::new(
   src : String,
   defs : Map[String, @cmark.LabelDef],
   snippet~ : Bool,
+  list_indent? : Int = -1,
 ) -> InlineConv {
-  {
-    src,
-    defs,
-    snippet,
-    escaped_lt: false,
-    joined_html: Map([]),
-    out: [],
-    scopes: [],
-  }
+  { src, defs, snippet, list_indent, escaped_lt: false, out: [], scopes: [], }
 }
 
 ///|
@@ -103,34 +97,22 @@ fn InlineConv::inline(
       self.push(Token::make("strong_close", "strong", -1))
       self.push(Token::make("text", "", 0))
     }
-    ExtStrikethrough(s) => {
-      self.push(Token::make("s_open", "s", 1))
-      self.inline(s.v.0, self.new_scope())
-      self.push(Token::make("s_close", "s", -1))
-    }
-    ExtMathSpan(m) => {
-      let loc = m.meta.loc
-      if loc.is_none() {
-        self.push_text(m.v.tex())
-      } else {
-        self.push_text(self.slice(loc.first_ccode, loc.last_ccode))
-      }
-    }
     Link(l) => self.link(l, scope)
     Image(l) => self.image(l)
     Autolink(a) => {
-      let url = a.v.link.v
-      let valid = if a.v.is_email {
-        regex_full_match(email_re, url)
+      // markdown-it does not resolve entities in autolinks
+      let loc = a.meta.loc
+      let url = if loc.is_none() {
+        a.v.link.v
       } else {
-        regex_full_match(autolink_re, url)
+        self.slice(loc.first_ccode + 1, loc.last_ccode - 1)
       }
       let href = if a.v.is_email {
         normalize_link("mailto:" + url)
       } else {
         normalize_link(url)
       }
-      if !valid || !validate_link(href) {
+      if !validate_link(href) {
         // not an autolink for markdown-it: the content is plain text
         let text = @cmark_char.utf_16_clean_unesc_unref(
           StringBuilder(),
@@ -145,10 +127,9 @@ fn InlineConv::inline(
         self.push(Token::make("link_close", "a", -1))
       }
     }
-    RawHtml(h) => {
-      let lines = h.v.0.iter().map(t => t.node.v).collect()
-      self.raw_html(lines.join("\n"))
-    }
+    RawHtml(h) => self.raw_html(self.layout_lines(h.v.0).join("\n"))
+    // extensions: not produced in strict mode
+    ExtStrikethrough(_) | ExtMathSpan(_) => ()
   }
 }
 
@@ -179,7 +160,13 @@ fn InlineConv::link(
     let text_loc = l.v.text.meta().loc
     let loc = l.meta.loc
     if !loc.is_none() && !text_loc.is_none() {
-      self.push_text(self.slice(text_loc.last_ccode + 1, loc.last_ccode))
+      // the location of an empty or compound text covers its `[` and `]`
+      let after = if text_loc.first_ccode == loc.first_ccode {
+        text_loc.last_ccode
+      } else {
+        text_loc.last_ccode + 1
+      }
+      self.push_text(self.slice(after, loc.last_ccode))
     }
     return
   }
@@ -507,14 +494,50 @@ fn Converter::inline_block(
     return
   }
   let lines = self.inline_lines(inline, loc)
-  if lines.iter().any(l => l.text.contains("~")) {
+  if has_foreign_html(inline) || has_unicode_blank_edges(lines) {
     self.inline_text(self.lines_source(lines))
     return
   }
-  let conv = InlineConv::new(self.src, self.defs, snippet=false)
+  let conv = InlineConv::new(
+    self.src,
+    self.defs,
+    snippet=false,
+    list_indent=self.list_indent,
+  )
   conv.inline(inline, conv.new_scope())
   for t in conv.finish() {
     self.push(t)
+  }
+}
+
+///|
+/// markdown-it-py strips the inline source of a block with `str.strip()`,
+/// which also removes the Unicode blanks (U+00A0, ...) that CommonMark
+/// keeps as text: the source is then re-parsed stripped.
+fn has_unicode_blank_edges(lines : Array[Line]) -> Bool {
+  guard lines.length() > 0 else { return false }
+  let first = lines[0].text
+  // the blanks before a line break are not text
+  let last = lines[lines.length() - 1].text.trim_end(chars=" \t")
+  first.trim_start(chars=py_whitespace).length() != first.length() ||
+  last.trim_end(chars=py_whitespace).length() != last.length()
+}
+
+///|
+/// Whether `inline` holds raw HTML that markdown-it's pattern rejects
+/// (markdown-it then finds HTML or autolinks inside it): the content is
+/// then re-parsed after escape_unmatched_html.
+fn has_foreign_html(inline : @cmark.Inline) -> Bool {
+  match inline {
+    Inlines(seq) => seq.v.iter().any(has_foreign_html)
+    RawHtml(h) =>
+      !regex_full_match(
+        html_tag_re,
+        h.v.0.iter().map(t => t.blanks + t.node.v).collect().join("\n"),
+      )
+    Emphasis(e) | StrongEmphasis(e) => has_foreign_html(e.v.inline)
+    Link(l) | Image(l) => has_foreign_html(l.v.text)
+    _ => false
   }
 }
 
@@ -532,25 +555,50 @@ fn Converter::lines_source(self : Converter, lines : ArrayView[Line]) -> String 
 }
 
 ///|
-/// markdown-it's code span content: line endings become spaces, keeping
-/// the indentation of continuation lines; one surrounding space is
-/// stripped from each side when both are present.
-fn InlineConv::code_span(self : InlineConv, c : @cmark.InlineCodeSpan) -> Unit {
-  let parts : Array[String] = []
-  for k, t in c.code_layout.to_array() {
-    if k == 0 {
-      parts.push(t.node.v)
-    } else {
-      // snippet lines carry 4 extra blanks
-      let blanks = if self.snippet && t.blanks.length() >= 4 {
+/// The lines of a multi-line inline (code span, raw HTML) as markdown-it
+/// sees them: continuation lines keep their indentation beyond the
+/// content column of an enclosing list item (snippet lines carry 4 extra
+/// blanks).
+fn InlineConv::layout_lines(
+  self : InlineConv,
+  layout : @cmark.Seq[@cmark.Tight],
+) -> Array[String] {
+  layout
+  .to_array()
+  .mapi((k, t) => {
+    let loc = t.node.meta.loc
+    let blanks = if k == 0 {
+      ""
+    } else if self.snippet {
+      if t.blanks.length() >= 4 {
         substr(t.blanks, 4)
       } else {
         t.blanks
       }
-      parts.push(blanks + t.node.v)
+    } else if self.list_indent >= 0 && !loc.is_none() {
+      // cmark keeps the whole indentation of a lazy continuation line
+      let mut start = loc.first_ccode
+      while start > 0 && self.src[start - 1] != '\n' {
+        start -= 1
+      }
+      let mut col = 0
+      for i in start..<loc.first_ccode {
+        col = if self.src[i] == '\t' { col + 4 - col % 4 } else { col + 1 }
+      }
+      " ".repeat(@cmp.maximum(0, col - self.list_indent))
+    } else {
+      t.blanks
     }
-  }
-  let mut content = parts.join(" ")
+    blanks + t.node.v
+  })
+}
+
+///|
+/// markdown-it's code span content: line endings become spaces, keeping
+/// the indentation of continuation lines; one surrounding space is
+/// stripped from each side when both are present.
+fn InlineConv::code_span(self : InlineConv, c : @cmark.InlineCodeSpan) -> Unit {
+  let mut content = self.layout_lines(c.code_layout).join(" ")
   if content.length() >= 2 &&
     content.has_prefix(" ") &&
     content.has_suffix(" ") &&
@@ -571,16 +619,12 @@ fn Converter::inline_text(self : Converter, content : String) -> Unit {
   }
   // A dummy first line keeps the content a paragraph continuation, and the
   // indentation keeps its lines from starting blocks.
-  let joined_html : Map[String, String] = Map([])
-  let (escaped, escaped_lt) = escape_unmatched_html(content, joined_html)
+  let (escaped, escaped_lt) = escape_unmatched_html(content)
   let snippet = "x\n" +
     escaped.split("\n").map(l => "    " + l.to_owned()).join("\n")
   let doc = self.parse(snippet)
   let conv = InlineConv::new(snippet, self.defs, snippet=true)
   conv.escaped_lt = escaped_lt
-  for k, v in joined_html {
-    conv.joined_html[k] = v
-  }
   let scope = conv.new_scope()
   guard first_paragraph(doc.block) is Some(p) else {
     self.push(Token::make("text", "", 0, content~))

@@ -1,9 +1,10 @@
 // Block-level conversion of a cmark AST into markdown-it tokens.
 //
 // The document is parsed in strict CommonMark mode. markdown-it's GFM
-// tables are recovered from paragraph lines (adapter_table.mbt) and inline
-// content is converted (with markdown-it's strikethrough) in
-// adapter_inline.mbt.
+// tables are recovered from paragraph lines (adapter_table.mbt), the
+// block rules where markdown-it differs from CommonMark are applied in
+// adapter_reparse.mbt, and inline content is converted (with
+// markdown-it's strikethrough) in adapter_inline.mbt.
 
 ///|
 priv struct Converter {
@@ -12,56 +13,19 @@ priv struct Converter {
   /// Offsets of the start of each line (index 0 is line 1).
   line_starts : Array[Int]
   defs : Map[String, @cmark.LabelDef]
-  /// Link reference labels by markdown-it's normalization.
-  labels : Map[String, @cmark.Label]
   out : Array[Token]
-  /// Lines covered by a leaf block of the AST (see adapter_recover.mbt).
-  covered : Array[Bool]
   /// Number of enclosing block quotes.
   mut quote_depth : Int
-  /// Lazy continuation lines cmark parsed as an HTML block, to append to
-  /// the paragraph ending on line `lazy_after` (see adapter_recover.mbt).
-  mut lazy_lines : Array[Line]
-  mut lazy_after : Int
   /// Number of enclosing list items.
   mut list_depth : Int
+  /// Content column of the list item that is the innermost container (-1
+  /// when there is none).
+  mut list_indent : Int
 }
 
 ///|
-/// markdown-it `normalizeReference` (`.lower().upper()` after collapsing
-/// whitespace); cmark only lowercases ASCII in its label keys.
-fn normalize_label(key : String) -> String {
-  @casefold.casefold(key)
-}
-
-///|
-fn parse_cmark(
-  src : String,
-  defs : Map[String, @cmark.LabelDef],
-  labels : Map[String, @cmark.Label],
-) -> @cmark.Doc {
-  let resolver = @cmark.LabelResolverFn(ctx => {
-    match ctx {
-      Def(_, label) => {
-        let key = normalize_label(label.key)
-        if labels.contains(key) {
-          None
-        } else {
-          labels[key] = label
-          Some(label)
-        }
-      }
-      Ref(_, label, _) => labels.get(normalize_label(label.key))
-    }
-  })
-  @cmark.Doc::from_string(
-    src,
-    defs~,
-    resolver~,
-    locs=true,
-    layout=true,
-    strict=true,
-  )
+fn parse_cmark(src : String, defs : Map[String, @cmark.LabelDef]) -> @cmark.Doc {
+  @cmark.Doc::from_string(src, defs~, locs=true, layout=true, strict=true)
 }
 
 ///|
@@ -79,7 +43,6 @@ fn compute_line_starts(src : String) -> Array[Int] {
 fn Converter::new(
   src : String,
   defs : Map[String, @cmark.LabelDef],
-  labels : Map[String, @cmark.Label],
   out : Array[Token],
 ) -> Converter {
   let line_starts = compute_line_starts(src)
@@ -87,21 +50,11 @@ fn Converter::new(
     src,
     line_starts,
     defs,
-    labels,
     out,
-    covered: Array::make(line_starts.length() + 2, false),
     quote_depth: 0,
-    lazy_lines: [],
-    lazy_after: -1,
     list_depth: 0,
+    list_indent: -1,
   }
-}
-
-///|
-/// Convert a document parsed from `self.src`.
-fn Converter::document(self : Converter, block : @cmark.Block) -> Unit {
-  self.mark_covered(block)
-  self.container_content(block)
 }
 
 ///|
@@ -115,7 +68,7 @@ fn Converter::container_content(self : Converter, block : @cmark.Block) -> Unit 
 
 ///|
 fn Converter::parse(self : Converter, src : String) -> @cmark.Doc {
-  parse_cmark(src, self.defs, self.labels)
+  parse_cmark(src, self.defs)
 }
 
 ///|
@@ -150,10 +103,9 @@ fn normalize_source(s : String) -> String {
 /// `Markdown._flatten_tokens`).
 pub fn parse_tokens(markup : String) -> Array[Token] {
   let src = normalize_source(markup)
-  let labels : Map[String, @cmark.Label] = Map([])
-  let doc = parse_cmark(src, Map([]), labels)
-  let conv = Converter::new(src, doc.defs, labels, [])
-  conv.document(doc.block)
+  let doc = parse_cmark(src, Map([]))
+  let conv = Converter::new(src, doc.defs, [])
+  conv.container_content(doc.block)
   conv.out
 }
 
@@ -170,12 +122,14 @@ fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
     BlockQuote(q) => {
       self.push(Token::make("blockquote_open", "blockquote", 1))
       self.quote_depth += 1
+      let list_indent = self.list_indent
+      self.list_indent = -1
       self.container_content(q.v.block)
+      self.list_indent = list_indent
       self.quote_depth -= 1
       self.push(Token::make("blockquote_close", "blockquote", -1))
     }
     CodeBlock(cb) => self.code_block(cb.v)
-    ExtMathBlock(cb) => self.code_block(cb.v)
     Heading(h) => self.heading(h)
     HtmlBlock(h) => {
       let content = StringBuilder()
@@ -189,23 +143,15 @@ fn Converter::block(self : Converter, block : @cmark.Block) -> Unit {
     List(l) => self.list(l.v)
     Paragraph(p) => self.paragraph(p)
     ThematicBreak(_) => self.push(Token::make("hr", "hr", 0))
-    ExtTable(_) | ExtFootnoteDefinition(_) => ()
+    // extensions: not produced in strict mode
+    ExtMathBlock(_) | ExtTable(_) | ExtFootnoteDefinition(_) => ()
   }
 }
 
 ///|
 fn Converter::code_block(self : Converter, cb : @cmark.CodeBlock) -> Unit {
   let content = StringBuilder()
-  let code = cb.code.to_array()
-  // cmark gives an unclosed fence ending the source an extra empty line
-  if cb.layout is Fenced({ closing_fence: None, .. }) &&
-    code.last() is Some(last) &&
-    last.v == "" &&
-    !last.meta.loc.is_none() &&
-    last.meta.loc.first_ccode >= self.src.length() {
-    code.pop() |> ignore
-  }
-  for line in code {
+  for line in cb.code {
     content.write_string(line.v)
     content.write_char('\n')
   }
@@ -292,7 +238,17 @@ fn Converter::list(self : Converter, l : @cmark.BlockList) -> Unit {
   for item in l.items.iter() {
     self.push(Token::make("list_item_open", "li", 1))
     self.list_depth += 1
+    let list_indent = self.list_indent
+    let marker = item.v.marker.meta.loc
+    self.list_indent = if marker.is_none() {
+      -1
+    } else {
+      self.column(marker.first_line.0, marker.first_ccode) +
+      item.v.marker.v.length() +
+      item.v.after_marker
+    }
     self.container_content(item.v.block)
+    self.list_indent = list_indent
     self.list_depth -= 1
     self.push(Token::make("list_item_close", "li", -1))
   }
@@ -316,17 +272,6 @@ fn Converter::heading(
   self.push(Token::make("heading_open", tag, 1))
   self.inline_block(heading.inline, h.meta.loc)
   self.push(Token::make("heading_close", tag, -1))
-}
-
-///|
-/// `line` with its text extended to the end of the source line.
-fn Converter::extend_to_line_end(self : Converter, line : Line) -> Line {
-  let start = self.line_starts[line.line - 1]
-  let end = self.line_end(start)
-  match self.src.view(start_offset=start, end_offset=end).find(line.text) {
-    Some(i) => { ..line, text: substr(self.src, start + i, end~), }
-    None => line
-  }
 }
 
 ///|
@@ -356,28 +301,10 @@ fn Converter::paragraph(
   let lines = self
     .inline_lines(p.v.inline, p.meta.loc)
     .map(l => { ..l, indent: l.indent + p.v.leading_indent, })
-  // Lines cmark lost after a failed multi-line raw HTML attempt.
-  let lost = self.lost_lines_after(lines)
-  if lines.last() is Some(last) && last.line == self.lazy_after {
-    lost.append(self.lazy_lines)
-    self.lazy_lines = []
-    self.lazy_after = -1
-  }
-  let reparse = lost.length() > 0 || lines.iter().any(l => l.recovered)
-  if lost.length() > 0 && lines.length() > 0 {
-    // keep the trailing blanks (a hard break) of the last parsed line
-    let last = lines[lines.length() - 1]
-    lines[lines.length() - 1] = self.extend_to_line_end(last)
-  }
-  lines.append(lost)
   if self.split_tables(lines) {
     return
   }
   self.push(Token::make("paragraph_open", "p", 1))
-  if !reparse {
-    self.inline_block(p.v.inline, p.meta.loc)
-  } else {
-    self.inline_text(self.lines_source(lines))
-  }
+  self.inline_block(p.v.inline, p.meta.loc)
   self.push(Token::make("paragraph_close", "p", -1))
 }

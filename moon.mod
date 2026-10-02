@@ -17,6 +17,5 @@ preferred_target = "native"
 import {
   "bobzhang/pygments@0.2.3",
   "moonbit-community/cmark@0.4.10",
-  "moonbit-community/casefold@0.1.5",
   "moonbitlang/async@0.22.4",
 }

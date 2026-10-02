@@ -12,8 +12,6 @@ priv struct Line {
   /// Indentation in columns relative to the block's first line (negative
   /// for lazy continuation lines).
   indent : Int
-  /// No inline node starts on this line: cmark may have lost its content.
-  recovered : Bool
   /// The blanks before `text` on the source line.
   lead : String
 }
@@ -52,7 +50,6 @@ fn Converter::make_line(
     line,
     text: substr(self.src, s, end~),
     indent: self.column(line, s),
-    recovered: false,
     lead: substr(self.src, b, end=s),
   }
 }
@@ -100,7 +97,6 @@ fn collect_line_starts(inline : @cmark.Inline, cands : Map[Int, Int]) -> Unit {
         record_candidate(cands, t.node.meta.loc)
       }
     Emphasis(e) | StrongEmphasis(e) => collect_line_starts(e.v.inline, cands)
-    ExtStrikethrough(s) => collect_line_starts(s.v.0, cands)
     Link(l) | Image(l) => {
       collect_line_starts(l.v.text, cands)
       if l.v.reference is Inline(def) {
@@ -141,11 +137,11 @@ fn Converter::inline_lines(
   let mut base = 0
   for l in first..<=last {
     guard l - 1 < self.line_starts.length() else { break }
-    let (start, recovered) = match cands.get(l) {
-      Some(p) => (p, false)
-      None => (self.content_start(l), true)
+    let (start, found) = match cands.get(l) {
+      Some(p) => (p, true)
+      None => (self.content_start(l), false)
     }
-    let end = if l == last && !recovered {
+    let end = if l == last && found {
       loc.last_ccode + 1
     } else {
       self.line_end(start)
@@ -154,7 +150,7 @@ fn Converter::inline_lines(
     if l == first {
       base = line.indent
     }
-    lines.push({ ..line, indent: line.indent - base, recovered, })
+    lines.push({ ..line, indent: line.indent - base, })
   }
   lines
 }
@@ -468,6 +464,6 @@ fn Converter::reparse_lines(self : Converter, lines : ArrayView[Line]) -> Unit {
     .collect()
     .join("\n")
   let doc = self.parse(rest)
-  let sub = Converter::new(rest, self.defs, self.labels, self.out)
-  sub.document(doc.block)
+  let sub = Converter::new(rest, self.defs, self.out)
+  sub.container_content(doc.block)
 }
