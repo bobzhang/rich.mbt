@@ -131,23 +131,14 @@ pub fn load(unicode_version? : String = "auto") -> CellTable {
 }
 
 ///|
-let single_cell_ranges : FixedArray[(Int, Int)] = [
-  (0x20, 0x7E),
-  (0xA0, 0xAC),
-  (0xAE, 0x002FF),
-  (0x00370, 0x00482),
-  (0x02500, 0x025FC),
-  (0x02800, 0x028FF),
-]
-
-///|
 fn is_single_cell_char(cp : Int) -> Bool {
-  for range in single_cell_ranges {
-    if cp >= range.0 && cp <= range.1 {
-      return true
-    }
-  }
-  false
+  // upstream `_SINGLE_CELL_UNICODE_RANGES`, unrolled
+  (cp >= 0x20 && cp <= 0x7E) ||
+  (cp >= 0xA0 && cp <= 0xAC) ||
+  (cp >= 0xAE && cp <= 0x2FF) ||
+  (cp >= 0x370 && cp <= 0x482) ||
+  (cp >= 0x2500 && cp <= 0x25FC) ||
+  (cp >= 0x2800 && cp <= 0x28FF)
 }
 
 ///|

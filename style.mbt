@@ -556,25 +556,80 @@ fn Style::make_ansi_codes(
   if self.ansi_system == key {
     return self.ansi_codes
   }
-  let sgr = []
+  // upstream joins the SGR parameters with ";": written directly here
+  let buf = StringBuilder()
   let attributes = self.attributes & self.set_attributes
   if attributes != 0 {
     for bit in 0..<13 {
       if (attributes & (1 << bit)) != 0 {
-        sgr.push(style_map[bit])
+        if !buf.is_empty() {
+          buf.write_char(';')
+        }
+        buf.write_string(style_map[bit])
       }
     }
   }
   if self.color_ is Some(c) {
-    sgr.append(c.downgrade(color_system).get_ansi_codes())
+    write_color_codes(buf, c.downgrade(color_system), true)
   }
   if self.bgcolor_ is Some(c) {
-    sgr.append(c.downgrade(color_system).get_ansi_codes(foreground=false))
+    write_color_codes(buf, c.downgrade(color_system), false)
   }
-  let codes = sgr.join(";")
+  let codes = buf.to_string()
   self.ansi_system = key
   self.ansi_codes = codes
   codes
+}
+
+///|
+/// Append `color.get_ansi_codes(foreground~)` joined with ";" (after a ";"
+/// when `buf` is not empty).
+fn write_color_codes(
+  buf : StringBuilder,
+  color : @color.Color,
+  foreground : Bool,
+) -> Unit {
+  if !buf.is_empty() {
+    buf.write_char(';')
+  }
+  match color.type_ {
+    Default => buf.write_string(if foreground { "39" } else { "49" })
+    Windows | Standard => {
+      let number = color.number.unwrap()
+      let (fore, back) = if number < 8 { (30, 40) } else { (82, 92) }
+      write_decimal(buf, if foreground { fore + number } else { back + number })
+    }
+    EightBit => {
+      buf.write_string(if foreground { "38;5;" } else { "48;5;" })
+      write_decimal(buf, color.number.unwrap())
+    }
+    Truecolor => {
+      let t = color.triplet.unwrap()
+      buf.write_string(if foreground { "38;2;" } else { "48;2;" })
+      write_decimal(buf, t.red)
+      buf.write_char(';')
+      write_decimal(buf, t.green)
+      buf.write_char(';')
+      write_decimal(buf, t.blue)
+    }
+  }
+}
+
+///|
+/// `buf.write_string(n.to_string())` without the temporary string for the
+/// usual 0..=999.
+fn write_decimal(buf : StringBuilder, n : Int) -> Unit {
+  if n < 0 || n > 999 {
+    buf.write_string(n.to_string())
+    return
+  }
+  if n >= 100 {
+    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 100))
+  }
+  if n >= 10 {
+    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 10 % 10))
+  }
+  buf.write_char(Int::unsafe_to_char('0'.to_int() + n % 10))
 }
 
 ///|
