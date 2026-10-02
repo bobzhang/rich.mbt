@@ -523,26 +523,43 @@ time-throttled refreshes (DESIGN.md §7):
 * Parsing uses `moonbit-community/cmark` (strict CommonMark mode) instead
   of markdown-it-py. An adapter (`markdown/adapter_*.mbt`) converts its AST
   into the flattened markdown-it token stream Rich walks (`parse_tokens`,
-  `Token`, exposed for inspection), emulating markdown-it where it differs
-  from cmark: GFM tables (markdown-it's table rule applied to paragraph
-  lines, including tables that start where cmark saw a list / heading /
-  quote, setext headings holding a table, terminators), `~~strike~~` (the
+  `Token`, exposed for inspection). cmark 0.4.10 agrees with markdown-it
+  on CommonMark itself, so the adapter only emulates markdown-it's own
+  rules: GFM tables (markdown-it's table rule applied to paragraph lines,
+  including tables that start where cmark saw a list / heading / quote,
+  setext headings holding a table, terminators), `~~strike~~` (the
   markdown-it delimiter algorithm on the token stream), link
   normalization (`normalizeLink`, `normalizeLinkText` with mdurl and
-  punycode) and `validateLink`, markdown-it's raw HTML and autolink
-  patterns, link label case folding, a link reference definition being a
-  block of its own, raw fence info strings, empty text tokens around
-  `strong`. The renderer itself is a literal port.
-* With cmark 0.4.10 all 652 CommonMark spec examples produce the same
-  markdown-it token stream, and every rendered case of the differential
-  corpus is byte-identical to upstream.
+  punycode) and `validateLink` (also for autolinks, whose entities it
+  does not resolve), markdown-it's raw HTML comment pattern (stricter than
+  CommonMark 0.31's), a link reference definition being a block of its
+  own, Python's `str.strip()` of the inline source (which also strips
+  U+00A0 and other Unicode blanks), the indentation markdown-it keeps on
+  continuation lines of code spans and raw HTML, raw fence info strings,
+  empty text tokens around `strong`. The renderer itself is a literal
+  port.
+* All 652 CommonMark spec examples produce the same markdown-it token
+  stream, and every rendered case of the differential corpus is
+  byte-identical to upstream. On random documents
+  (`scripts/markdown_fuzz.py`, 4 x 5,000 documents) about 99.2% of the
+  token streams are identical.
 * Other known differences (rare): strikethrough delimiters cannot pair
   across emphasis boundaries (`~~a *b~~ c*`), markdown-it pairs them on
-  the flat token stream; a line indented by 4+ spaces starting with a list
-  marker that lazily continues a block quote paragraph (markdown-it ends
-  the quote); the table-before-other-blocks rule is not applied inside
-  list items; a link definition line swallowed as a table row by
-  markdown-it still defines its label.
+  the flat token stream; for `~~` flanking only Unicode punctuation (not
+  symbols such as `😀` or `€`) counts as punctuation, markdown-it-py 4
+  counts both; a line indented by 4+ spaces starting with a list marker
+  that lazily continues a block quote paragraph (markdown-it ends the
+  quote); the table-before-other-blocks rule and the link-definition rule
+  are not applied inside list items, nor to a lazy line after a link
+  definition in a block quote (markdown-it ends the quote); a link
+  definition line swallowed as a table row by markdown-it still defines
+  its label, and one whose destination `validateLink` rejects is still a
+  definition (a paragraph for markdown-it); markdown-it-py's `\s` in its HTML patterns matches Unicode
+  blanks (`<b>\u00a0` starts an HTML block for it); a comment ending in
+  `--->` that cmark closes earlier; tabs in the continuation lines of HTML
+  blocks and in the indentation markdown-it keeps on lazy lines in quotes;
+  a link or image whose destination `validateLink` rejects keeps its
+  source after the text as plain text (markdown-it parses it as inlines).
 * An unbalanced `</kbd>` raises `StyleStackError` (upstream: `IndexError`
   from the style stack).
 * Elements are private: upstream's `Markdown.elements` class mapping
