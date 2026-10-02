@@ -5,7 +5,11 @@ priv enum Kind {
   Unknown
   Paragraph
   Heading(String)
-  CodeBlock(String, String)
+  CodeBlock(
+    String,
+    String,
+    ((String, String, String) -> &@rich.Renderable raise)?
+  )
   BlockQuote
   HorizontalRule
   TableElement
@@ -115,12 +119,13 @@ fn Element::create(markdown : Markdown, token : Token) -> Element {
       }
       Element::new(
         CodeBlock(
-          if lexer_name == "" {
+          if lexer_name == "" && !markdown.code_renderers.contains(token.type_) {
             "text"
           } else {
             lexer_name
           },
           markdown.code_theme,
+          markdown.code_renderers.get(token.type_),
         ),
       )
     }
@@ -283,8 +288,11 @@ impl @rich.Renderable for Element with fn rich_console(self, console, options) {
       text.justify = Some(if tag == "h1" { Center } else { Left })
       [Child(text)]
     }
-    CodeBlock(lexer_name, theme) => {
+    CodeBlock(lexer_name, theme, renderer) => {
       let code = py_rstrip(self.text.plain())
+      if renderer is Some(render) {
+        return [Child(render(code, lexer_name, theme))]
+      }
       let syntax = @syntax.Syntax::new(
         code,
         lexer_name,

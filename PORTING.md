@@ -25,6 +25,11 @@ EOF
 (`.repos/` and `.venv/` are not in git; use the absolute paths above from a
 worktree.)
 
+The `cli` package (rich-cli) is checked against rich-cli's source
+(`.repos/rich-cli/src`) run with this Rich 15; rich-cli itself pins Rich 12,
+so it is not installed into the venv. See `scripts/cli_oracle.py` (needs
+`click` on `PYTHONPATH`).
+
 ## Package layout
 
 * `cells/`, `color/`, `emoji/` (data + replace), `internal/term/` (platform).

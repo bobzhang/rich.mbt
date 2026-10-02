@@ -23,6 +23,11 @@ pub struct Markdown {
   inline_code_lexer : String?
   /// Pygments theme for inline code highlighting.
   inline_code_theme : String
+  /// Replacement code block elements (see `Markdown::new`).
+  priv code_renderers : Map[
+    String,
+    (String, String, String) -> &@rich.Renderable raise,
+  ]
 }
 
 ///|
@@ -35,6 +40,11 @@ pub struct Markdown {
 /// * `inline_code_lexer`: lexer to use for inline code highlighting.
 /// * `inline_code_theme`: Pygments theme for inline code highlighting
 ///   (defaults to `code_theme`).
+/// * `code_renderers`: replacement code block elements by token type,
+///   `"fence"` (fenced code) or `"code_block"` (indented code), as upstream
+///   replaces `Markdown.elements["fence"]` / `["code_block"]`. A renderer
+///   receives the code (right stripped), the lexer name from the info string
+///   (`""` when there is none) and `code_theme`.
 pub fn Markdown::new(
   markup : String,
   code_theme? : String = "monokai",
@@ -43,6 +53,10 @@ pub fn Markdown::new(
   hyperlinks? : Bool = true,
   inline_code_lexer? : String,
   inline_code_theme? : String,
+  code_renderers? : Map[
+    String,
+    (String, String, String) -> &@rich.Renderable raise,
+  ] = Map([]),
 ) -> Markdown {
   {
     markup,
@@ -59,6 +73,7 @@ pub fn Markdown::new(
       Some(t) if t != "" => t
       _ => code_theme
     },
+    code_renderers,
   }
 }
 

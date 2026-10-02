@@ -26,8 +26,9 @@ pub struct Markdown {
   hyperlinks : Bool
   inline_code_lexer : String?
   inline_code_theme : String
+  // private fields
 }
-pub fn Markdown::new(String, code_theme? : String, justify? : @rich.JustifyMethod, style? : &@rich.IntoStyle, hyperlinks? : Bool, inline_code_lexer? : String, inline_code_theme? : String) -> Self
+pub fn Markdown::new(String, code_theme? : String, justify? : @rich.JustifyMethod, style? : &@rich.IntoStyle, hyperlinks? : Bool, inline_code_lexer? : String, inline_code_theme? : String, code_renderers? : Map[String, (String, String, String) -> &@rich.Renderable raise]) -> Self
 pub impl @rich.Renderable for Markdown
 
 pub(all) struct Token {

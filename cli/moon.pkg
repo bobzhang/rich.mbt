@@ -1,0 +1,12 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/markdown",
+  "bobzhang/rich/panel",
+  "bobzhang/rich/syntax",
+  "bobzhang/pygments/lexers",
+  "bobzhang/pygments/regex",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/env",
+}
+
+warnings = "-implicit_impl_as_method"

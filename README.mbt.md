@@ -101,6 +101,31 @@ Run the feature demo (`python -m rich`):
 moon run cmd/demo
 ```
 
+## The `rich` command
+
+`cmd/rich` is a port of Textualize's
+[rich-cli](https://github.com/Textualize/rich-cli): it renders files and
+text in the terminal (Markdown, syntax highlighting, JSON, CSV/TSV tables,
+Jupyter notebooks, console markup, rules, panels, alignment, padding,
+HTML/SVG export). It runs on native and wasm, e.g. with `moonx` from
+mooncakes:
+
+```bash
+moonx bobzhang/rich/cmd/rich README.md          # Markdown
+moonx bobzhang/rich/cmd/rich main.py -n -g      # line numbers, indent guides
+moonx bobzhang/rich/cmd/rich data.csv --head 10 # CSV as a table
+moonx bobzhang/rich/cmd/rich "Hello [b]World[/b]!" -p -a rounded -c
+moonx bobzhang/rich/cmd/rich "Section" --rule --rule-style red
+cat data.json | moonx bobzhang/rich/cmd/rich - --json --force-terminal
+moonx bobzhang/rich/cmd/rich --help
+```
+
+or from a checkout, `moon run cmd/rich -- README.md`. Options and output
+follow rich-cli 1.8 (see `rich --help`); fetching URLs, `--inspect` and
+reStructuredText rendering are not supported, and `--pager` uses `$PAGER`
+(see [DEVIATIONS.md](DEVIATIONS.md)). The rendering is a pure function in
+`bobzhang/rich/cli` (`@cli.run(args, files=..., stdin=...)`).
+
 ## Packages
 
 | Package | Upstream module(s) |
@@ -128,6 +153,7 @@ moon run cmd/demo
 | `bobzhang/rich/prompt` | prompt |
 | `bobzhang/rich/logging` | logging (`RichHandler` over a `LogRecord`) |
 | `bobzhang/rich/demo`, `cmd/demo` | `__main__` (the feature card) |
+| `bobzhang/rich/cli`, `cmd/rich` | [rich-cli](https://github.com/Textualize/rich-cli) (the `rich` command) |
 
 ## Compatibility
 

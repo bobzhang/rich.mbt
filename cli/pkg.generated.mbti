@@ -1,0 +1,98 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "bobzhang/rich/cli"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub const VERSION : String = "1.8.0"
+
+pub fn error_text(String, error? : String, environ? : Map[String, String], isatty? : Bool) -> String
+
+pub fn execute(Command, input? : Result[String, String], environ? : Map[String, String], stdout_isatty? : Bool, stderr_isatty? : Bool) -> Output
+
+pub fn parse_args(ArrayView[String], environ? : Map[String, String]) -> Command
+
+pub fn run(ArrayView[String], files? : Map[String, String], stdin? : String, environ? : Map[String, String], stdout_isatty? : Bool, stderr_isatty? : Bool) -> Output
+
+// Errors
+
+// Types and methods
+pub(all) enum Command {
+  Run(Options)
+  Help
+  UsageError(String, usage~ : Bool)
+} derive(@debug.Debug)
+
+pub(all) struct Export {
+  path : String
+  contents : String
+  format : String
+} derive(Eq, @debug.Debug)
+
+pub(all) enum Input {
+  NoInput
+  Stdin
+  File(String)
+} derive(Eq, @debug.Debug)
+
+pub(all) struct Options {
+  mut resource : String
+  mut print : Bool
+  mut rule : Bool
+  mut json : Bool
+  mut markdown : Bool
+  mut rst : Bool
+  mut csv : Bool
+  mut ipynb : Bool
+  mut syntax : Bool
+  mut inspect : Bool
+  mut head : Int?
+  mut tail : Int?
+  mut emoji : Bool
+  mut left : Bool
+  mut right : Bool
+  mut center : Bool
+  mut text_left : Bool
+  mut text_right : Bool
+  mut text_center : Bool
+  mut text_full : Bool
+  mut soft : Bool
+  mut expand : Bool
+  mut width : Int
+  mut max_width : Int
+  mut style : String
+  mut rule_style : String
+  mut rule_char : String
+  mut padding : String
+  mut panel : String
+  mut panel_style : String
+  mut theme : String
+  mut line_numbers : Bool
+  mut guides : Bool
+  mut lexer : String?
+  mut hyperlinks : Bool
+  mut no_wrap : Bool
+  mut title : String
+  mut caption : String
+  mut force_terminal : Bool
+  mut export_html : String
+  mut export_svg : String
+  mut pager : Bool
+  mut version : Bool
+} derive(@debug.Debug)
+pub fn Options::default(theme? : String) -> Self
+pub fn Options::input(Self) -> Input
+
+pub(all) struct Output {
+  stdout : String
+  stderr : String
+  exit_code : Int
+  exports : Array[Export]
+  pager : String?
+} derive(@debug.Debug)
+
+// Type aliases
+
+// Traits

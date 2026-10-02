@@ -1,0 +1,2 @@
+Plain notes file.
+Second line	with a tab.

@@ -546,7 +546,34 @@ time-throttled refreshes (DESIGN.md §7):
 * An unbalanced `</kbd>` raises `StyleStackError` (upstream: `IndexError`
   from the style stack).
 * Elements are private: upstream's `Markdown.elements` class mapping
-  (customization by subclassing) is not available.
+  (customization by subclassing) is not available, except for code blocks:
+  `Markdown::new(code_renderers=...)` replaces the `"fence"` /
+  `"code_block"` elements (used by `cli` for rich-cli's `CodeBlock`).
 * `test_inline_code_in_table_cells`: the upstream expectation predates
   Pygments lexing `print` as `Name.Builtin`; upstream's own test fails with
   the oracle's Pygments, the port expects the current (green) colour.
+
+## cli, cmd/rich (rich-cli)
+
+Port of [rich-cli](https://github.com/Textualize/rich-cli) 1.8 (`rich`
+command). Option names, defaults, help text, click's usage errors and the
+rendering follow rich-cli's `__main__.py` run against Rich 15 (rich-cli pins
+Rich 12; `scripts/cli_oracle.py` runs its source with Rich 15 as the oracle).
+
+* Not supported: fetching `http://` / `https://` URLs (an error is shown),
+  `--inspect` (evaluates Python objects; an error is shown) and `--rst`
+  (rich-rst is not ported: reStructuredText is shown as syntax-highlighted
+  source).
+* `--pager` pipes the rendered lines (rendered as rich-cli does, one cell
+  narrower than the width) to `$PAGER` or `less -r` instead of Textual's
+  pager app; without a pager (wasm) they are printed.
+* With Rich 15, rich-cli's `CodeBlock` (Padding (0, 4), no background
+  padding) only replaces indented code blocks (`Markdown.elements
+  ["code_block"]`); fenced code keeps Rich's element. The port does the
+  same.
+* Error messages of Python exceptions are reproduced where the port has the
+  information (`[Errno 2] No such file or directory: 'x'`, JSON decode
+  errors with line/column, style and markup errors, `csv.Error`); a broken
+  notebook gives `unable to read notebook` (rich-cli: a Python traceback).
+* Files are decoded as UTF-8 with replacement characters and universal
+  newlines, as `open(path, encoding="utf8", errors="replace")`.

@@ -53,3 +53,16 @@ jobs:
 
       - name: Run the demo
         run: COLUMNS=100 moon run --target native cmd/demo
+
+      - name: Run the rich command (native)
+        run: |
+          moon build --target native cmd/rich
+          COLUMNS=80 moon run --target native cmd/rich -- README.md --force-terminal
+          COLUMNS=80 moon run --target native cmd/rich -- cli/testdata/deniro.csv --head 5
+          echo '{"ok": true, "n": [1, 2]}' | COLUMNS=80 moon run --target native cmd/rich -- - --json
+
+      - name: Run the rich command (wasm)
+        run: |
+          moon build --target wasm cmd/rich
+          COLUMNS=80 moon run --target wasm cmd/rich -- cli/testdata/sample.py -n -g
+          COLUMNS=80 moon run --target wasm cmd/rich -- "Hello [b]World[/b]!" -p -a rounded -c
