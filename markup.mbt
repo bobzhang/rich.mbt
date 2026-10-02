@@ -19,6 +19,15 @@ pub impl Show for Tag with fn output(self, logger) {
 }
 
 ///|
+/// `str(tag)` without going through `Show`.
+fn Tag::style_text(self : Tag) -> String {
+  match self.parameters {
+    None => self.name
+    Some(p) => self.name + " " + p
+  }
+}
+
+///|
 /// The markup representation of this tag.
 pub fn Tag::markup(self : Tag) -> String {
   match self.parameters {
@@ -185,7 +194,11 @@ pub fn render_markup(
   for item in items {
     match item {
       PlainText(_, plain_text) => {
-        let plain_text = plain_text.replace_all(old="\\[", new="[")
+        let plain_text = if plain_text.contains("\\[") {
+          plain_text.replace_all(old="\\[", new="[")
+        } else {
+          plain_text
+        }
         text.append_str(
           if emoji {
             // as upstream, the variant only applies to markup without tags
@@ -272,7 +285,7 @@ pub fn render_markup(
             spans.push({
               start,
               end: text.length(),
-              style: Def(open_tag.to_string()),
+              style: Def(open_tag.style_text()),
             })
           }
         } else {
@@ -286,14 +299,14 @@ pub fn render_markup(
   }
   let text_length = text.length()
   while style_stack.pop() is Some((start, tag)) {
-    let style = tag.to_string()
+    let style = tag.style_text()
     if style != "" {
       spans.push({ start, end: text_length, style: Def(style), })
     }
   }
   spans.rev_in_place()
   stable_sort_by(spans, (a, b) => a.start.compare(b.start))
-  text.set_spans(spans)
+  text.spans_ = spans
   text
 }
 

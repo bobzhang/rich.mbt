@@ -797,7 +797,11 @@ pub fn Text::rstrip(self : Text) -> Unit {
 ///|
 /// Remove whitespace beyond a certain width at the end of the text.
 pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
-  // upstream compares the length in code points with `size` (in cells)
+  // upstream compares the length in code points with `size` (in cells);
+  // there are never more code points than UTF-16 code units
+  if self.length_ <= size {
+    return
+  }
   let text_length = self.plain().char_length()
   if text_length > size {
     let excess = text_length - size
@@ -1584,7 +1588,12 @@ pub fn Text::wrap(
       Lines::new([line])
     } else {
       let offsets = divide_line(line.plain(), width, fold=wrap_overflow == Fold)
-      let new_lines = line.divide(offsets)
+      // `line` is a fresh copy from `split`: no need to copy it again
+      let new_lines = if offsets.is_empty() {
+        Lines::new([line])
+      } else {
+        line.divide(offsets)
+      }
       for l in new_lines.lines {
         l.rstrip_end(width)
       }

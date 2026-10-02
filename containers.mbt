@@ -265,10 +265,18 @@ pub fn divide_line(
 ) -> Array[Int] {
   let break_positions = []
   let mut cell_offset = 0
-  for w in words(text) {
-    let (start, _end, word) = w
-    let mut start = start
-    let word_length = @cells.cell_len(py_rstrip(word))
+  let mut position = 0
+  // the words of `words(text)`, as views (no substring per word)
+  while match_word(text, position) is Some(end) {
+    let mut start = position
+    let word = text.view(start_offset=position, end_offset=end)
+    position = end
+    let mut stripped_end = word.length()
+    while stripped_end > 0 &&
+          is_py_space_unit(word.unsafe_get(stripped_end - 1).to_int()) {
+      stripped_end -= 1
+    }
+    let word_length = @cells.cell_len(word.view(end_offset=stripped_end))
     let remaining_space = width - cell_offset
     if remaining_space >= word_length {
       cell_offset += @cells.cell_len(word)
