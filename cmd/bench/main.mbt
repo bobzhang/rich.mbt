@@ -259,13 +259,33 @@ fn bench(
 }
 
 ///|
+/// `--dump`: print the output of the first iteration instead of timing.
+fn dump(
+  name : String,
+  setup : (@rich.Console) -> (() -> Unit raise) raise,
+) -> Unit raise {
+  let file = @rich.StringIO::new()
+  let console = new_console(file)
+  let run = setup(console)
+  run()
+  println("=== \{name}")
+  println(file.getvalue())
+}
+
+///|
 fn main {
-  let selected = @env.args()[1:]
-    .to_owned()
-    .filter(a => workloads.iter().any(w => w.0 == a))
+  let args = @env.args()[1:].to_owned()
+  let selected = args.filter(a => workloads.iter().any(w => w.0 == a))
+  let dumping = args.contains("--dump")
   for w in workloads {
     if selected.is_empty() || selected.contains(w.0) {
-      bench(w.0, w.1) catch {
+      try {
+        if dumping {
+          dump(w.0, w.1)
+        } else {
+          bench(w.0, w.1)
+        }
+      } catch {
         e => println("\{w.0}: error: \{e}")
       }
     }

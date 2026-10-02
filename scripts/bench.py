@@ -217,10 +217,22 @@ def bench(name: str) -> None:
     sys.stdout.flush()
 
 
+def dump(name: str) -> None:
+    """`--dump`: print the output of the first iteration instead of timing."""
+    console = new_console()
+    WORKLOADS[name](console)()
+    print(f"=== {name}")
+    print(console.file.getvalue())
+
+
 def main() -> None:
-    names = sys.argv[1:] or list(WORKLOADS)
+    args = sys.argv[1:]
+    names = [a for a in args if a in WORKLOADS] or list(WORKLOADS)
     for name in names:
-        bench(name)
+        if "--dump" in args:
+            dump(name)
+        else:
+            bench(name)
 
 
 if __name__ == "__main__":
