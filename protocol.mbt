@@ -421,11 +421,22 @@ pub fn Measurement::get(
   }
   match renderable.rich_measure(console, options) {
     Some(m) => {
-      let render_width = m.normalize().with_maximum(max_width)
-      if render_width.maximum < 1 {
+      // `m.normalize().with_maximum(max_width).normalize()` on plain ints
+      let minimum = @cmp.minimum(@cmp.maximum(0, m.minimum), m.maximum)
+      let maximum = @cmp.maximum(0, @cmp.maximum(minimum, m.maximum))
+      let minimum = @cmp.minimum(@cmp.maximum(0, minimum), max_width)
+      let maximum = @cmp.minimum(maximum, max_width)
+      if maximum < 1 {
         return { minimum: 0, maximum: 0, }
       }
-      render_width.normalize()
+      let minimum = @cmp.minimum(@cmp.maximum(0, minimum), maximum)
+      let maximum = @cmp.maximum(0, @cmp.maximum(minimum, maximum))
+      let minimum = @cmp.maximum(0, minimum)
+      if minimum == m.minimum && maximum == m.maximum {
+        m
+      } else {
+        { minimum, maximum, }
+      }
     }
     None => { minimum: 0, maximum: max_width, }
   }

@@ -94,33 +94,41 @@ pub impl Renderable for Padding with fn rich_console(self, console, options) {
     pad=true,
   )
   let out = []
+  // the items repeated on every line are made once (they are immutable)
   let left = if self.left != 0 {
-    Some(Segment::new(space_string(self.left), style~))
+    Some(Seg(Segment::new(space_string(self.left), style~)))
   } else {
     None
   }
   let right = if self.right != 0 {
-    [Segment::new(space_string(self.right), style~), Segment::line()]
+    Some(Seg(Segment::new(space_string(self.right), style~)))
   } else {
-    [Segment::line()]
+    None
   }
-  let blank_line = Segment::new(space_string(width) + "\n", style~)
-  for _ in 0..<self.top {
-    out.push(Seg(blank_line))
+  let new_line = Seg(Segment::line())
+  if self.top != 0 {
+    let blank_line = Seg(Segment::new(space_string(width) + "\n", style~))
+    for _ in 0..<self.top {
+      out.push(blank_line)
+    }
   }
   for line in lines {
     if left is Some(l) {
-      out.push(Seg(l))
+      out.push(l)
     }
     for s in line {
       out.push(Seg(s))
     }
-    for s in right {
-      out.push(Seg(s))
+    if right is Some(r) {
+      out.push(r)
     }
+    out.push(new_line)
   }
-  for _ in 0..<self.bottom {
-    out.push(Seg(blank_line))
+  if self.bottom != 0 {
+    let blank_line = Seg(Segment::new(space_string(width) + "\n", style~))
+    for _ in 0..<self.bottom {
+      out.push(blank_line)
+    }
   }
   out
 }
