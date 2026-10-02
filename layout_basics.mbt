@@ -100,7 +100,7 @@ pub impl Renderable for Align with fn rich_console(self, console, options) {
     } else {
       match align {
         Left => {
-          let pad = Segment::new(" ".repeat(excess_space), style?)
+          let pad = Segment::new(space_string(excess_space), style?)
           for line in lines {
             out.append(line)
             if self.pad {
@@ -111,8 +111,11 @@ pub impl Renderable for Align with fn rich_console(self, console, options) {
         }
         Center => {
           let left = floor_div(excess_space, 2)
-          let pad = Segment::new(" ".repeat(left), style?)
-          let pad_right = Segment::new(" ".repeat(excess_space - left), style?)
+          let pad = Segment::new(space_string(left), style?)
+          let pad_right = Segment::new(
+            space_string(excess_space - left),
+            style?,
+          )
           for line in lines {
             if left != 0 {
               out.push(pad)
@@ -125,7 +128,7 @@ pub impl Renderable for Align with fn rich_console(self, console, options) {
           }
         }
         Right => {
-          let pad = Segment::new(" ".repeat(excess_space), style?)
+          let pad = Segment::new(space_string(excess_space), style?)
           for line in lines {
             out.push(pad)
             out.append(line)
@@ -142,7 +145,7 @@ pub impl Renderable for Align with fn rich_console(self, console, options) {
     _ => options.max_width
   }
   let blank_line = if self.pad {
-    Segment::new(" ".repeat(blank_width) + "\n", style?)
+    Segment::new(space_string(blank_width) + "\n", style?)
   } else {
     Segment::new("\n")
   }
@@ -228,7 +231,7 @@ pub impl Renderable for VerticalCenter with fn rich_console(
   }
   let top_space = floor_div(height - lines.length(), 2)
   let bottom_space = height - top_space - lines.length()
-  let blank_line = Segment::new(" ".repeat(width), style?)
+  let blank_line = Segment::new(space_string(width), style?)
   let out = []
   for _ in 0..<top_space {
     out.push(Seg(blank_line))

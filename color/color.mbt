@@ -117,7 +117,20 @@ fn hex2(n : Int) -> String {
 ///|
 /// The color in CSS style, e.g. `"#ff0000"`.
 pub fn ColorTriplet::hex(self : ColorTriplet) -> String {
-  "#" + hex2(self.red) + hex2(self.green) + hex2(self.blue)
+  let { red, green, blue, } = self
+  if (red | green | blue) >= 0 && (red | green | blue) < 256 {
+    // the usual case: components in 0..=255
+    let buf = StringBuilder(size_hint=7)
+    buf.write_char('#')
+    buf.write_char(hex_digit(red >> 4))
+    buf.write_char(hex_digit(red & 15))
+    buf.write_char(hex_digit(green >> 4))
+    buf.write_char(hex_digit(green & 15))
+    buf.write_char(hex_digit(blue >> 4))
+    buf.write_char(hex_digit(blue & 15))
+    return buf.to_string()
+  }
+  "#" + hex2(red) + hex2(green) + hex2(blue)
 }
 
 ///|
@@ -420,7 +433,7 @@ pub fn Color::default() -> Color {
 }
 
 ///|
-let parse_cache : Map[String, Color] = Map([])
+let parse_cache : @memo.Memo[String, Color] = @memo.Memo::new(1024)
 
 ///|
 /// Python `str.isspace()` for a single character (also what `\s` matches).
@@ -560,7 +573,7 @@ pub fn Color::parse(color : String) -> Color raise ColorParseError {
     return c
   }
   let result = parse_color(color)
-  parse_cache[color] = result
+  parse_cache.set(color, result)
   result
 }
 

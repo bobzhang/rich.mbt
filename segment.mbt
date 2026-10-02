@@ -306,18 +306,27 @@ pub fn Segment::split_lines_terminator(
   let lines = []
   let mut line = []
   for segment in segments {
-    if !segment.has_codes() && segment.text.contains("\n") {
-      let mut rest = segment.text
-      while rest != "" {
-        let (text, new_line, after) = partition(rest, "\n")
-        if text != "" {
-          line.push({ text, style: segment.style, control: None, })
+    let text = segment.text
+    if !segment.has_codes() && text.contains_char('\n') {
+      let n = text.length()
+      let mut pos = 0
+      while pos < n {
+        let nl = match text.view(start_offset=pos).find("\n") {
+          Some(i) => pos + i
+          None => n
         }
-        if new_line {
+        if nl > pos {
+          line.push({
+            text: text.unsafe_substring(start=pos, end=nl),
+            style: segment.style,
+            control: None,
+          })
+        }
+        if nl < n {
           lines.push((line, true))
           line = []
         }
-        rest = after
+        pos = nl + 1
       }
     } else {
       line.push(segment)
@@ -353,37 +362,44 @@ pub fn Segment::split_and_crop_lines(
   include_new_lines? : Bool = true,
 ) -> Array[Array[Segment]] {
   let lines = []
-  let line = []
+  let mut line = []
   let new_line_segment = Segment::line()
   for segment in segments {
-    if !segment.has_codes() && segment.text.contains("\n") {
-      let mut rest = segment.text
-      while rest != "" {
-        let (text, new_line, after) = partition(rest, "\n")
-        if text != "" {
-          line.push({ text, style: segment.style, control: None, })
+    let text = segment.text
+    if !segment.has_codes() && text.contains_char('\n') {
+      // walk the newlines by index (slicing off the rest each time would be
+      // quadratic in the number of lines)
+      let n = text.length()
+      let mut pos = 0
+      while pos < n {
+        let nl = match text.view(start_offset=pos).find("\n") {
+          Some(i) => pos + i
+          None => n
         }
-        if new_line {
-          let cropped_line = Segment::adjust_line_length(
-            line,
-            length,
-            style?,
-            pad~,
-          )
+        if nl > pos {
+          let piece = if pos == 0 && nl == n {
+            text
+          } else {
+            text.unsafe_substring(start=pos, end=nl)
+          }
+          line.push({ text: piece, style: segment.style, control: None, })
+        }
+        if nl < n {
+          let cropped_line = adjust_line_length_owned(line, length, style, pad)
           if include_new_lines {
             cropped_line.push(new_line_segment)
           }
           lines.push(cropped_line)
-          line.clear()
+          line = []
         }
-        rest = after
+        pos = nl + 1
       }
     } else {
       line.push(segment)
     }
   }
   if !line.is_empty() {
-    lines.push(Segment::adjust_line_length(line, length, style?, pad~))
+    lines.push(adjust_line_length_owned(line, length, style, pad))
   }
   lines
 }
@@ -396,22 +412,31 @@ pub fn Segment::adjust_line_length(
   style? : Style,
   pad? : Bool = true,
 ) -> Array[Segment] {
+  adjust_line_length_owned(line.copy(), length, style, pad)
+}
+
+///|
+/// `adjust_line_length` for a line the caller hands over: it is reused for
+/// the result instead of being copied.
+fn adjust_line_length_owned(
+  line : Array[Segment],
+  length : Int,
+  style : Style?,
+  pad : Bool,
+) -> Array[Segment] {
   let mut line_length = 0
   for segment in line {
     line_length += segment.cell_length()
   }
   if line_length < length {
     if pad {
-      let new_line = line.copy()
-      new_line.push({
-        text: " ".repeat(length - line_length),
+      line.push({
+        text: space_string(length - line_length),
         style,
         control: None,
       })
-      new_line
-    } else {
-      line.copy()
     }
+    line
   } else if line_length > length {
     let new_line = []
     line_length = 0
@@ -428,7 +453,7 @@ pub fn Segment::adjust_line_length(
     }
     new_line
   } else {
-    line.copy()
+    line
   }
 }
 
@@ -468,9 +493,9 @@ pub fn Segment::set_shape(
     _ => lines.length()
   }
   let blank = if new_lines {
-    [Segment::new(" ".repeat(width) + "\n", style?)]
+    [Segment::new(space_string(width) + "\n", style?)]
   } else {
-    [Segment::new(" ".repeat(width), style?)]
+    [Segment::new(space_string(width), style?)]
   }
   // upstream adjusts *all* lines (the slice assignment replaces the
   // truncated list), so `height` only ever adds lines
@@ -486,9 +511,9 @@ pub fn Segment::set_shape(
 ///|
 fn blank_line(width : Int, style : Style?, new_lines : Bool) -> Segment {
   if new_lines {
-    { text: " ".repeat(width) + "\n", style, control: None, }
+    { text: space_string(width) + "\n", style, control: None, }
   } else {
-    { text: " ".repeat(width), style, control: None, }
+    { text: space_string(width), style, control: None, }
   }
 }
 

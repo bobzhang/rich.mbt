@@ -131,23 +131,14 @@ pub fn load(unicode_version? : String = "auto") -> CellTable {
 }
 
 ///|
-let single_cell_ranges : FixedArray[(Int, Int)] = [
-  (0x20, 0x7E),
-  (0xA0, 0xAC),
-  (0xAE, 0x002FF),
-  (0x00370, 0x00482),
-  (0x02500, 0x025FC),
-  (0x02800, 0x028FF),
-]
-
-///|
 fn is_single_cell_char(cp : Int) -> Bool {
-  for range in single_cell_ranges {
-    if cp >= range.0 && cp <= range.1 {
-      return true
-    }
-  }
-  false
+  // upstream `_SINGLE_CELL_UNICODE_RANGES`, unrolled
+  (cp >= 0x20 && cp <= 0x7E) ||
+  (cp >= 0xA0 && cp <= 0xAC) ||
+  (cp >= 0xAE && cp <= 0x2FF) ||
+  (cp >= 0x370 && cp <= 0x482) ||
+  (cp >= 0x2500 && cp <= 0x25FC) ||
+  (cp >= 0x2800 && cp <= 0x28FF)
 }
 
 ///|
@@ -156,7 +147,8 @@ fn is_single_cell_char(cp : Int) -> Bool {
 pub fn is_single_cell_widths(text : StringView) -> Bool {
   for i in 0..<text.length() {
     let cu = text.unsafe_get(i).to_int()
-    if !is_single_cell_char(cu) {
+    // printable ASCII first: by far the most common case
+    if (cu < 0x20 || cu > 0x7E) && !is_single_cell_char(cu) {
       return false
     }
   }
@@ -192,14 +184,21 @@ pub fn codepoint_cell_size(
   codepoint : Int,
   unicode_version? : String = "auto",
 ) -> Int {
+  cell_size_in(load(unicode_version~), codepoint)
+}
+
+///|
+/// `codepoint_cell_size` with the table already loaded.
+fn cell_size_in(table : CellTable, codepoint : Int) -> Int {
+  if is_single_cell_char(codepoint) {
+    // one cell in every table (checked by a test)
+    return 1
+  }
   if (codepoint != 0 && codepoint < 32) ||
     (codepoint >= 0x7F && codepoint < 0xA0) {
     return 0
   }
-  if codepoint < 0x7F {
-    return table_lookup(load(unicode_version~), codepoint)
-  }
-  table_lookup(load(unicode_version~), codepoint)
+  table_lookup(table, codepoint)
 }
 
 ///|
@@ -230,14 +229,14 @@ pub fn cell_len(text : StringView, unicode_version? : String = "auto") -> Int {
       break
     }
   }
+  let table = load(unicode_version~)
   if !has_special {
     let mut total = 0
     for c in text {
-      total += codepoint_cell_size(c.to_int(), unicode_version~)
+      total += cell_size_in(table, c.to_int())
     }
     return total
   }
-  let table = load(unicode_version~)
   let mut total_width = 0
   let mut last_measured : Int? = None
   let mut skip_next = false
@@ -256,7 +255,7 @@ pub fn cell_len(text : StringView, unicode_version? : String = "auto") -> Int {
         last_measured = None
       }
     } else {
-      let w = codepoint_cell_size(cp, unicode_version~)
+      let w = cell_size_in(table, cp)
       if w != 0 {
         last_measured = Some(cp)
         total_width += w
@@ -324,7 +323,7 @@ pub fn split_graphemes(
       }
       continue
     }
-    let width = codepoint_cell_size(cp, unicode_version~)
+    let width = cell_size_in(table, cp)
     if width != 0 {
       last_measured = Some(cp)
       spans.push((index, index + 1, width))

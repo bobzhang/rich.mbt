@@ -896,7 +896,11 @@ pub fn Console::measure(
   renderable : &Renderable,
   options? : ConsoleOptions,
 ) -> Measurement raise {
-  Measurement::get(self, options.unwrap_or(self.options()), renderable)
+  Measurement::get(
+    self,
+    options.unwrap_or_else(() => self.options()),
+    renderable,
+  )
 }
 
 ///|
@@ -907,7 +911,12 @@ pub fn Console::render(
   options? : ConsoleOptions,
 ) -> Array[Segment] raise {
   let out = []
-  self.render_into(renderable, options.unwrap_or(self.options()), out, 0)
+  self.render_into(
+    renderable,
+    options.unwrap_or_else(() => self.options()),
+    out,
+    0,
+  )
   out
 }
 
@@ -925,12 +934,38 @@ fn Console::render_into(
   if depth > 1000 {
     raise NotRenderableError("maximum render depth exceeded")
   }
+  // Strings and Text (whose `text_kind` is not `NotText`, see
+  // `Renderable::text_kind`) render straight into `out`.
+  match renderable.text_kind() {
+    Text(t) => {
+      t.render_console_into(self, options, out)
+      return
+    }
+    Str(s) => {
+      self
+      .render_str(s, highlight=options.highlight, markup=options.markup)
+      .render_console_into(self, options, out)
+      return
+    }
+    NotText => ()
+  }
   let items = renderable.rich_console(self, options)
-  let child_options = options.reset_height()
+  // one copy shared by all the children, made when the first one is seen
+  let mut child_options = None
   for item in items {
     match item {
       Seg(s) => out.push(s)
-      Child(r) => self.render_into(r, child_options, out, depth + 1)
+      Child(r) => {
+        let opts = match child_options {
+          Some(o) => o
+          None => {
+            let o = options.reset_height()
+            child_options = Some(o)
+            o
+          }
+        }
+        self.render_into(r, opts, out, depth + 1)
+      }
     }
   }
 }
@@ -945,7 +980,7 @@ pub fn Console::render_lines(
   pad? : Bool = true,
   new_lines? : Bool = false,
 ) -> Array[Array[Segment]] raise {
-  let render_options = options.unwrap_or(self.options())
+  let render_options = options.unwrap_or_else(() => self.options())
   let mut rendered = self.render(renderable, options=render_options)
   if style is Some(s) && s.to_bool() {
     rendered = Segment::apply_style(rendered, style=s)
@@ -966,11 +1001,11 @@ pub fn Console::render_lines(
     if extra_lines > 0 {
       let pad_line = if new_lines {
         [
-          Segment::new(" ".repeat(render_options.max_width), style?),
+          Segment::new(space_string(render_options.max_width), style?),
           Segment::new("\n"),
         ]
       } else {
-        [Segment::new(" ".repeat(render_options.max_width), style?)]
+        [Segment::new(space_string(render_options.max_width), style?)]
       }
       for _ in 0..<extra_lines {
         lines.push(pad_line)
@@ -1318,7 +1353,7 @@ pub fn Console::print_many(
     match style {
       None =>
         for renderable in renderables {
-          new_segments.append(self.render(renderable, options=render_options))
+          self.render_into(renderable, render_options, new_segments, 0)
         }
       Some(style) => {
         let render_style = self.get_style(style)
@@ -1398,7 +1433,7 @@ pub fn Console::update_screen(
   if !self.is_alt_screen() {
     raise NoAltScreen("Alt screen must be enabled to call update_screen")
   }
-  let render_options = options.unwrap_or(self.options())
+  let render_options = options.unwrap_or_else(() => self.options())
   let (x, y, render_options) = match region {
     None =>
       (
@@ -1591,9 +1626,7 @@ fn Console::render_buffer(self : Console, buffer : Array[Segment]) -> String {
   for segment in buffer {
     match segment.style {
       Some(style) if style.to_bool() =>
-        output.write_string(
-          style.render(text=segment.text, color_system~, legacy_windows~),
-        )
+        style.render_to(output, segment.text, color_system, legacy_windows)
       _ =>
         if !(not_terminal && segment.has_codes()) {
           output.write_string(segment.text)

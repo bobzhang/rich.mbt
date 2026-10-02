@@ -13,7 +13,12 @@ pub struct Style {
   priv link_id_ : String
   priv meta_ : Map[String, Json]?
   priv null : Bool
-  priv ansi_cache : Map[Int, String]
+  /// Color system (`ColorSystem::to_int`) of `ansi_codes`, or -1.
+  priv mut ansi_system : Int
+  /// Cached SGR parameters for `ansi_system` (upstream `_ansi`).
+  priv mut ansi_codes : String
+  /// Cached hash of the compared fields, 0 when not computed yet.
+  priv mut hash_ : Int
   priv mut definition : String?
 }
 
@@ -158,7 +163,9 @@ fn make_style(
     link_id_: link_id,
     meta_: meta,
     null,
-    ansi_cache: Map([]),
+    ansi_system: -1,
+    ansi_codes: "",
+    hash_: 0,
     definition,
   }
 }
@@ -398,6 +405,13 @@ pub fn Style::is_null(self : Style) -> Bool {
 }
 
 ///|
+/// No link and no meta: combining such styles gives a style that only
+/// depends on the inputs' compared fields.
+fn Style::is_plain(self : Style) -> Bool {
+  self.meta_ is None && non_empty(self.link_) is None && self.link_id_ == ""
+}
+
+///|
 /// Upstream `bool(style)`.
 pub fn Style::to_bool(self : Style) -> Bool {
   !self.null
@@ -510,12 +524,26 @@ pub impl Eq for Style with fn equal(self, other) {
 
 ///|
 pub impl Hash for Style with fn hash_combine(self, hasher) {
+  hasher.combine(self.hash_value())
+}
+
+///|
+/// Hash of the fields compared by `Eq`, computed once (styles are immutable).
+fn Style::hash_value(self : Style) -> Int {
+  if self.hash_ != 0 {
+    return self.hash_
+  }
+  let hasher = Hasher()
   hasher.combine(color_key(self.color_))
   hasher.combine(color_key(self.bgcolor_))
   hasher.combine(self.attributes)
   hasher.combine(self.set_attributes)
   hasher.combine(self.link_.unwrap_or(""))
   hasher.combine(meta_key(self.meta_))
+  let h = hasher.finalize()
+  let h = if h == 0 { 1 } else { h }
+  self.hash_ = h
+  h
 }
 
 ///|
@@ -525,31 +553,87 @@ fn Style::make_ansi_codes(
   color_system : @color.ColorSystem,
 ) -> String {
   let key = color_system.to_int()
-  if self.ansi_cache.get(key) is Some(codes) {
-    return codes
+  if self.ansi_system == key {
+    return self.ansi_codes
   }
-  let sgr = []
+  // upstream joins the SGR parameters with ";": written directly here
+  let buf = StringBuilder()
   let attributes = self.attributes & self.set_attributes
   if attributes != 0 {
     for bit in 0..<13 {
       if (attributes & (1 << bit)) != 0 {
-        sgr.push(style_map[bit])
+        if !buf.is_empty() {
+          buf.write_char(';')
+        }
+        buf.write_string(style_map[bit])
       }
     }
   }
   if self.color_ is Some(c) {
-    sgr.append(c.downgrade(color_system).get_ansi_codes())
+    write_color_codes(buf, c.downgrade(color_system), true)
   }
   if self.bgcolor_ is Some(c) {
-    sgr.append(c.downgrade(color_system).get_ansi_codes(foreground=false))
+    write_color_codes(buf, c.downgrade(color_system), false)
   }
-  let codes = sgr.join(";")
-  self.ansi_cache[key] = codes
+  let codes = buf.to_string()
+  self.ansi_system = key
+  self.ansi_codes = codes
   codes
 }
 
 ///|
-let normalize_cache : Map[String, String] = Map([])
+/// Append `color.get_ansi_codes(foreground~)` joined with ";" (after a ";"
+/// when `buf` is not empty).
+fn write_color_codes(
+  buf : StringBuilder,
+  color : @color.Color,
+  foreground : Bool,
+) -> Unit {
+  if !buf.is_empty() {
+    buf.write_char(';')
+  }
+  match color.type_ {
+    Default => buf.write_string(if foreground { "39" } else { "49" })
+    Windows | Standard => {
+      let number = color.number.unwrap()
+      let (fore, back) = if number < 8 { (30, 40) } else { (82, 92) }
+      write_decimal(buf, if foreground { fore + number } else { back + number })
+    }
+    EightBit => {
+      buf.write_string(if foreground { "38;5;" } else { "48;5;" })
+      write_decimal(buf, color.number.unwrap())
+    }
+    Truecolor => {
+      let t = color.triplet.unwrap()
+      buf.write_string(if foreground { "38;2;" } else { "48;2;" })
+      write_decimal(buf, t.red)
+      buf.write_char(';')
+      write_decimal(buf, t.green)
+      buf.write_char(';')
+      write_decimal(buf, t.blue)
+    }
+  }
+}
+
+///|
+/// `buf.write_string(n.to_string())` without the temporary string for the
+/// usual 0..=999.
+fn write_decimal(buf : StringBuilder, n : Int) -> Unit {
+  if n < 0 || n > 999 {
+    buf.write_string(n.to_string())
+    return
+  }
+  if n >= 100 {
+    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 100))
+  }
+  if n >= 10 {
+    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 10 % 10))
+  }
+  buf.write_char(Int::unsafe_to_char('0'.to_int() + n % 10))
+}
+
+///|
+let normalize_cache : @memo.Memo[String, String] = @memo.Memo::new(1024)
 
 ///|
 /// Normalize a style definition so that styles with the same effect have
@@ -561,31 +645,49 @@ pub fn Style::normalize(style : String) -> String {
   let result = Style::parse(style).to_definition() catch {
     _ => @pystr.lower(py_strip(style))
   }
-  normalize_cache[style] = result
+  normalize_cache.set(style, result)
   result
 }
 
 ///|
-let parse_cache : Map[String, Style] = Map([])
+let parse_cache : @memo.Memo[String, Style] = @memo.Memo::new(4096)
 
 ///|
 fn split_words(s : String) -> Array[String] {
   let words = []
-  let buf = StringBuilder()
-  for c in s {
-    if is_py_whitespace(c) {
-      if buf.to_string() != "" {
-        words.push(buf.to_string())
-        buf.reset()
-      }
-    } else {
-      buf.write_char(c)
+  for_each_word(s, (start, end) => words.push(s.unsafe_substring(start~, end~)))
+  words
+}
+
+///|
+/// Call `f(start, end)` for each maximal run of non-whitespace code units
+/// (Python `str.split()`; whitespace characters are all in the BMP, so
+/// scanning UTF-16 code units is exact).
+fn for_each_word(s : String, f : (Int, Int) -> Unit) -> Unit {
+  let n = s.length()
+  let mut i = 0
+  while i < n {
+    while i < n && is_py_space_unit(s.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    let start = i
+    while i < n && !is_py_space_unit(s.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    if i > start {
+      f(start, i)
     }
   }
-  if buf.to_string() != "" {
-    words.push(buf.to_string())
+}
+
+///|
+/// `is_py_whitespace` for a UTF-16 code unit (surrogates are not spaces).
+fn is_py_space_unit(u : Int) -> Bool {
+  if u < 0x80 {
+    u == 0x20 || (u >= 0x09 && u <= 0x0d) || (u >= 0x1c && u <= 0x1f)
+  } else {
+    is_py_whitespace(u.unsafe_to_char())
   }
-  words
 }
 
 ///|
@@ -605,17 +707,21 @@ fn is_py_whitespace(c : Char) -> Bool {
 }
 
 ///|
+/// Python `str.strip()`.
 fn py_strip(s : String) -> String {
-  let chars = s.to_array()
   let mut start = 0
-  let mut end = chars.length()
-  while start < end && is_py_whitespace(chars[start]) {
+  let mut end = s.length()
+  while start < end && is_py_space_unit(s.unsafe_get(start).to_int()) {
     start += 1
   }
-  while end > start && is_py_whitespace(chars[end - 1]) {
+  while end > start && is_py_space_unit(s.unsafe_get(end - 1).to_int()) {
     end -= 1
   }
-  String::from_array(chars[start:end])
+  if start == 0 && end == s.length() {
+    s
+  } else {
+    s.unsafe_substring(start~, end~)
+  }
 }
 
 ///|
@@ -625,7 +731,7 @@ pub fn Style::parse(style_definition : String) -> Style raise RichError {
     return s
   }
   let style = parse_style(style_definition)
-  parse_cache[style_definition] = style
+  parse_cache.set(style_definition, style)
   style
 }
 
@@ -812,10 +918,21 @@ pub fn Style::copy(self : Style) -> Style {
     null=false,
     definition=self.definition,
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
+}
+
+///|
+/// `copy()` for internal callers that do not depend on the copy being a
+/// distinct object: styles are immutable, so without a link (id) the copy
+/// would be indistinguishable from `self`.
+fn Style::copy_value(self : Style) -> Style {
+  if self.link_id_ == "" && non_empty(self.link_) is None {
+    self
+  } else {
+    self.copy()
+  }
 }
 
 ///|
@@ -857,9 +974,8 @@ pub fn Style::clear_meta_and_links(self : Style) -> Style {
     null=false,
     // the cached definition mentions the link: do not reuse it (upstream does)
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
 }
 
@@ -877,9 +993,8 @@ pub fn Style::update_link(self : Style, link : String?) -> Style {
     null=false,
     // the cached definition mentions the link: do not reuse it (upstream does)
   )
-  for k, v in self.ansi_cache {
-    style.ansi_cache[k] = v
-  }
+  style.ansi_system = self.ansi_system
+  style.ansi_codes = self.ansi_codes
   style
 }
 
@@ -907,6 +1022,45 @@ pub fn Style::render(
 }
 
 ///|
+/// `render` writing into `out` (the console's output buffer).
+fn Style::render_to(
+  self : Style,
+  out : StringBuilder,
+  text : String,
+  color_system : @color.ColorSystem?,
+  legacy_windows : Bool,
+) -> Unit {
+  guard text != "" && color_system is Some(color_system) else {
+    out.write_string(text)
+    return
+  }
+  let attrs = self.make_ansi_codes(color_system)
+  let link = match non_empty(self.link_) {
+    Some(link) if !legacy_windows => {
+      out.write_string("\u{1b}]8;id=")
+      out.write_string(self.link_id_)
+      out.write_char(';')
+      out.write_string(link)
+      out.write_string("\u{1b}\\")
+      true
+    }
+    _ => false
+  }
+  if attrs != "" {
+    out.write_string("\u{1b}[")
+    out.write_string(attrs)
+    out.write_char('m')
+    out.write_string(text)
+    out.write_string("\u{1b}[0m")
+  } else {
+    out.write_string(text)
+  }
+  if link {
+    out.write_string("\u{1b}]8;;\u{1b}\\")
+  }
+}
+
+///|
 fn Style::add_style(self : Style, style : Style) -> Style {
   if style.null {
     return self
@@ -914,6 +1068,29 @@ fn Style::add_style(self : Style, style : Style) -> Style {
   if self.null {
     return style
   }
+  // Without meta the result only depends on the fields compared by `Eq`
+  // (and is copied by `+` when it has a link), so it can be memoized like
+  // upstream's `lru_cache`d `_add`.
+  if self.meta_ is None && style.meta_ is None {
+    let key = (self, style)
+    match add_cache.get(key) {
+      Some(combined) => return combined
+      None => {
+        let combined = self.add_style_uncached(style)
+        add_cache.set(key, combined)
+        return combined
+      }
+    }
+  }
+  self.add_style_uncached(style)
+}
+
+///|
+/// Memo table of `Style::add_style` (upstream `lru_cache(maxsize=1024)`).
+let add_cache : @memo.Memo[(Style, Style), Style] = @memo.Memo::new(1024)
+
+///|
+fn Style::add_style_uncached(self : Style, style : Style) -> Style {
   let meta = if meta_truthy(self.meta_) && meta_truthy(style.meta_) {
     let m = self.meta_.unwrap().copy()
     for k, v in style.meta_.unwrap() {

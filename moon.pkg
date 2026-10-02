@@ -5,6 +5,7 @@ import {
   "bobzhang/pygments/pystr",
   "bobzhang/rich/emoji",
   "bobzhang/rich/internal/term",
+  "bobzhang/rich/internal/memo",
   "moonbitlang/core/cmp",
   "moonbitlang/core/string",
   "moonbitlang/core/env",

@@ -82,7 +82,7 @@ pub fn LogRender::render(
     if self.last_time is Some(last) &&
       last == log_time_display &&
       self.omit_repeated_times {
-      row.push(Text::new(text=" ".repeat(log_time_display.length())))
+      row.push(Text::new(text=space_string(log_time_display.length())))
     } else {
       row.push(log_time_display)
       self.last_time = Some(log_time_display)

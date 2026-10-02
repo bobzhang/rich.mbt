@@ -522,9 +522,10 @@ pub fn Text::set_spans(self : Text, spans : Array[Span]) -> Unit {
 ///|
 /// A new Text instance with copied metadata (but not the string or spans).
 pub fn Text::blank_copy(self : Text, plain? : String = "") -> Text {
+  let plain = strip_control_codes(plain)
   {
-    parts: [strip_control_codes(plain)],
-    length_: strip_control_codes(plain).length(),
+    parts: [plain],
+    length_: plain.length(),
     spans_: [],
     style: self.style,
     justify: self.justify,
@@ -631,7 +632,7 @@ pub fn Text::get_style_at_offset(
   offset : Int,
 ) -> Style raise {
   let offset = if offset < 0 { self.length_ + offset } else { offset }
-  let mut style = console.get_style(self.style).copy()
+  let mut style = console.get_style(self.style).copy_value()
   for span in self.spans_ {
     if span.end > offset && offset >= span.start {
       style = style + console.get_style(span.style, default=Def(""))
@@ -647,7 +648,7 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
   if spaces <= 0 {
     return
   }
-  let new_spaces = " ".repeat(spaces)
+  let new_spaces = space_string(spaces)
   if !self.spans_.is_empty() {
     let end_offset = self.length_
     self.spans_ = self.spans_.map(span => {
@@ -665,7 +666,7 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
 }
 
 ///|
-let regex_cache : Map[(String, Int), @regex.Regex] = Map([])
+let regex_cache : @memo.Memo[(String, Int), @regex.Regex] = @memo.Memo::new(512)
 
 ///|
 /// Compile a regular expression (Python `re` syntax), with caching.
@@ -678,7 +679,7 @@ pub fn compile_regex(
     Some(re) => re
     None => {
       let re = @regex.compile(pattern, flags~)
-      regex_cache[key] = re
+      regex_cache.set(key, re)
       re
     }
   }
@@ -796,7 +797,11 @@ pub fn Text::rstrip(self : Text) -> Unit {
 ///|
 /// Remove whitespace beyond a certain width at the end of the text.
 pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
-  // upstream compares the length in code points with `size` (in cells)
+  // upstream compares the length in code points with `size` (in cells);
+  // there are never more code points than UTF-16 code units
+  if self.length_ <= size {
+    return
+  }
   let text_length = self.plain().char_length()
   if text_length > size {
     let excess = text_length - size
@@ -831,6 +836,20 @@ pub fn Text::set_length(self : Text, new_length : Int) -> Unit {
 
 ///|
 pub impl Renderable for Text with fn rich_console(self, console, options) {
+  let out = []
+  self.render_console_into(console, options, out)
+  segments_to_items(out)
+}
+
+///|
+/// `rich_console` appending the segments to `out` (used by the console's
+/// render loop to avoid wrapping every segment in a `RenderItem`).
+fn Text::render_console_into(
+  self : Text,
+  console : Console,
+  options : ConsoleOptions,
+  out : Array[Segment],
+) -> Unit raise {
   let tab_size = match self.tab_size {
     None => console.tab_size
     Some(t) => t
@@ -845,27 +864,63 @@ pub impl Renderable for Text with fn rich_console(self, console, options) {
     tab_size=if tab_size == 0 { 8 } else { tab_size },
     no_wrap=pick_bool([self.no_wrap, options.no_wrap, Some(false)]),
   )
-  let all_lines = Text::new(text="\n").join(lines.lines)
-  segments_to_items(all_lines.render(console, end=self.end))
+  render_joined_lines(lines.lines, console, self.end, out)
 }
 
 ///|
 pub impl Renderable for Text with fn rich_measure(self, _console, _options) {
   let text = self.plain()
-  let lines = py_splitlines(text)
+  let n = text.length()
+  // widest line (Python `str.splitlines()`)
   let mut max_text_width = 0
-  for line in lines {
-    max_text_width = @cmp.maximum(max_text_width, @cells.cell_len(line))
-  }
-  let words = split_words(text)
-  let min_text_width = if words.is_empty() {
-    max_text_width
-  } else {
-    let mut m = 0
-    for word in words {
-      m = @cmp.maximum(m, @cells.cell_len(word))
+  let mut start = 0
+  let mut i = 0
+  while i < n {
+    let c = text.unsafe_get(i).to_int()
+    if is_line_break_unit(c) {
+      let width = @cells.cell_len(text.view(start_offset=start, end_offset=i))
+      if width > max_text_width {
+        max_text_width = width
+      }
+      if c == 0x0d && i + 1 < n && text.unsafe_get(i + 1).to_int() == 0x0a {
+        i += 1
+      }
+      i += 1
+      start = i
+    } else {
+      i += 1
     }
-    m
+  }
+  if start < n {
+    let width = @cells.cell_len(text.view(start_offset=start, end_offset=n))
+    if width > max_text_width {
+      max_text_width = width
+    }
+  }
+  // widest word (Python `str.split()`)
+  let mut has_words = false
+  let mut min_text_width = 0
+  let mut i = 0
+  while i < n {
+    while i < n && is_py_space_unit(text.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    let word_start = i
+    while i < n && !is_py_space_unit(text.unsafe_get(i).to_int()) {
+      i += 1
+    }
+    if i > word_start {
+      has_words = true
+      let width = @cells.cell_len(
+        text.view(start_offset=word_start, end_offset=i),
+      )
+      if width > min_text_width {
+        min_text_width = width
+      }
+    }
+  }
+  if !has_words {
+    min_text_width = max_text_width
   }
   Some({ minimum: min_text_width, maximum: max_text_width, })
 }
@@ -879,39 +934,51 @@ pub impl Renderable for Text with fn text_kind(self) {
 /// Python `str.splitlines()` (without keepends).
 fn py_splitlines(s : String) -> Array[String] {
   let lines = []
-  let buf = StringBuilder()
+  for_each_splitline(s, (start, end) => {
+    lines.push(s.unsafe_substring(start~, end~))
+  })
+  lines
+}
+
+///|
+/// Line boundaries of Python's `str.splitlines()` (all in the BMP).
+fn is_line_break_unit(c : Int) -> Bool {
+  c == 0x0a ||
+  c == 0x0d ||
+  c == 0x0b ||
+  c == 0x0c ||
+  c == 0x1c ||
+  c == 0x1d ||
+  c == 0x1e ||
+  c == 0x85 ||
+  c == 0x2028 ||
+  c == 0x2029
+}
+
+///|
+/// Call `f(start, end)` for each line of `s` as split by Python's
+/// `str.splitlines()`.
+fn for_each_splitline(s : String, f : (Int, Int) -> Unit) -> Unit {
+  // see also `rich_measure`, which inlines this loop
   let n = s.length()
+  let mut start = 0
   let mut i = 0
-  let mut pending = false
   while i < n {
-    let c = s[i].to_int()
-    let is_break = c == 0x0a ||
-      c == 0x0d ||
-      c == 0x0b ||
-      c == 0x0c ||
-      c == 0x1c ||
-      c == 0x1d ||
-      c == 0x1e ||
-      c == 0x85 ||
-      c == 0x2028 ||
-      c == 0x2029
-    if is_break {
-      lines.push(buf.to_string())
-      buf.reset()
-      pending = false
-      if c == 0x0d && i + 1 < n && s[i + 1].to_int() == 0x0a {
+    let c = s.unsafe_get(i).to_int()
+    if is_line_break_unit(c) {
+      f(start, i)
+      if c == 0x0d && i + 1 < n && s.unsafe_get(i + 1).to_int() == 0x0a {
         i += 1
       }
+      i += 1
+      start = i
     } else {
-      buf.write_char(c.unsafe_to_char())
-      pending = true
+      i += 1
     }
-    i += 1
   }
-  if pending {
-    lines.push(buf.to_string())
+  if start < n {
+    f(start, n)
   }
-  lines
 }
 
 ///|
@@ -921,77 +988,8 @@ pub fn Text::render(
   console : Console,
   end? : String = "",
 ) -> Array[Segment] raise {
-  let text = self.plain()
   let result = []
-  if self.spans_.is_empty() {
-    result.push(Segment::new(text))
-    if end != "" {
-      result.push(Segment::new(end))
-    }
-    return result
-  }
-  let null = Def("")
-  let style_map : Map[Int, Style] = Map([])
-  for i, span in self.spans_ {
-    style_map[i + 1] = console.get_style(span.style, default=null)
-  }
-  style_map[0] = console.get_style(self.style, default=null)
-  let spans : Array[(Int, Bool, Int)] = [(0, false, 0)]
-  for i, span in self.spans_ {
-    spans.push((span.start, false, i + 1))
-  }
-  for i, span in self.spans_ {
-    spans.push((span.end, true, i + 1))
-  }
-  spans.push((text.length(), true, 0))
-  stable_sort_by(spans, (a, b) => {
-    let c = a.0.compare(b.0)
-    if c != 0 {
-      c
-    } else {
-      a.1.compare(b.1)
-    }
-  })
-  let stack : Array[Int] = []
-  let style_cache : Map[String, Style] = Map([])
-  fn get_current_style() -> Style {
-    let ids = stack.copy()
-    ids.sort()
-    let key = ids.map(i => i.to_string()).join(",")
-    match style_cache.get(key) {
-      Some(s) => s
-      None => {
-        let styles = ids.map(i => style_map[i])
-        let s = Style::combine(styles)
-        style_cache[key] = s
-        s
-      }
-    }
-  }
-
-  for i in 0..<(spans.length() - 1) {
-    let (offset, leaving, style_id) = spans[i]
-    let next_offset = spans[i + 1].0
-    if leaving {
-      match stack.search(style_id) {
-        Some(idx) => stack.remove(idx) |> ignore
-        None => ()
-      }
-    } else {
-      stack.push(style_id)
-    }
-    if next_offset > offset {
-      result.push(
-        Segment::new(
-          text.view(start_offset=offset, end_offset=next_offset).to_owned(),
-          style=get_current_style(),
-        ),
-      )
-    }
-  }
-  if end != "" {
-    result.push(Segment::new(end))
-  }
+  self.render_into(console, end, result)
   result
 }
 
@@ -1104,7 +1102,7 @@ pub fn Text::truncate(
     }
     if pad && length < max_width {
       let spaces = max_width - length
-      self.parts = [self.plain() + " ".repeat(spaces)]
+      self.parts = [self.plain() + space_string(spaces)]
       self.length_ = self.plain().length()
     }
   }
@@ -1362,29 +1360,32 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
   }
   let text = self.plain()
   let text_length = text.length()
-  let divide_offsets = [0]
-  for o in offsets {
-    divide_offsets.push(o)
+  // line `i` covers `bounds[i]..bounds[i + 1]` (upstream `line_ranges`)
+  let line_count = offsets.length() + 1
+  let bounds : FixedArray[Int] = FixedArray::make(line_count + 1, 0)
+  for i, o in offsets {
+    bounds[i + 1] = o
   }
-  divide_offsets.push(text_length)
-  let line_ranges = []
-  for i in 0..<(divide_offsets.length() - 1) {
-    line_ranges.push((divide_offsets[i], divide_offsets[i + 1]))
+  bounds[line_count] = text_length
+  let lines : Array[Text] = Array(capacity=line_count)
+  for i in 0..<line_count {
+    let plain = strip_control_codes(py_slice(text, bounds[i], bounds[i + 1]))
+    lines.push({
+      parts: [plain],
+      length_: plain.length(),
+      spans_: [],
+      style: self.style,
+      justify: self.justify,
+      overflow: self.overflow,
+      no_wrap: None,
+      end: "\n",
+      tab_size: None,
+    })
   }
-  let new_lines = Lines::new(
-    line_ranges.map(range => {
-      Text::new(
-        text=py_slice(text, range.0, range.1),
-        style=self.style,
-        justify?=self.justify,
-        overflow?=self.overflow,
-      )
-    }),
-  )
+  let new_lines : Lines = { lines, }
   if self.spans_.is_empty() {
     return new_lines
   }
-  let line_count = line_ranges.length()
   for span in self.spans_ {
     let span_start = span.start
     let span_end = span.end
@@ -1393,8 +1394,8 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
     let mut start_line_no = floor_div(lower_bound + upper_bound, 2)
     let mut line_end = 0
     while true {
-      let (line_start, le) = line_ranges[start_line_no]
-      line_end = le
+      let line_start = bounds[start_line_no]
+      line_end = bounds[start_line_no + 1]
       if span_start < line_start {
         upper_bound = start_line_no - 1
       } else if span_start > line_end {
@@ -1411,7 +1412,8 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
       lower_bound = start_line_no
       upper_bound = line_count
       while true {
-        let (line_start, le) = line_ranges[end_line_no]
+        let line_start = bounds[end_line_no]
+        let le = bounds[end_line_no + 1]
         if span_end < line_start {
           upper_bound = end_line_no - 1
         } else if span_end > le {
@@ -1424,11 +1426,12 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
       end_line_no
     }
     for line_no in start_line_no..<=end_line_no {
-      let (line_start, line_end) = line_ranges[line_no]
+      let line_start = bounds[line_no]
+      let line_end = bounds[line_no + 1]
       let new_start = @cmp.maximum(0, span_start - line_start)
       let new_end = @cmp.minimum(span_end - line_start, line_end - line_start)
       if new_end > new_start {
-        new_lines.lines[line_no].spans_.push({
+        lines[line_no].spans_.push({
           start: new_start,
           end: new_end,
           style: span.style,
@@ -1507,7 +1510,12 @@ pub fn Text::wrap(
       Lines::new([line])
     } else {
       let offsets = divide_line(line.plain(), width, fold=wrap_overflow == Fold)
-      let new_lines = line.divide(offsets)
+      // `line` is a fresh copy from `split`: no need to copy it again
+      let new_lines = if offsets.is_empty() {
+        Lines::new([line])
+      } else {
+        line.divide(offsets)
+      }
       for l in new_lines.lines {
         l.rstrip_end(width)
       }
@@ -1616,7 +1624,7 @@ pub fn Text::with_indent_guides(
   }
   let text = self.copy()
   text.expand_tabs()
-  let indent_line = character + " ".repeat(indent_size - 1)
+  let indent_line = character + space_string(indent_size - 1)
   let new_lines : Array[Text] = []
   let mut blank_lines = 0
   for line in text.split(allow_blank=true).lines {
@@ -1632,7 +1640,7 @@ pub fn Text::with_indent_guides(
     let full_indents = n / indent_size
     let remaining_space = n % indent_size
     let new_indent = indent_line.repeat(full_indents) +
-      " ".repeat(remaining_space)
+      space_string(remaining_space)
     // upstream slices the line by the (code point) length of the new indent
     let skip = utf16_offset_of_codepoint(plain, new_indent.char_length())
     line.set_plain(new_indent + py_slice(plain, skip, plain.length()))
