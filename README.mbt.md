@@ -191,19 +191,21 @@ with `moonrun`):
 
 | Workload | Python | native | wasm-gc | wasm |
 |---|---:|---:|---:|---:|
-| feature card (`python -m rich`) | 10.8 | 0.93 | 0.97 | 2.48 |
-| table, 1,000 rows × 6 columns with markup | 361 | 20.2 | 20.1 | 59.3 |
-| 200 KB text, styled spans, `justify="full"` | 235 | 19.8 | 22.0 | 51.0 |
-| 2,000 lines of markup (repr highlighting) | 540 | 82.9 | 118 | 209 |
-| `Pretty` of a 300-item document | 116 | 13.6 | 18.9 | 36.7 |
-| `Syntax`, 2,000 lines of Python, line numbers | 112 | 10.5 | 15.2 | 29.4 |
-| `Markdown` of Rich's README | 23.2 | 2.53 | 2.66 | 6.71 |
-| `Progress` with 100 tasks | 13.4 | 1.09 | 0.90 | 3.03 |
-| `JSON` of a 300-item document | 91.8 | 9.44 | 11.0 | 24.2 |
+| feature card (`python -m rich`) | 10.8 | 0.87 | 0.92 | 2.35 |
+| table, 1,000 rows × 6 columns with markup | 361 | 20.0 | 19.1 | 56.5 |
+| 200 KB text, styled spans, `justify="full"` | 235 | 19.7 | 20.9 | 50.0 |
+| 2,000 lines of markup (repr highlighting) | 540 | 49.1 | 61.8 | 124 |
+| `Pretty` of a 300-item document | 116 | 10.4 | 12.3 | 27.5 |
+| `Syntax`, 2,000 lines of Python, line numbers | 112 | 8.84 | 13.4 | 23.2 |
+| `Markdown` of Rich's README | 23.2 | 2.38 | 2.60 | 6.18 |
+| `Progress` with 100 tasks | 13.4 | 1.04 | 0.88 | 2.84 |
+| `JSON` of a 300-item document | 91.8 | 7.86 | 8.91 | 20.7 |
 
 Much of the remaining time in the markup, Pretty and JSON workloads is
 regular-expression matching for highlighting (the same patterns upstream
-runs), and in Syntax the Pygments lexer.
+runs), and in Syntax the Pygments lexer; both come from
+[pygments.mbt](https://github.com/bobzhang/pygments.mbt), whose 0.2.4 regex
+engine made these workloads 1.1–1.9× faster.
 
 ## License
 
