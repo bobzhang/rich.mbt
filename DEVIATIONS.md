@@ -533,15 +533,9 @@ time-throttled refreshes (DESIGN.md §7):
   patterns, link label case folding, a link reference definition being a
   block of its own, raw fence info strings, empty text tokens around
   `strong`. The renderer itself is a literal port.
-* Remaining parse differences (8 of the 652 CommonMark spec examples; all
-  cmark bugs):
-  * emphasis "rule of 3" is not implemented (`*foo**bar*`,
-    `*foo**bar**baz*`, spec 410, 411, 414, 428);
-  * Unicode symbols (e.g. `$`, `£`, `€`) are not punctuation for
-    emphasis flanking (CommonMark 0.31, spec 353);
-  * `<!-->` / `<!--->` are not HTML comments (CommonMark 0.31, spec 625);
-  * a link reference definition followed by text after its title is
-    still accepted (spec 208, 209).
+* With cmark 0.4.10 all 652 CommonMark spec examples produce the same
+  markdown-it token stream, and every rendered case of the differential
+  corpus is byte-identical to upstream.
 * Other known differences (rare): strikethrough delimiters cannot pair
   across emphasis boundaries (`~~a *b~~ c*`), markdown-it pairs them on
   the flat token stream; a line indented by 4+ spaces starting with a list

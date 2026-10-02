@@ -41,11 +41,6 @@ fn render_with_options(
 }
 
 ///|
-/// Spec examples where cmark's parse differs from markdown-it's (cmark
-/// bugs, see DEVIATIONS.md).
-let known_spec_token_failures : Array[Int] = [
-  208, 209, 353, 410, 411, 414, 428, 625,
-]
 
 ///|
 test "markdown-it token stream: CommonMark spec examples" {
@@ -58,9 +53,9 @@ test "markdown-it token stream: CommonMark spec examples" {
   }
   debug_inspect(
     (spec_token_cases.length() - failures.length(), spec_token_cases.length()),
-    content="(644, 652)",
+    content="(652, 652)",
   )
-  assert_eq(failures, known_spec_token_failures)
+  assert_eq(failures, [])
 }
 
 ///|
@@ -77,24 +72,11 @@ test "markdown-it token stream: corpus" {
 
 ///|
 test "rendered output matches upstream" {
-  // Only the spec examples cmark parses differently may render differently.
-  let known = known_spec_token_failures.map(i => spec_token_cases[i].0)
-  let mut passed = 0
   for case in render_cases {
     let (markup, width, options, expected) = case
     let actual = render_with_options(markup, width, options) catch {
       e => "error: \{e}"
     }
-    if actual == expected {
-      passed += 1
-    } else if !known.contains(markup) {
-      assert_eq(actual, expected, msg="\{markup} (width \{width}, \{options})")
-    }
+    assert_eq(actual, expected, msg="\{markup} (width \{width}, \{options})")
   }
-  debug_inspect(
-    (passed, render_cases.length()),
-    content=(
-      #|(1149, 1157)
-    ),
-  )
 }
