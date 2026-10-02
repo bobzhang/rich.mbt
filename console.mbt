@@ -934,6 +934,21 @@ fn Console::render_into(
   if depth > 1000 {
     raise NotRenderableError("maximum render depth exceeded")
   }
+  // Strings and Text (whose `text_kind` is not `NotText`, see
+  // `Renderable::text_kind`) render straight into `out`.
+  match renderable.text_kind() {
+    Text(t) => {
+      t.render_console_into(self, options, out)
+      return
+    }
+    Str(s) => {
+      self
+      .render_str(s, highlight=options.highlight, markup=options.markup)
+      .render_console_into(self, options, out)
+      return
+    }
+    NotText => ()
+  }
   let items = renderable.rich_console(self, options)
   let child_options = options.reset_height()
   for item in items {

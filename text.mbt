@@ -831,6 +831,20 @@ pub fn Text::set_length(self : Text, new_length : Int) -> Unit {
 
 ///|
 pub impl Renderable for Text with fn rich_console(self, console, options) {
+  let out = []
+  self.render_console_into(console, options, out)
+  segments_to_items(out)
+}
+
+///|
+/// `rich_console` appending the segments to `out` (used by the console's
+/// render loop to avoid wrapping every segment in a `RenderItem`).
+fn Text::render_console_into(
+  self : Text,
+  console : Console,
+  options : ConsoleOptions,
+  out : Array[Segment],
+) -> Unit raise {
   let tab_size = match self.tab_size {
     None => console.tab_size
     Some(t) => t
@@ -846,7 +860,7 @@ pub impl Renderable for Text with fn rich_console(self, console, options) {
     no_wrap=pick_bool([self.no_wrap, options.no_wrap, Some(false)]),
   )
   let all_lines = Text::new(text="\n").join(lines.lines)
-  segments_to_items(all_lines.render(console, end=self.end))
+  all_lines.render_into(console, self.end, out)
 }
 
 ///|
@@ -931,14 +945,26 @@ pub fn Text::render(
   console : Console,
   end? : String = "",
 ) -> Array[Segment] raise {
-  let text = self.plain()
   let result = []
+  self.render_into(console, end, result)
+  result
+}
+
+///|
+/// `render` appending the segments to `result`.
+fn Text::render_into(
+  self : Text,
+  console : Console,
+  end : String,
+  result : Array[Segment],
+) -> Unit raise {
+  let text = self.plain()
   if self.spans_.is_empty() {
     result.push(Segment::new(text))
     if end != "" {
       result.push(Segment::new(end))
     }
-    return result
+    return
   }
   let null = Def("")
   let n = self.spans_.length()
@@ -1018,7 +1044,6 @@ pub fn Text::render(
   if end != "" {
     result.push(Segment::new(end))
   }
-  result
 }
 
 ///|
