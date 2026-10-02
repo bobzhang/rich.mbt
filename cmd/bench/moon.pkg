@@ -1,0 +1,17 @@
+import {
+  "bobzhang/rich",
+  "bobzhang/rich/demo" @card,
+  "bobzhang/rich/pretty",
+  "bobzhang/rich/syntax",
+  "bobzhang/rich/markdown",
+  "bobzhang/rich/progress",
+  "bobzhang/rich/internal/term",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+  "moonbitlang/core/cmp",
+  "moonbitlang/core/double",
+}
+
+pkgtype(kind: "executable")
+
+warnings = "-implicit_impl_as_method-unused_error_type"
