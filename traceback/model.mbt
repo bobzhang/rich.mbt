@@ -383,7 +383,7 @@ pub impl ToJson for Stack with fn to_json(self) {
     "exc_value": self.exc_value.to_json(),
     "syntax_error": match self.syntax_error {
       None => Json::null()
-      Some(s) => s.to_json()
+      Some(s) => ToJson::to_json(s)
     },
     "is_cause": self.is_cause.to_json(),
     "frames": self.frames.to_json(),
