@@ -23,7 +23,7 @@ pub impl Show for Span with fn output(self, logger) {
 
 ///|
 pub impl Debug for Span with fn to_repr(self) {
-  @debug.Repr(self.to_string())
+  @debug.Repr(Show::to_string(self))
 }
 
 ///|
@@ -209,7 +209,7 @@ pub impl Show for Text with fn output(self, logger) {
 ///|
 /// Upstream `repr(text)`.
 pub fn Text::repr(self : Text) -> String {
-  "<text \{py_repr(self.plain())} [\{self.spans_.map(s => s.to_string()).join(", ")}] \{self.style.repr()}>"
+  "<text \{py_repr(self.plain())} [\{self.spans_.map(s => Show::to_string(s)).join(", ")}] \{self.style.repr()}>"
 }
 
 ///|

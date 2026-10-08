@@ -105,7 +105,7 @@ pub fn ReprHighlighter::new() -> ReprHighlighter {
 
 ///|
 pub impl Highlighter for ReprHighlighter with fn highlight(self, text) {
-  self.inner.highlight(text)
+  Highlighter::highlight(self.inner, text)
 }
 
 ///|
@@ -134,7 +134,7 @@ pub fn JSONHighlighter::new() -> JSONHighlighter {
 
 ///|
 pub impl Highlighter for JSONHighlighter with fn highlight(_self, text) {
-  json_highlighter_base.highlight(text)
+  Highlighter::highlight(json_highlighter_base, text)
   let plain = text.plain()
   let re = compile_regex(json_str_pattern)
   for m in re.find_all(plain) {
@@ -185,5 +185,5 @@ pub fn ISO8601Highlighter::new() -> ISO8601Highlighter {
 
 ///|
 pub impl Highlighter for ISO8601Highlighter with fn highlight(self, text) {
-  self.inner.highlight(text)
+  Highlighter::highlight(self.inner, text)
 }

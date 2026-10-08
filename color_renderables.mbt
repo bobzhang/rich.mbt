@@ -20,7 +20,7 @@ pub impl Renderable for @color.Color with fn rich_console(
   console,
   options,
 ) {
-  color_to_text(self).rich_console(console, options)
+  Renderable::rich_console(color_to_text(self), console, options)
 }
 
 ///|
@@ -29,7 +29,7 @@ pub impl Renderable for @color.Color with fn rich_measure(
   console,
   options,
 ) {
-  color_to_text(self).rich_measure(console, options)
+  Renderable::rich_measure(color_to_text(self), console, options)
 }
 
 ///|
@@ -81,5 +81,5 @@ pub impl Renderable for @color.Palette with fn rich_measure(
   console,
   options,
 ) {
-  palette_to_table(self).rich_measure(console, options)
+  Renderable::rich_measure(palette_to_table(self), console, options)
 }
