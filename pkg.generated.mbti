@@ -8,7 +8,7 @@ import {
 }
 
 // Values
-pub fn adler32(Bytes) -> UInt
+pub fn adler32(Bytes) -> UInt32
 
 pub let box_ascii : Box
 
@@ -50,7 +50,7 @@ pub let box_square_double_head : Box
 
 pub fn color_to_text(@color.Color) -> Text
 
-pub fn compile_regex(String, flags? : Int) -> @regex.Regex raise @regex.RegexError
+pub fn compile_regex(String, flags? : Int32) -> @regex.Regex raise @regex.RegexError
 
 pub let console_html_format : String
 
@@ -60,13 +60,13 @@ pub fn default_styles() -> Map[String, Style]
 
 pub let default_theme : Theme
 
-pub fn divide_line(String, Int, fold? : Bool) -> Array[Int]
+pub fn divide_line(String, Int32, fold? : Bool) -> Array[Int32]
 
 pub fn escape(String) -> String
 
 pub fn escape_control_codes(String) -> String
 
-pub fn filesize_decimal(Int64, precision? : Int, separator? : String) -> String
+pub fn filesize_decimal(Int64, precision? : Int32, separator? : String) -> String
 
 pub fn get_console() -> Console
 
@@ -92,7 +92,7 @@ pub fn pick_unit_and_suffix(Int64, Array[String], Int64) -> (Int64, String)
 
 pub fn print(&Renderable, end? : String, file? : &ConsoleFile) -> Unit raise
 
-pub fn print_json(json? : String, data? : Json, indent? : Int?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn print_json(json? : String, data? : Json, indent? : Int32?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
 
 pub fn print_many(ArrayView[&Renderable], sep? : String, end? : String, file? : &ConsoleFile) -> Unit raise
 
@@ -100,13 +100,13 @@ pub fn py_float_repr(Double) -> String
 
 pub fn py_format(String, Map[String, String]) -> String
 
-pub fn py_format_exp(Double, Int, upper? : Bool) -> String
+pub fn py_format_exp(Double, Int32, upper? : Bool) -> String
 
-pub fn py_format_fixed(Double, Int) -> String
+pub fn py_format_fixed(Double, Int32) -> String
 
 pub fn py_format_g(Double) -> String
 
-pub fn py_format_general(Double, precision? : Int, upper? : Bool, alternate? : Bool) -> String
+pub fn py_format_general(Double, precision? : Int32, upper? : Bool, alternate? : Bool) -> String
 
 pub fn py_group_thousands(String) -> String
 
@@ -114,11 +114,11 @@ pub fn py_json_repr(Json) -> String
 
 pub fn py_repr(String) -> String
 
-pub fn ratio_distribute(Int, ArrayView[Int], minimums? : ArrayView[Int]) -> Array[Int]
+pub fn ratio_distribute(Int32, ArrayView[Int32], minimums? : ArrayView[Int32]) -> Array[Int32]
 
-pub fn ratio_reduce(Int, ArrayView[Int], ArrayView[Int], ArrayView[Int]) -> Array[Int]
+pub fn ratio_reduce(Int32, ArrayView[Int32], ArrayView[Int32], ArrayView[Int32]) -> Array[Int32]
 
-pub fn ratio_resolve(Int, ArrayView[Edge]) -> Array[Int]
+pub fn ratio_resolve(Int32, ArrayView[Edge]) -> Array[Int32]
 
 pub fn reconfigure(Console) -> Unit
 
@@ -130,9 +130,9 @@ pub fn segments_to_items(Array[Segment]) -> Array[RenderItem]
 
 pub fn strip_control_codes(String) -> String
 
-pub fn unpack_padding(ArrayView[Int]) -> (Int, Int, Int, Int) raise RichError
+pub fn unpack_padding(ArrayView[Int32]) -> (Int32, Int32, Int32, Int32) raise RichError
 
-pub fn words(String) -> Array[(Int, Int, String)]
+pub fn words(String) -> Array[(Int32, Int32, String)]
 
 // Errors
 pub(all) suberror RichError {
@@ -156,13 +156,13 @@ pub struct Align {
   style : StyleType?
   vertical : VerticalAlignMethod?
   pad : Bool
-  width : Int?
-  height : Int?
+  width : Int32?
+  height : Int32?
 }
-pub fn Align::center(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
-pub fn Align::left(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
-pub fn Align::new(&Renderable, AlignMethod, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
-pub fn Align::right(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int, height? : Int) -> Self
+pub fn Align::center(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int32, height? : Int32) -> Self
+pub fn Align::left(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int32, height? : Int32) -> Self
+pub fn Align::new(&Renderable, AlignMethod, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int32, height? : Int32) -> Self
+pub fn Align::right(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int32, height? : Int32) -> Self
 pub impl Renderable for Align
 
 pub(all) enum AlignMethod {
@@ -213,10 +213,10 @@ pub struct Box {
   bottom_divider : String
   bottom_right : String
 } derive(Eq, @debug.Debug)
-pub fn Box::get_bottom(Self, ArrayView[Int]) -> String
+pub fn Box::get_bottom(Self, ArrayView[Int32]) -> String
 pub fn Box::get_plain_headed_box(Self) -> Self
-pub fn Box::get_row(Self, ArrayView[Int], level? : RowLevel, edge? : Bool) -> String
-pub fn Box::get_top(Self, ArrayView[Int]) -> String
+pub fn Box::get_row(Self, ArrayView[Int32], level? : RowLevel, edge? : Bool) -> String
+pub fn Box::get_top(Self, ArrayView[Int32]) -> String
 pub fn Box::new(String, ascii? : Bool, name? : String) -> Self raise RichError
 pub fn Box::repr(Self) -> String
 pub fn Box::substitute(Self, ConsoleOptions, safe? : Bool) -> Self
@@ -231,10 +231,10 @@ pub(all) struct Column {
   mut justify : JustifyMethod
   mut vertical : VerticalAlignMethod
   mut overflow : OverflowMethod
-  mut width : Int?
-  mut min_width : Int?
-  mut max_width : Int?
-  mut ratio : Int?
+  mut width : Int32?
+  mut min_width : Int32?
+  mut max_width : Int32?
+  mut ratio : Int32?
   mut no_wrap : Bool
   mut highlight : Bool
   // private fields
@@ -242,13 +242,13 @@ pub(all) struct Column {
 pub fn Column::cells(Self) -> Array[&Renderable]
 pub fn Column::copy(Self) -> Self
 pub fn Column::flexible(Self) -> Bool
-pub fn Column::new(header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int, min_width? : Int, max_width? : Int, ratio? : Int, no_wrap? : Bool, highlight? : Bool) -> Self
+pub fn Column::new(header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int32, min_width? : Int32, max_width? : Int32, ratio? : Int32, no_wrap? : Bool, highlight? : Bool) -> Self
 pub impl IntoColumn for Column
 
 pub(all) struct Console {
   mut stderr : Bool
   mut quiet : Bool
-  mut tab_size : Int
+  mut tab_size : Int32
   mut record : Bool
   mut soft_wrap : Bool
   mut legacy_windows : Bool
@@ -280,28 +280,28 @@ pub fn Console::export_svg(Self, title? : String, theme? : @color.TerminalTheme,
 pub fn Console::export_text(Self, clear? : Bool, styles? : Bool) -> String
 pub fn Console::file(Self) -> &ConsoleFile
 pub fn Console::get_style(Self, &IntoStyle, default? : StyleType) -> Style raise RichError
-pub fn Console::height(Self) -> Int
+pub fn Console::height(Self) -> Int32
 pub fn Console::input(Self, prompt? : &IntoText, markup? : Bool, emoji? : Bool, password? : Bool, stream? : () -> String raise) -> String raise
 pub fn Console::is_alt_screen(Self) -> Bool
 pub fn Console::is_dumb_terminal(Self) -> Bool
 pub fn Console::is_terminal(Self) -> Bool
-pub fn Console::line(Self, count? : Int) -> Unit raise
-pub fn Console::live_stack(Self) -> Array[Int]
+pub fn Console::line(Self, count? : Int32) -> Unit raise
+pub fn Console::live_stack(Self) -> Array[Int32]
 #callsite(autofill(loc))
 pub fn Console::log(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, emoji? : Bool, markup? : Bool, highlight? : Bool, loc~ : SourceLoc) -> Unit raise
 #callsite(autofill(loc))
 pub fn Console::log_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, emoji? : Bool, markup? : Bool, highlight? : Bool, loc~ : SourceLoc) -> Unit raise
 pub fn Console::measure(Self, &Renderable, options? : ConsoleOptions) -> Measurement raise
-pub fn Console::new(color_system? : String?, force_terminal? : Bool, force_jupyter? : Bool, force_interactive? : Bool, soft_wrap? : Bool, theme? : Theme, stderr? : Bool, file? : &ConsoleFile, quiet? : Bool, width? : Int, height? : Int, style? : &IntoStyle, no_color? : Bool, tab_size? : Int, record? : Bool, markup? : Bool, emoji? : Bool, emoji_variant? : EmojiVariant, highlight? : Bool, log_time? : Bool, log_path? : Bool, log_time_format? : String, log_time_formatter? : (Double) -> Text, highlighter? : &Highlighter, legacy_windows? : Bool, safe_box? : Bool, get_datetime? : () -> Double, get_time? : () -> Double, environ? : Map[String, String]) -> Self raise RichError
+pub fn Console::new(color_system? : String?, force_terminal? : Bool, force_jupyter? : Bool, force_interactive? : Bool, soft_wrap? : Bool, theme? : Theme, stderr? : Bool, file? : &ConsoleFile, quiet? : Bool, width? : Int32, height? : Int32, style? : &IntoStyle, no_color? : Bool, tab_size? : Int32, record? : Bool, markup? : Bool, emoji? : Bool, emoji_variant? : EmojiVariant, highlight? : Bool, log_time? : Bool, log_path? : Bool, log_time_format? : String, log_time_formatter? : (Double) -> Text, highlighter? : &Highlighter, legacy_windows? : Bool, safe_box? : Bool, get_datetime? : () -> Double, get_time? : () -> Double, environ? : Map[String, String]) -> Self raise RichError
 pub fn Console::options(Self) -> ConsoleOptions
 pub fn Console::out(Self, String, end? : String, style? : &IntoStyle, highlight? : Bool) -> Unit raise
 pub fn Console::out_many(Self, ArrayView[String], sep? : String, end? : String, style? : &IntoStyle, highlight? : Bool) -> Unit raise
 pub fn Console::pager(Self, () -> Unit raise, pager? : &Pager, styles? : Bool, links? : Bool) -> Unit raise
 pub fn Console::pop_render_hook(Self) -> Unit
 pub fn Console::pop_theme(Self) -> Unit raise RichError
-pub fn Console::print(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
-pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
-pub fn Console::print_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int, height? : Int, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
+pub fn Console::print(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int32, height? : Int32, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
+pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn Console::print_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int32, height? : Int32, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
 pub fn Console::push_render_hook(Self, &RenderHook) -> Unit
 pub fn Console::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
 pub fn Console::render(Self, &Renderable, options? : ConsoleOptions) -> Array[Segment] raise
@@ -316,51 +316,51 @@ pub fn Console::screen(Self, (ScreenContext) -> Unit raise, hide_cursor? : Bool,
 pub fn Console::screen_context(Self, hide_cursor? : Bool, style? : &IntoStyle) -> ScreenContext
 pub fn Console::set_alt_screen(Self, enable? : Bool) -> Bool raise
 pub fn Console::set_file(Self, &ConsoleFile) -> Unit
-pub fn Console::set_height(Self, Int) -> Unit
-pub fn Console::set_live(Self, Int) -> Bool
-pub fn Console::set_size(Self, Int, Int) -> Unit
-pub fn Console::set_width(Self, Int) -> Unit
+pub fn Console::set_height(Self, Int32) -> Unit
+pub fn Console::set_live(Self, Int32) -> Bool
+pub fn Console::set_size(Self, Int32, Int32) -> Unit
+pub fn Console::set_width(Self, Int32) -> Unit
 pub fn Console::set_window_title(Self, String) -> Bool raise
 pub fn Console::show_cursor(Self, show? : Bool) -> Bool raise
 pub fn Console::size(Self) -> ConsoleDimensions
 pub fn Console::update_screen(Self, &Renderable, region? : Region, options? : ConsoleOptions) -> Unit raise
-pub fn Console::update_screen_lines(Self, Array[Array[Segment]], x? : Int, y? : Int) -> Unit raise
+pub fn Console::update_screen_lines(Self, Array[Array[Segment]], x? : Int32, y? : Int32) -> Unit raise
 pub fn Console::use_theme(Self, Theme, () -> Unit raise, inherit_styles? : Bool) -> Unit raise
-pub fn Console::width(Self) -> Int
+pub fn Console::width(Self) -> Int32
 
 pub(all) struct ConsoleDimensions {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 } derive(Eq, @debug.Debug)
 
 pub(all) struct ConsoleOptions {
   mut size : ConsoleDimensions
   mut legacy_windows : Bool
-  mut min_width : Int
-  mut max_width : Int
+  mut min_width : Int32
+  mut max_width : Int32
   mut is_terminal : Bool
   mut encoding : String
-  mut max_height : Int
+  mut max_height : Int32
   mut justify : JustifyMethod?
   mut overflow : OverflowMethod?
   mut no_wrap : Bool?
   mut highlight : Bool?
   mut markup : Bool?
-  mut height : Int?
+  mut height : Int32?
 }
 pub fn ConsoleOptions::ascii_only(Self) -> Bool
 pub fn ConsoleOptions::copy(Self) -> Self
 pub fn ConsoleOptions::reset_height(Self) -> Self
-pub fn ConsoleOptions::update(Self, width? : Int, min_width? : Int, max_width? : Int, justify? : JustifyMethod?, overflow? : OverflowMethod?, no_wrap? : Bool?, highlight? : Bool?, markup? : Bool?, height? : Int?) -> Self
-pub fn ConsoleOptions::update_dimensions(Self, Int, Int) -> Self
-pub fn ConsoleOptions::update_height(Self, Int) -> Self
-pub fn ConsoleOptions::update_width(Self, Int) -> Self
+pub fn ConsoleOptions::update(Self, width? : Int32, min_width? : Int32, max_width? : Int32, justify? : JustifyMethod?, overflow? : OverflowMethod?, no_wrap? : Bool?, highlight? : Bool?, markup? : Bool?, height? : Int32?) -> Self
+pub fn ConsoleOptions::update_dimensions(Self, Int32, Int32) -> Self
+pub fn ConsoleOptions::update_height(Self, Int32) -> Self
+pub fn ConsoleOptions::update_width(Self, Int32) -> Self
 
 pub struct Constrain {
   renderable : &Renderable
-  width : Int?
+  width : Int32?
 }
-pub fn Constrain::new(&Renderable, width? : Int?) -> Self
+pub fn Constrain::new(&Renderable, width? : Int32?) -> Self
 pub impl Renderable for Constrain
 
 pub struct Control {
@@ -370,9 +370,9 @@ pub fn Control::alt_screen(Bool) -> Self
 pub fn Control::bell() -> Self
 pub fn Control::clear() -> Self
 pub fn Control::home() -> Self
-pub fn Control::move_(x? : Int, y? : Int) -> Self
-pub fn Control::move_to(Int, Int) -> Self
-pub fn Control::move_to_column(Int, y? : Int) -> Self
+pub fn Control::move_(x? : Int32, y? : Int32) -> Self
+pub fn Control::move_to(Int32, Int32) -> Self
+pub fn Control::move_to_column(Int32, y? : Int32) -> Self
 pub fn Control::new(Array[ControlCode]) -> Self
 pub fn Control::show_cursor(Bool) -> Self
 pub fn Control::title(String) -> Self
@@ -381,9 +381,9 @@ pub impl Show for Control
 
 pub(all) enum ControlCode {
   Code(ControlType)
-  CodeInt(ControlType, Int)
+  CodeInt(ControlType, Int32)
   CodeStr(ControlType, String)
-  CodeXY(ControlType, Int, Int)
+  CodeXY(ControlType, Int32, Int32)
 } derive(Eq, Hash, @debug.Debug)
 
 pub(all) enum ControlType {
@@ -404,12 +404,12 @@ pub(all) enum ControlType {
   EraseInLine
   SetWindowTitle
 } derive(Eq, Hash, @debug.Debug)
-pub fn ControlType::to_int(Self) -> Int
+pub fn ControlType::to_int(Self) -> Int32
 
 pub(all) struct Edge {
-  size : Int?
-  ratio : Int
-  minimum_size : Int
+  size : Int32?
+  ratio : Int32
+  minimum_size : Int32
 } derive(Eq, @debug.Debug)
 
 pub struct Emoji {
@@ -447,9 +447,9 @@ pub impl Highlighter for ISO8601Highlighter
 pub struct JSON {
   text : Text
 }
-pub fn JSON::from_data(Json, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
-pub fn JSON::from_value(JsonValue, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
-pub fn JSON::new(String, indent? : Int?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_data(Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_value(JsonValue, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::new(String, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
 pub impl Renderable for JSON
 
 pub struct JSONHighlighter {
@@ -466,7 +466,7 @@ pub(all) enum JsonValue {
   JArray(Array[JsonValue])
   JObject(Array[(String, JsonValue)])
 } derive(Eq, @debug.Debug)
-pub fn JsonValue::dumps(Self, indent? : Int?, indent_str? : String, ensure_ascii? : Bool, sort_keys? : Bool) -> String
+pub fn JsonValue::dumps(Self, indent? : Int32?, indent_str? : String, ensure_ascii? : Bool, sort_keys? : Bool) -> String
 pub fn JsonValue::from_json(Json) -> Self
 pub fn JsonValue::parse(String) -> Self raise RichError
 
@@ -485,15 +485,15 @@ pub struct Lines {
 }
 pub fn Lines::append(Self, Text) -> Unit
 pub fn Lines::extend_(Self, ArrayView[Text]) -> Unit
-pub fn Lines::get(Self, Int) -> Text
+pub fn Lines::get(Self, Int32) -> Text
 pub fn Lines::iter(Self) -> Iter[Text]
-pub fn Lines::justify(Self, Console, Int, justify? : JustifyMethod, overflow? : OverflowMethod) -> Unit raise
-pub fn Lines::length(Self) -> Int
+pub fn Lines::justify(Self, Console, Int32, justify? : JustifyMethod, overflow? : OverflowMethod) -> Unit raise
+pub fn Lines::length(Self) -> Int32
 pub fn Lines::new(ArrayView[Text]) -> Self
-pub fn Lines::pop(Self, index? : Int) -> Text?
+pub fn Lines::pop(Self, index? : Int32) -> Text?
 pub fn Lines::repr(Self) -> String
-pub fn Lines::set(Self, Int, Text) -> Unit
-pub fn Lines::slice(Self, start? : Int, end? : Int) -> Array[Text]
+pub fn Lines::set(Self, Int32, Text) -> Unit
+pub fn Lines::slice(Self, start? : Int32, end? : Int32) -> Array[Text]
 pub impl Renderable for Lines
 
 pub struct LogRender {
@@ -503,34 +503,34 @@ pub struct LogRender {
   time_format : String
   time_formatter : ((Double) -> Text)?
   omit_repeated_times : Bool
-  level_width : Int?
+  level_width : Int32?
   // private fields
 }
-pub fn LogRender::new(show_time? : Bool, show_level? : Bool, show_path? : Bool, time_format? : String, time_formatter? : (Double) -> Text, omit_repeated_times? : Bool, level_width? : Int?) -> Self
-pub fn LogRender::render(Self, Console, Array[&Renderable], log_time? : Double, time_format? : String, level? : &IntoText, path? : String, line_no? : Int, link_path? : String) -> Table raise
+pub fn LogRender::new(show_time? : Bool, show_level? : Bool, show_path? : Bool, time_format? : String, time_formatter? : (Double) -> Text, omit_repeated_times? : Bool, level_width? : Int32?) -> Self
+pub fn LogRender::render(Self, Console, Array[&Renderable], log_time? : Double, time_format? : String, level? : &IntoText, path? : String, line_no? : Int32, link_path? : String) -> Table raise
 
 pub(all) enum MarkupItem {
-  PlainText(Int, String)
-  TagAt(Int, Tag)
+  PlainText(Int32, String)
+  TagAt(Int32, Tag)
 } derive(Eq, @debug.Debug)
 
 pub(all) struct Measurement {
-  minimum : Int
-  maximum : Int
+  minimum : Int32
+  maximum : Int32
 } derive(Eq, @debug.Debug)
-pub fn Measurement::clamp(Self, min_width? : Int, max_width? : Int) -> Self
+pub fn Measurement::clamp(Self, min_width? : Int32, max_width? : Int32) -> Self
 pub fn Measurement::get(Console, ConsoleOptions, &Renderable) -> Self raise
-pub fn Measurement::new(Int, Int) -> Self
+pub fn Measurement::new(Int32, Int32) -> Self
 pub fn Measurement::normalize(Self) -> Self
-pub fn Measurement::span(Self) -> Int
-pub fn Measurement::with_maximum(Self, Int) -> Self
-pub fn Measurement::with_minimum(Self, Int) -> Self
+pub fn Measurement::span(Self) -> Int32
+pub fn Measurement::with_maximum(Self, Int32) -> Self
+pub fn Measurement::with_minimum(Self, Int32) -> Self
 pub impl Show for Measurement
 
 pub struct NewLine {
-  count : Int
+  count : Int32
 }
-pub fn NewLine::new(count? : Int) -> Self
+pub fn NewLine::new(count? : Int32) -> Self
 pub impl Renderable for NewLine
 
 pub struct NullFile {
@@ -554,15 +554,15 @@ pub fn OverflowMethod::to_string(Self) -> String
 
 pub struct Padding {
   renderable : &Renderable
-  top : Int
-  right : Int
-  bottom : Int
-  left : Int
+  top : Int32
+  right : Int32
+  bottom : Int32
+  left : Int32
   style : StyleType
   expand : Bool
 }
-pub fn Padding::indent(&Renderable, Int) -> Self
-pub fn Padding::new(&Renderable, pad? : ArrayView[Int], style? : &IntoStyle, expand? : Bool) -> Self raise RichError
+pub fn Padding::indent(&Renderable, Int32) -> Self
+pub fn Padding::new(&Renderable, pad? : ArrayView[Int32], style? : &IntoStyle, expand? : Bool) -> Self raise RichError
 pub fn Padding::repr(Self) -> String
 pub impl Renderable for Padding
 
@@ -589,10 +589,10 @@ pub fn RegexHighlighter::new(Array[String], base_style? : String) -> Self raise 
 pub impl Highlighter for RegexHighlighter
 
 pub(all) struct Region {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
 } derive(Eq, @debug.Debug)
 
 pub(all) enum RenderItem {
@@ -657,10 +657,10 @@ pub fn ScreenContext::update(Self, renderables? : Array[&Renderable], style? : &
 
 pub struct ScreenUpdate {
   lines : Array[Array[Segment]]
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
 }
-pub fn ScreenUpdate::new(Array[Array[Segment]], Int, Int) -> Self
+pub fn ScreenUpdate::new(Array[Array[Segment]], Int32, Int32) -> Self
 pub impl Renderable for ScreenUpdate
 
 pub(all) struct Segment {
@@ -668,26 +668,26 @@ pub(all) struct Segment {
   style : Style?
   control : Array[ControlCode]?
 } derive(Eq)
-pub fn Segment::adjust_line_length(Array[Self], Int, style? : Style, pad? : Bool) -> Array[Self]
-pub fn Segment::align_bottom(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
-pub fn Segment::align_middle(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
-pub fn Segment::align_top(Array[Array[Self]], Int, Int, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::adjust_line_length(Array[Self], Int32, style? : Style, pad? : Bool) -> Array[Self]
+pub fn Segment::align_bottom(Array[Array[Self]], Int32, Int32, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::align_middle(Array[Array[Self]], Int32, Int32, Style?, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::align_top(Array[Array[Self]], Int32, Int32, Style?, new_lines? : Bool) -> Array[Array[Self]]
 pub fn Segment::apply_style(Array[Self], style? : Style, post_style? : Style) -> Array[Self]
-pub fn Segment::cell_length(Self) -> Int
-pub fn Segment::divide(Array[Self], Array[Int]) -> Array[Array[Self]]
+pub fn Segment::cell_length(Self) -> Int32
+pub fn Segment::divide(Array[Self], Array[Int32]) -> Array[Array[Self]]
 pub fn Segment::filter_control(Array[Self], is_control? : Bool) -> Array[Self]
-pub fn Segment::get_line_length(ArrayView[Self]) -> Int
-pub fn Segment::get_shape(Array[Array[Self]]) -> (Int, Int)
+pub fn Segment::get_line_length(ArrayView[Self]) -> Int32
+pub fn Segment::get_shape(Array[Array[Self]]) -> (Int32, Int32)
 pub fn Segment::has_codes(Self) -> Bool
 pub fn Segment::is_control(Self) -> Bool
 pub fn Segment::line() -> Self
 pub fn Segment::new(String, style? : Style, control? : Array[ControlCode]) -> Self
 pub fn Segment::remove_color(Array[Self]) -> Array[Self]
 pub fn Segment::repr(Self) -> String
-pub fn Segment::set_shape(Array[Array[Self]], Int, height? : Int, style? : Style, new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::set_shape(Array[Array[Self]], Int32, height? : Int32, style? : Style, new_lines? : Bool) -> Array[Array[Self]]
 pub fn Segment::simplify(Array[Self]) -> Array[Self]
-pub fn Segment::split_and_crop_lines(Array[Self], Int, style? : Style, pad? : Bool, include_new_lines? : Bool) -> Array[Array[Self]]
-pub fn Segment::split_cells(Self, Int) -> (Self, Self)
+pub fn Segment::split_and_crop_lines(Array[Self], Int32, style? : Style, pad? : Bool, include_new_lines? : Bool) -> Array[Array[Self]]
+pub fn Segment::split_cells(Self, Int32) -> (Self, Self)
 pub fn Segment::split_lines(Array[Self]) -> Array[Array[Self]]
 pub fn Segment::split_lines_terminator(Array[Self]) -> Array[(Array[Self], Bool)]
 pub fn Segment::strip_links(Array[Self]) -> Array[Self]
@@ -711,21 +711,21 @@ pub fn Segments::new(Array[Segment], new_lines? : Bool) -> Self
 pub impl Renderable for Segments
 
 pub(all) struct Span {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   style : StyleType
 } derive(Eq, Hash)
-pub fn Span::extend_(Self, Int) -> Self
-pub fn Span::move_(Self, Int) -> Self
-pub fn Span::new(Int, Int, &IntoStyle) -> Self
-pub fn Span::right_crop(Self, Int) -> Self
-pub fn Span::split(Self, Int) -> (Self, Self?)
+pub fn Span::extend_(Self, Int32) -> Self
+pub fn Span::move_(Self, Int32) -> Self
+pub fn Span::new(Int32, Int32, &IntoStyle) -> Self
+pub fn Span::right_crop(Self, Int32) -> Self
+pub fn Span::split(Self, Int32) -> (Self, Self?)
 pub fn Span::to_bool(Self) -> Bool
 pub impl Show for Span
 pub impl @debug.Debug for Span
 
 pub struct StdStream {
-  fd : Int
+  fd : Int32
 }
 pub fn StdStream::stderr() -> Self
 pub fn StdStream::stdout() -> Self
@@ -826,8 +826,8 @@ pub(all) struct Table {
   rows : Array[Row]
   mut title : TextType?
   mut caption : TextType?
-  mut width : Int?
-  mut min_width : Int?
+  mut width : Int32?
+  mut min_width : Int32?
   mut box_ : Box?
   mut safe_box : Bool?
   mut pad_edge : Bool
@@ -835,7 +835,7 @@ pub(all) struct Table {
   mut show_footer : Bool
   mut show_edge : Bool
   mut show_lines : Bool
-  mut leading : Int
+  mut leading : Int32
   mut collapse_padding : Bool
   mut style : StyleType
   mut header_style : StyleType
@@ -849,17 +849,17 @@ pub(all) struct Table {
   mut row_styles : Array[StyleType]
   // private fields
 }
-pub fn Table::add_column(Self, header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, highlight? : Bool, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int, min_width? : Int, max_width? : Int, ratio? : Int, no_wrap? : Bool) -> Unit
+pub fn Table::add_column(Self, header? : &Renderable, footer? : &Renderable, header_style? : &IntoStyle, highlight? : Bool, footer_style? : &IntoStyle, style? : &IntoStyle, justify? : JustifyMethod, vertical? : VerticalAlignMethod, overflow? : OverflowMethod, width? : Int32, min_width? : Int32, max_width? : Int32, ratio? : Int32, no_wrap? : Bool) -> Unit
 pub fn Table::add_row(Self, ArrayView[&Renderable], style? : &IntoStyle, end_section? : Bool) -> Unit
 pub fn Table::add_section(Self) -> Unit
 pub fn Table::expand(Self) -> Bool
-pub fn Table::get_row_style(Self, Console, Int) -> Style raise
-pub fn Table::grid(headers? : Array[&IntoColumn], padding? : ArrayView[Int], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool) -> Self raise RichError
-pub fn Table::new(headers? : Array[&IntoColumn], title? : &IntoText, caption? : &IntoText, width? : Int, min_width? : Int, box_? : Box, no_box? : Bool, safe_box? : Bool, padding? : ArrayView[Int], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool, show_header? : Bool, show_footer? : Bool, show_edge? : Bool, show_lines? : Bool, leading? : Int, style? : &IntoStyle, row_styles? : Array[&IntoStyle], header_style? : &IntoStyle, footer_style? : &IntoStyle, border_style? : &IntoStyle, title_style? : &IntoStyle, caption_style? : &IntoStyle, title_justify? : JustifyMethod, caption_justify? : JustifyMethod, highlight? : Bool) -> Self raise RichError
-pub fn Table::padding(Self) -> (Int, Int, Int, Int)
-pub fn Table::row_count(Self) -> Int
+pub fn Table::get_row_style(Self, Console, Int32) -> Style raise
+pub fn Table::grid(headers? : Array[&IntoColumn], padding? : ArrayView[Int32], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool) -> Self raise RichError
+pub fn Table::new(headers? : Array[&IntoColumn], title? : &IntoText, caption? : &IntoText, width? : Int32, min_width? : Int32, box_? : Box, no_box? : Bool, safe_box? : Bool, padding? : ArrayView[Int32], collapse_padding? : Bool, pad_edge? : Bool, expand? : Bool, show_header? : Bool, show_footer? : Bool, show_edge? : Bool, show_lines? : Bool, leading? : Int32, style? : &IntoStyle, row_styles? : Array[&IntoStyle], header_style? : &IntoStyle, footer_style? : &IntoStyle, border_style? : &IntoStyle, title_style? : &IntoStyle, caption_style? : &IntoStyle, title_justify? : JustifyMethod, caption_justify? : JustifyMethod, highlight? : Bool) -> Self raise RichError
+pub fn Table::padding(Self) -> (Int32, Int32, Int32, Int32)
+pub fn Table::row_count(Self) -> Int32
 pub fn Table::set_expand(Self, Bool) -> Unit
-pub fn Table::set_padding(Self, ArrayView[Int]) -> Unit raise RichError
+pub fn Table::set_padding(Self, ArrayView[Int32]) -> Unit raise RichError
 pub impl Renderable for Table
 
 pub(all) struct Tag {
@@ -875,62 +875,62 @@ pub(all) struct Text {
   mut overflow : OverflowMethod?
   mut no_wrap : Bool?
   mut end : String
-  mut tab_size : Int?
+  mut tab_size : Int32?
   // private fields
 }
-pub fn Text::align(Self, AlignMethod, Int, character? : Char) -> Unit
+pub fn Text::align(Self, AlignMethod, Int32, character? : Char) -> Unit
 pub fn Text::append(Self, &IntoText, style? : &IntoStyle) -> Self raise RichError
 pub fn Text::append_str(Self, String, style? : &IntoStyle) -> Self
 pub fn Text::append_text(Self, Self) -> Self
 pub fn Text::append_tokens(Self, ArrayView[(String, StyleType?)]) -> Self
-pub fn Text::apply_meta(Self, Map[String, Json], start? : Int, end? : Int) -> Unit
-pub fn Text::assemble(ArrayView[&TextPart], style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int, meta? : Map[String, Json]) -> Self
-pub fn Text::at(Self, Int) -> Self
+pub fn Text::apply_meta(Self, Map[String, Json], start? : Int32, end? : Int32) -> Unit
+pub fn Text::assemble(ArrayView[&TextPart], style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32, meta? : Map[String, Json]) -> Self
+pub fn Text::at(Self, Int32) -> Self
 pub fn Text::blank_copy(Self, plain? : String) -> Self
-pub fn Text::cell_len(Self) -> Int
+pub fn Text::cell_len(Self) -> Int32
 pub fn Text::concat(Self, &IntoText) -> Self
 pub fn Text::contains(Self, &IntoText) -> Bool
 pub fn Text::copy(Self) -> Self
 pub fn Text::copy_styles(Self, Self) -> Unit
-pub fn Text::detect_indentation(Self) -> Int
-pub fn Text::divide(Self, ArrayView[Int]) -> Lines
-pub fn Text::expand_tabs(Self, tab_size? : Int) -> Unit
-pub fn Text::extend_style(Self, Int) -> Unit
-pub fn Text::fit(Self, Int) -> Lines
-pub fn Text::from_ansi(String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int) -> Self
+pub fn Text::detect_indentation(Self) -> Int32
+pub fn Text::divide(Self, ArrayView[Int32]) -> Lines
+pub fn Text::expand_tabs(Self, tab_size? : Int32) -> Unit
+pub fn Text::extend_style(Self, Int32) -> Unit
+pub fn Text::fit(Self, Int32) -> Lines
+pub fn Text::from_ansi(String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32) -> Self
 pub fn Text::from_markup(String, style? : &IntoStyle, emoji? : Bool, emoji_variant? : EmojiVariant, justify? : JustifyMethod, overflow? : OverflowMethod, end? : String) -> Self raise RichError
-pub fn Text::get_style_at_offset(Self, Console, Int) -> Style raise
-pub fn Text::highlight_pattern(Self, String, style? : &IntoStyle, style_prefix? : String) -> Int raise @regex.RegexError
-pub fn Text::highlight_regex(Self, @regex.Regex, style? : &IntoStyle, style_fn? : (String) -> StyleType?, style_prefix? : String) -> Int raise @regex.RegexError
-pub fn Text::highlight_words(Self, ArrayView[String], &IntoStyle, case_sensitive? : Bool) -> Int raise @regex.RegexError
+pub fn Text::get_style_at_offset(Self, Console, Int32) -> Style raise
+pub fn Text::highlight_pattern(Self, String, style? : &IntoStyle, style_prefix? : String) -> Int32 raise @regex.RegexError
+pub fn Text::highlight_regex(Self, @regex.Regex, style? : &IntoStyle, style_fn? : (String) -> StyleType?, style_prefix? : String) -> Int32 raise @regex.RegexError
+pub fn Text::highlight_words(Self, ArrayView[String], &IntoStyle, case_sensitive? : Bool) -> Int32 raise @regex.RegexError
 pub fn Text::join(Self, ArrayView[Self]) -> Self
-pub fn Text::length(Self) -> Int
+pub fn Text::length(Self) -> Int32
 pub fn Text::markup(Self) -> String
-pub fn Text::new(text? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int, spans? : Array[Span]) -> Self
+pub fn Text::new(text? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32, spans? : Array[Span]) -> Self
 pub fn Text::on(Self, meta? : Map[String, Json], handlers? : Map[String, Json]) -> Self
-pub fn Text::pad(Self, Int, character? : Char) -> Unit
-pub fn Text::pad_left(Self, Int, character? : Char) -> Unit
-pub fn Text::pad_right(Self, Int, character? : Char) -> Unit
+pub fn Text::pad(Self, Int32, character? : Char) -> Unit
+pub fn Text::pad_left(Self, Int32, character? : Char) -> Unit
+pub fn Text::pad_right(Self, Int32, character? : Char) -> Unit
 pub fn Text::plain(Self) -> String
 pub fn Text::remove_suffix(Self, String) -> Unit
 pub fn Text::render(Self, Console, end? : String) -> Array[Segment] raise
 pub fn Text::repr(Self) -> String
-pub fn Text::right_crop(Self, amount? : Int) -> Unit
+pub fn Text::right_crop(Self, amount? : Int32) -> Unit
 pub fn Text::rstrip(Self) -> Unit
-pub fn Text::rstrip_end(Self, Int) -> Unit
-pub fn Text::set_length(Self, Int) -> Unit
+pub fn Text::rstrip_end(Self, Int32) -> Unit
+pub fn Text::set_length(Self, Int32) -> Unit
 pub fn Text::set_plain(Self, String) -> Unit
 pub fn Text::set_spans(Self, Array[Span]) -> Unit
-pub fn Text::slice(Self, start? : Int, stop? : Int) -> Self
+pub fn Text::slice(Self, start? : Int32, stop? : Int32) -> Self
 pub fn Text::spans(Self) -> Array[Span]
 pub fn Text::split(Self, separator? : String, include_separator? : Bool, allow_blank? : Bool) -> Lines
 pub fn Text::styled(String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod) -> Self
-pub fn Text::stylize(Self, &IntoStyle, start? : Int, end? : Int) -> Unit
-pub fn Text::stylize_before(Self, &IntoStyle, start? : Int, end? : Int) -> Unit
+pub fn Text::stylize(Self, &IntoStyle, start? : Int32, end? : Int32) -> Unit
+pub fn Text::stylize_before(Self, &IntoStyle, start? : Int32, end? : Int32) -> Unit
 pub fn Text::to_bool(Self) -> Bool
-pub fn Text::truncate(Self, Int, overflow? : OverflowMethod, pad? : Bool) -> Unit
-pub fn Text::with_indent_guides(Self, indent_size? : Int, character? : String, style? : &IntoStyle) -> Self
-pub fn Text::wrap(Self, Console, Int, justify? : JustifyMethod, overflow? : OverflowMethod, tab_size? : Int, no_wrap? : Bool) -> Lines raise
+pub fn Text::truncate(Self, Int32, overflow? : OverflowMethod, pad? : Bool) -> Unit
+pub fn Text::with_indent_guides(Self, indent_size? : Int32, character? : String, style? : &IntoStyle) -> Self
+pub fn Text::wrap(Self, Console, Int32, justify? : JustifyMethod, overflow? : OverflowMethod, tab_size? : Int32, no_wrap? : Bool) -> Lines raise
 pub impl IntoText for Text
 pub impl Renderable for Text
 pub impl TextPart for Text

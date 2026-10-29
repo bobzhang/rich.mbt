@@ -2,7 +2,7 @@
 
 ///|
 /// Number of characters before the 'pulse' animation repeats.
-pub let pulse_size : Int = 20
+pub let pulse_size : Int32 = 20
 
 ///|
 /// Renders a (progress) bar. Used by `@progress`.
@@ -12,7 +12,7 @@ pub(all) struct ProgressBar {
   /// Number of steps completed.
   mut completed : Double
   /// Width of the bar, or `None` for maximum width.
-  mut width : Int?
+  mut width : Int32?
   /// Enable the pulse effect.
   mut pulse : Bool
   /// Style for the bar background.
@@ -31,14 +31,14 @@ pub(all) struct ProgressBar {
 ///|
 /// Create a progress bar. `total=None` renders a pulsing animation.
 pub fn ProgressBar::new(
-  total? : Double? = Some(100.0),
-  completed? : Double = 0.0,
-  width? : Int,
-  pulse? : Bool = false,
-  style? : &@rich.IntoStyle = "bar.back",
-  complete_style? : &@rich.IntoStyle = "bar.complete",
-  finished_style? : &@rich.IntoStyle = "bar.finished",
-  pulse_style? : &@rich.IntoStyle = "bar.pulse",
+  total~ : Double? = Some(100.0),
+  completed~ : Double = 0.0,
+  width? : Int32,
+  pulse~ : Bool = false,
+  style~ : &@rich.IntoStyle = "bar.back",
+  complete_style~ : &@rich.IntoStyle = "bar.complete",
+  finished_style~ : &@rich.IntoStyle = "bar.finished",
+  pulse_style~ : &@rich.IntoStyle = "bar.pulse",
   animation_time? : Double,
 ) -> ProgressBar {
   {
@@ -86,7 +86,7 @@ pub fn ProgressBar::get_pulse_segments(
   back_style : @rich.Style,
   color_system : String?,
   no_color : Bool,
-  ascii? : Bool = false,
+  ascii~ : Bool = false,
 ) -> Array[@rich.Segment] {
   let bar = if ascii { "-" } else { "━" }
   let segments : Array[@rich.Segment] = []
@@ -144,7 +144,7 @@ pub fn ProgressBar::update(
 }
 
 ///|
-fn floor_mod(a : Int, b : Int) -> Int {
+fn floor_mod(a : Int32, b : Int32) -> Int32 {
   let r = a % b
   if r != 0 && (r < 0) != (b < 0) {
     r + b
@@ -157,7 +157,7 @@ fn floor_mod(a : Int, b : Int) -> Int {
 fn ProgressBar::render_pulse(
   self : ProgressBar,
   console : @rich.Console,
-  width : Int,
+  width : Int32,
   ascii : Bool,
 ) -> Array[@rich.Segment] raise {
   let fore_style = console.get_style(self.pulse_style, default=Def("white"))

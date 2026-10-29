@@ -163,7 +163,7 @@ fn read_source(filename : String) -> String? {
 
 ///|
 fn oracle_console(
-  width~ : Int,
+  width~ : Int32,
   color_system~ : String?,
 ) -> (@rich.Console, @rich.StringIO) raise {
   let file = @rich.StringIO::new()

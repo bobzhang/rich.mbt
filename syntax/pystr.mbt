@@ -6,8 +6,8 @@
 fn is_py_space(c : Char) -> Bool {
   match c {
     ' ' | '\t' | '\n' | '\r' | '\u{0b}' | '\u{0c}' => true
-    '\u{1c}'..='\u{1f}' | '\u{85}' | '\u{a0}' | '\u{1680}' => true
-    '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' => true
+    '\u{1c}'..<='\u{1f}' | '\u{85}' | '\u{a0}' | '\u{1680}' => true
+    '\u{2000}'..<='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' => true
     '\u{205f}' | '\u{3000}' => true
     _ => false
   }
@@ -88,7 +88,7 @@ pub fn dedent(text : String) -> String {
 
 ///|
 /// Python `str.expandtabs(tabsize)`.
-pub fn expandtabs(s : String, tab_size : Int) -> String {
+pub fn expandtabs(s : String, tab_size : Int32) -> String {
   if !s.contains("\t") {
     return s
   }

@@ -33,9 +33,9 @@ pub(all) struct Spinner {
 /// Raises `ValueError` (upstream `KeyError`) for an unknown spinner name.
 pub fn Spinner::new(
   name : String,
-  text? : &@rich.Renderable = "",
+  text~ : &@rich.Renderable = "",
   style? : &@rich.IntoStyle,
-  speed? : Double = 1.0,
+  speed~ : Double = 1.0,
 ) -> Spinner raise @rich.RichError {
   guard spinners.get(name) is Some((interval, frames)) else {
     raise ValueError("no spinner called \{@rich.py_repr(name)}")
@@ -81,7 +81,7 @@ fn truthy(r : &@rich.Renderable) -> Bool {
 }
 
 ///|
-fn floor_mod(a : Int, b : Int) -> Int {
+fn floor_mod(a : Int32, b : Int32) -> Int32 {
   let r = a % b
   if r != 0 && (r < 0) != (b < 0) {
     r + b
@@ -132,7 +132,7 @@ pub fn Spinner::render(self : Spinner, time : Double) -> &@rich.Renderable {
 /// unchanged.
 pub fn Spinner::update(
   self : Spinner,
-  text? : &@rich.Renderable = "",
+  text~ : &@rich.Renderable = "",
   style? : &@rich.IntoStyle,
   speed? : Double,
 ) -> Unit raise @rich.RichError {

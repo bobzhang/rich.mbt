@@ -10,15 +10,15 @@
 ///|
 /// Live displays that are started, by id (the console only keeps ids on
 /// its live stack).
-let live_registry : Map[Int, Live] = Map([])
+let live_registry : Map[Int32, Live] = Map([])
 
 ///|
-let next_live_id : Ref[Int] = Ref(0)
+let next_live_id : Ref[Int32] = Ref(0)
 
 ///|
 /// Renders an auto-updating live display of any given renderable.
 pub(all) struct Live {
-  priv id : Int
+  priv id : Int32
   priv mut renderable_ : &@rich.Renderable?
   /// The console the display is written to.
   console : @rich.Console
@@ -59,13 +59,13 @@ pub(all) struct Live {
 pub fn Live::new(
   renderable? : &@rich.Renderable,
   console? : @rich.Console,
-  screen? : Bool = false,
-  auto_refresh? : Bool = true,
-  refresh_per_second? : Double = 4.0,
-  transient? : Bool = false,
-  redirect_stdout? : Bool = true,
-  redirect_stderr? : Bool = true,
-  vertical_overflow? : VerticalOverflowMethod = Ellipsis,
+  screen~ : Bool = false,
+  auto_refresh~ : Bool = true,
+  refresh_per_second~ : Double = 4.0,
+  transient~ : Bool = false,
+  redirect_stdout~ : Bool = true,
+  redirect_stderr~ : Bool = true,
+  vertical_overflow~ : VerticalOverflowMethod = Ellipsis,
   get_renderable? : () -> &@rich.Renderable raise,
 ) -> Live {
   ignore(redirect_stdout)
@@ -164,7 +164,7 @@ fn Live::now(self : Live) -> Double {
 
 ///|
 /// Start live rendering display. With `refresh=true`, also refresh.
-pub fn Live::start(self : Live, refresh? : Bool = false) -> Unit raise {
+pub fn Live::start(self : Live, refresh~ : Bool = false) -> Unit raise {
   if self.started {
     return
   }
@@ -289,7 +289,7 @@ pub fn Live::renderable(self : Live) -> &@rich.Renderable raise {
 pub fn Live::update(
   self : Live,
   renderable : &@rich.Renderable,
-  refresh? : Bool = false,
+  refresh~ : Bool = false,
 ) -> Unit raise {
   let renderable : &@rich.Renderable = match renderable.text_kind() {
     Str(s) => self.console.render_str(s) as &@rich.Renderable

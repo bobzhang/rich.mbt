@@ -4,7 +4,7 @@ let pending : StringBuilder = StringBuilder()
 ///|
 /// Write a string to stdout/stderr. Only whole lines can be printed on this
 /// target; incomplete lines are buffered until a newline or `flush_fd`.
-pub fn write_fd(_fd : Int, text : String) -> Bool {
+pub fn write_fd(_fd : Int32, text : String) -> Bool {
   pending.write_string(text)
   let s = pending.to_string()
   match s.rev_find("\n") {
@@ -19,7 +19,7 @@ pub fn write_fd(_fd : Int, text : String) -> Bool {
 }
 
 ///|
-pub fn flush_fd(_fd : Int) -> Unit {
+pub fn flush_fd(_fd : Int32) -> Unit {
   let s = pending.to_string()
   if s != "" {
     println(s)
@@ -28,12 +28,12 @@ pub fn flush_fd(_fd : Int) -> Unit {
 }
 
 ///|
-pub fn isatty(_fd : Int) -> Bool {
+pub fn isatty(_fd : Int32) -> Bool {
   false
 }
 
 ///|
-pub fn terminal_size(_fd : Int) -> (Int, Int)? {
+pub fn terminal_size(_fd : Int32) -> (Int32, Int32)? {
   None
 }
 
@@ -58,7 +58,7 @@ pub fn strftime(format : String, epoch : Double) -> String {
 }
 
 ///|
-pub fn read_line(echo? : Bool = true) -> String? {
+pub fn read_line(echo~ : Bool = true) -> String? {
   ignore(echo)
   None
 }

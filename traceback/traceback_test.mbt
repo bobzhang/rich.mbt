@@ -4,13 +4,13 @@
 // scenario sources of oracle_test.mbt (`source_app`, `read_source`).
 
 ///|
-fn app_frame(lineno : Int, name : String) -> @traceback.Frame {
+fn app_frame(lineno : Int32, name : String) -> @traceback.Frame {
   @traceback.Frame::new("/project/app.py", lineno, name)
 }
 
 ///|
 /// level1() -> level2() -> 1 / 0, as in upstream `test_handler`.
-fn zero_division_stack(is_cause? : Bool = false) -> @traceback.Stack {
+fn zero_division_stack(is_cause~ : Bool = false) -> @traceback.Stack {
   @traceback.Stack::new("ZeroDivisionError", "division by zero", is_cause~, frames=[
     app_frame(8, "capture"),
     app_frame(29, "zero_division"),
@@ -40,8 +40,8 @@ fn print_to_string(
 ///|
 fn exception_text(
   trace : @traceback.Trace,
-  show_locals? : Bool = false,
-  max_frames? : Int = 100,
+  show_locals~ : Bool = false,
+  max_frames~ : Int32 = 100,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(file~, width=100, environ={})
@@ -56,7 +56,7 @@ fn exception_text(
 }
 
 ///|
-fn count(haystack : String, needle : String) -> Int {
+fn count(haystack : String, needle : String) -> Int32 {
   let mut n = 0
   let mut rest = haystack[:]
   while rest.find(needle) is Some(i) {

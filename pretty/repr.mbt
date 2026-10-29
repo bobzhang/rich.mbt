@@ -74,7 +74,7 @@ pub fn PrettyContext::rich_repr(
   self : PrettyContext,
   class_name : String,
   args : ArrayView[ReprArg],
-  angular? : Bool = false,
+  angular~ : Bool = false,
   id? : PrettyId,
 ) -> Node {
   self.guard_opt(id, () => {
@@ -207,7 +207,7 @@ pub fn PrettyContext::namedtuple(
 pub fn repr_string(
   class_name : String,
   args : ArrayView[ReprArg],
-  angular? : Bool = false,
+  angular~ : Bool = false,
 ) -> String {
   let parts = []
   for arg in args {

@@ -2,23 +2,23 @@
 package "bobzhang/rich/cells"
 
 // Values
-pub fn cell_len(StringView, unicode_version? : String) -> Int
+pub fn cell_len(StringView, unicode_version? : String) -> Int32
 
-pub fn chop_cells(StringView, Int, unicode_version? : String) -> Array[String]
+pub fn chop_cells(StringView, Int32, unicode_version? : String) -> Array[String]
 
-pub fn codepoint_cell_size(Int, unicode_version? : String) -> Int
+pub fn codepoint_cell_size(Int32, unicode_version? : String) -> Int32
 
-pub fn get_character_cell_size(Char, unicode_version? : String) -> Int
+pub fn get_character_cell_size(Char, unicode_version? : String) -> Int32
 
 pub fn is_single_cell_widths(StringView) -> Bool
 
 pub fn load(unicode_version? : String) -> CellTable
 
-pub fn set_cell_size(StringView, Int, unicode_version? : String) -> String
+pub fn set_cell_size(StringView, Int32, unicode_version? : String) -> String
 
-pub fn split_graphemes(StringView, unicode_version? : String) -> (Array[(Int, Int, Int)], Int)
+pub fn split_graphemes(StringView, unicode_version? : String) -> (Array[(Int32, Int32, Int32)], Int32)
 
-pub fn split_text(StringView, Int, unicode_version? : String) -> (String, String)
+pub fn split_text(StringView, Int32, unicode_version? : String) -> (String, String)
 
 pub fn unicode_versions() -> Array[String]
 
@@ -29,7 +29,7 @@ pub struct CellTable {
   unicode_version : String
   // private fields
 }
-pub fn CellTable::is_narrow_to_wide(Self, Int) -> Bool
+pub fn CellTable::is_narrow_to_wide(Self, Int32) -> Bool
 
 // Type aliases
 

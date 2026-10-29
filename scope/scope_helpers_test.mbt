@@ -3,14 +3,14 @@
 ///|
 fn render(
   scope : Map[String, &@pretty.PrettyRepr],
-  width~ : Int,
+  width~ : Int32,
   color~ : Bool,
   title? : String,
-  sort_keys? : Bool = true,
-  indent_guides? : Bool = false,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
+  sort_keys~ : Bool = true,
+  indent_guides~ : Bool = false,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
   overflow? : @rich.OverflowMethod,
 ) -> String raise {
   let file = @rich.StringIO::new()
@@ -38,7 +38,7 @@ fn render(
 }
 
 ///|
-let none : Int? = None
+let none : Int32? = None
 
 ///|
 fn demo_scope() -> Map[String, &@pretty.PrettyRepr] {

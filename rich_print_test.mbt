@@ -4,7 +4,7 @@
 // fixed environment first (upstream relies on pytest capturing stdout).
 
 ///|
-fn reset_global_console(width? : Int = 80) -> Unit raise {
+fn reset_global_console(width~ : Int32 = 80) -> Unit raise {
   @rich.reconfigure(@rich.Console::new(width~, environ={}))
 }
 

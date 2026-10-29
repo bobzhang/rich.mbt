@@ -166,7 +166,7 @@ test "downgrade" {
     color : String,
     system : @color.ColorSystem,
     t : @color.ColorType,
-    n : Int,
+    n : Int32,
   ) raise {
     assert_eq(
       @color.Color::parse(color).downgrade(system),

@@ -4,7 +4,7 @@
 ///|
 fn render_pretty(
   value : &@pretty.PrettyRepr,
-  width~ : Int,
+  width~ : Int32,
   indent_guides~ : Bool,
 ) -> String raise {
   let file = @rich.StringIO::new()
@@ -49,7 +49,7 @@ impl @pretty.PrettyRepr for Address with fn pretty_node(self, ctx) {
 ///|
 struct Person {
   name : String
-  age : Int
+  age : Int32
   tags : Array[String]
   address : Address
   friends : Array[Person]
@@ -115,13 +115,13 @@ fn mixed_keys_value() -> @pretty.Dict {
 
 ///|
 fn deep_value() -> Array[&@pretty.PrettyRepr] {
-  let a : Array[Array[Array[Int]]] = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
-  let b : Array[Array[Int]] = [[9]]
+  let a : Array[Array[Array[Int32]]] = [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]
+  let b : Array[Array[Int32]] = [[9]]
   [a, b]
 }
 
 ///|
-fn big_value() -> Map[String, Array[Int]] {
+fn big_value() -> Map[String, Array[Int32]] {
   let m = Map([])
   for i in 0..<12 {
     m["k\{i}"] = Array::makei(i, j => j)
@@ -160,7 +160,7 @@ impl @pretty.PrettyRepr for Widget with fn pretty_node(self, ctx) {
 /// `Widget("other", [1, 2])`: children of a different type.
 struct IntWidget {
   name : String
-  children : Array[Int]
+  children : Array[Int32]
 }
 
 ///|
@@ -200,16 +200,16 @@ impl @pretty.PrettyRepr for ReprWidget with fn pretty_node(self, ctx) {
 
 ///|
 fn sets_deques_value() -> Array[&@pretty.PrettyRepr] {
-  let empty_set : @set.Set[Int] = @set.Set([])
-  let empty_deque : @deque.Deque[Int] = @deque.Deque([])
+  let empty_set : @set.Set[Int32] = @set.Set([])
+  let empty_deque : @deque.Deque[Int32] = @deque.Deque([])
   [@set.Set([1, 2, 3]), @deque.Deque([1, 2]), empty_set, empty_deque]
 }
 
 ///|
 fn empties_value() -> Array[&@pretty.PrettyRepr] {
-  let empty_list : Array[Int] = []
-  let empty_map : Map[String, Int] = Map([])
-  let empty_set : @set.Set[Int] = @set.Set([])
+  let empty_list : Array[Int32] = []
+  let empty_map : Map[String, Int32] = Map([])
+  let empty_set : @set.Set[Int32] = @set.Set([])
   let empty_bytes : Bytes = b""
   [empty_list, empty_map, @pretty.Tuple::new([]), empty_set, "", empty_bytes]
 }
@@ -223,7 +223,7 @@ fn wide_chars_value() -> Map[String, &@pretty.PrettyRepr] {
 }
 
 ///|
-fn render_renderable(value : &@rich.Renderable, width~ : Int) -> String raise {
+fn render_renderable(value : &@rich.Renderable, width~ : Int32) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
     file~,
@@ -238,6 +238,6 @@ fn render_renderable(value : &@rich.Renderable, width~ : Int) -> String raise {
 }
 
 ///|
-fn nested_value() -> Map[String, Map[String, Array[Int]]] {
+fn nested_value() -> Map[String, Map[String, Array[Int32]]] {
   { "a": { "b": [1, 2] } }
 }

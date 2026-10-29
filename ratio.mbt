@@ -3,9 +3,9 @@
 ///|
 /// An edge for `ratio_resolve`.
 pub(all) struct Edge {
-  size : Int?
-  ratio : Int
-  minimum_size : Int
+  size : Int32?
+  ratio : Int32
+  minimum_size : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -45,18 +45,18 @@ fn Frac::add(a : Frac, b : Frac) -> Frac {
 }
 
 ///|
-fn Frac::mul_int(a : Frac, n : Int) -> Frac {
+fn Frac::mul_int(a : Frac, n : Int32) -> Frac {
   Frac::make(a.num * n.to_int64(), a.den)
 }
 
 ///|
-fn Frac::le_int(a : Frac, n : Int) -> Bool {
+fn Frac::le_int(a : Frac, n : Int32) -> Bool {
   a.num <= n.to_int64() * a.den
 }
 
 ///|
 /// Python `divmod(frac, 1)`.
-fn Frac::divmod1(a : Frac) -> (Int, Frac) {
+fn Frac::divmod1(a : Frac) -> (Int32, Frac) {
   let q = if a.num >= 0L {
     a.num / a.den
   } else {
@@ -67,8 +67,8 @@ fn Frac::divmod1(a : Frac) -> (Int, Frac) {
 
 ///|
 /// Divide total space to satisfy size, ratio, and minimum_size constraints.
-pub fn ratio_resolve(total : Int, edges : ArrayView[Edge]) -> Array[Int] {
-  let sizes : Array[Int?] = edges.map(e => {
+pub fn ratio_resolve(total : Int32, edges : ArrayView[Edge]) -> Array[Int32] {
+  let sizes : Array[Int32?] = edges.map(e => {
     match e.size {
       Some(0) | None => None
       s => s
@@ -130,11 +130,11 @@ pub fn ratio_resolve(total : Int, edges : ArrayView[Edge]) -> Array[Int] {
 ///|
 /// Divide an integer total in to parts based on ratios (reducing values).
 pub fn ratio_reduce(
-  total : Int,
-  ratios : ArrayView[Int],
-  maximums : ArrayView[Int],
-  values : ArrayView[Int],
-) -> Array[Int] {
+  total : Int32,
+  ratios : ArrayView[Int32],
+  maximums : ArrayView[Int32],
+  values : ArrayView[Int32],
+) -> Array[Int32] {
   let ratios = ratios.mapi((i, r) => if maximums[i] != 0 { r } else { 0 })
   let mut total_ratio = 0
   for r in ratios {
@@ -170,10 +170,10 @@ pub fn ratio_reduce(
 ///|
 /// Distribute an integer total in to parts based on ratios.
 pub fn ratio_distribute(
-  total : Int,
-  ratios : ArrayView[Int],
-  minimums? : ArrayView[Int],
-) -> Array[Int] {
+  total : Int32,
+  ratios : ArrayView[Int32],
+  minimums? : ArrayView[Int32],
+) -> Array[Int32] {
   let ratios = match minimums {
     Some(m) if m.length() != 0 =>
       ratios.mapi((i, r) => if m[i] != 0 { r } else { 0 })

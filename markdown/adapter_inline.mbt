@@ -4,8 +4,8 @@
 
 ///|
 priv struct Delim {
-  token : Int
-  mut end : Int
+  token : Int32
+  mut end : Int32
   mut open : Bool
   mut close : Bool
 }
@@ -19,7 +19,7 @@ priv struct InlineConv {
   snippet : Bool
   /// Content column of the innermost container when it is a list item
   /// (-1 otherwise).
-  list_indent : Int
+  list_indent : Int32
   /// Whether `<` were escaped in the snippet (see escape_unmatched_html).
   mut escaped_lt : Bool
   out : Array[Token]
@@ -31,13 +31,13 @@ fn InlineConv::new(
   src : String,
   defs : Map[String, @cmark.LabelDef],
   snippet~ : Bool,
-  list_indent? : Int = -1,
+  list_indent~ : Int32 = -1,
 ) -> InlineConv {
   { src, defs, snippet, list_indent, escaped_lt: false, out: [], scopes: [], }
 }
 
 ///|
-fn InlineConv::new_scope(self : InlineConv) -> Int {
+fn InlineConv::new_scope(self : InlineConv) -> Int32 {
   self.scopes.push([])
   self.scopes.length() - 1
 }
@@ -55,7 +55,7 @@ fn InlineConv::push_text(self : InlineConv, s : String) -> Unit {
 }
 
 ///|
-fn InlineConv::slice(self : InlineConv, first : Int, last : Int) -> String {
+fn InlineConv::slice(self : InlineConv, first : Int32, last : Int32) -> String {
   let s = substr(self.src, first, end=last + 1)
   let s = if self.snippet { s.replace_all(old="\n    ", new="\n") } else { s }
   if self.escaped_lt {
@@ -69,7 +69,7 @@ fn InlineConv::slice(self : InlineConv, first : Int, last : Int) -> String {
 fn InlineConv::inline(
   self : InlineConv,
   inline : @cmark.Inline,
-  scope : Int,
+  scope : Int32,
 ) -> Unit {
   match inline {
     Inlines(seq) =>
@@ -149,7 +149,7 @@ fn InlineConv::link_dest(self : InlineConv, l : @cmark.InlineLink) -> String? {
 fn InlineConv::link(
   self : InlineConv,
   l : @cmark.Node[@cmark.InlineLink],
-  scope : Int,
+  scope : Int32,
 ) -> Unit {
   let dest = self.link_dest(l.v)
   let href = normalize_link(dest.unwrap_or(""))
@@ -202,7 +202,7 @@ fn InlineConv::image(
 }
 
 ///|
-fn char_before(s : String, pos : Int) -> Char {
+fn char_before(s : String, pos : Int32) -> Char {
   if pos <= 0 {
     return ' '
   }
@@ -217,7 +217,7 @@ fn char_before(s : String, pos : Int) -> Char {
 }
 
 ///|
-fn char_at(s : String, pos : Int) -> Char {
+fn char_at(s : String, pos : Int32) -> Char {
   if pos >= s.length() {
     return ' '
   }
@@ -252,7 +252,7 @@ fn md_is_punct(c : Char) -> Bool {
 ///|
 /// markdown-it `scanDelims(start, canSplitWord=True)` for a run of `count`
 /// markers at `start`: (can_open, can_close).
-fn scan_delims(src : String, start : Int, count : Int) -> (Bool, Bool) {
+fn scan_delims(src : String, start : Int32, count : Int32) -> (Bool, Bool) {
   let last = char_before(src, start)
   let next = char_at(src, start + count)
   let last_punct = md_is_punct(last)
@@ -270,7 +270,7 @@ fn InlineConv::text(
   self : InlineConv,
   v : String,
   loc : @cmark_base.TextLoc,
-  scope : Int,
+  scope : Int32,
 ) -> Unit {
   if !v.contains("~") || loc.is_none() {
     self.push_text(v)
@@ -348,9 +348,9 @@ fn InlineConv::text(
 /// `last`): the offset of its `;` and its decoded text.
 fn InlineConv::entity_at(
   self : InlineConv,
-  r : Int,
-  last : Int,
-) -> (Int, String)? {
+  r : Int32,
+  last : Int32,
+) -> (Int32, String)? {
   let src = self.src
   let mut semi = r + 1
   while semi <= last && semi - r <= 32 && src[semi] != ';' {
@@ -378,7 +378,7 @@ fn process_delimiters(delimiters : Array[Delim]) -> Unit {
   let maximum = delimiters.length()
   let mut header_idx = 0
   let mut last_token_idx = -2
-  let jumps : Array[Int] = []
+  let jumps : Array[Int32] = []
   let openers_bottom = [-1, -1, -1, -1, -1, -1]
   let mut closer_idx = 0
   while closer_idx < maximum {
@@ -429,7 +429,7 @@ fn InlineConv::post_process(
   self : InlineConv,
   delimiters : Array[Delim],
 ) -> Unit {
-  let lone_markers : Array[Int] = []
+  let lone_markers : Array[Int32] = []
   for start_delim in delimiters {
     if start_delim.end == -1 {
       continue

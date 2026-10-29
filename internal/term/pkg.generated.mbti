@@ -2,9 +2,9 @@
 package "bobzhang/rich/internal/term"
 
 // Values
-pub fn flush_fd(Int) -> Unit
+pub fn flush_fd(Int32) -> Unit
 
-pub fn isatty(Int) -> Bool
+pub fn isatty(Int32) -> Bool
 
 pub fn monotonic() -> Double
 
@@ -18,11 +18,11 @@ pub fn sleep(Double) -> Unit
 
 pub fn strftime(String, Double) -> String
 
-pub fn terminal_size(Int) -> (Int, Int)?
+pub fn terminal_size(Int32) -> (Int32, Int32)?
 
 pub fn time() -> Double
 
-pub fn write_fd(Int, String) -> Bool
+pub fn write_fd(Int32, String) -> Bool
 
 pub fn write_file(String, String) -> Bool
 

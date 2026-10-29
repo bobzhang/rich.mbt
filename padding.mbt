@@ -4,10 +4,10 @@
 /// Draw space around content.
 pub struct Padding {
   renderable : &Renderable
-  top : Int
-  right : Int
-  bottom : Int
-  left : Int
+  top : Int32
+  right : Int32
+  bottom : Int32
+  left : Int32
   style : StyleType
   expand : Bool
 }
@@ -16,8 +16,8 @@ pub struct Padding {
 /// Padding dimensions: 1 value (all sides), 2 values (top/bottom,
 /// left/right) or 4 values (top, right, bottom, left).
 pub fn unpack_padding(
-  pad : ArrayView[Int],
-) -> (Int, Int, Int, Int) raise RichError {
+  pad : ArrayView[Int32],
+) -> (Int32, Int32, Int32, Int32) raise RichError {
   match pad {
     [p] => (p, p, p, p)
     [top, right] => (top, right, top, right)
@@ -32,9 +32,9 @@ pub fn unpack_padding(
 ///|
 pub fn Padding::new(
   renderable : &Renderable,
-  pad? : ArrayView[Int] = [0, 0, 0, 0],
+  pad~ : ArrayView[Int32] = [0, 0, 0, 0],
   style? : &IntoStyle,
-  expand? : Bool = true,
+  expand~ : Bool = true,
 ) -> Padding raise RichError {
   let (top, right, bottom, left) = unpack_padding(pad)
   {
@@ -53,7 +53,7 @@ pub fn Padding::new(
 
 ///|
 /// Make padding instance to render an indent.
-pub fn Padding::indent(renderable : &Renderable, level : Int) -> Padding {
+pub fn Padding::indent(renderable : &Renderable, level : Int32) -> Padding {
   {
     renderable,
     top: 0,

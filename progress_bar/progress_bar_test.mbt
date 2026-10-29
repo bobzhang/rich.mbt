@@ -3,7 +3,7 @@
 ///|
 fn render(
   renderable : &@rich.Renderable,
-  no_wrap? : Bool = false,
+  no_wrap~ : Bool = false,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(

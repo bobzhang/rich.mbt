@@ -9,12 +9,12 @@ let words : Array[String] = [
 ]
 
 ///|
-fn word_items(n? : Int = 17) -> Array[&@rich.Renderable] {
+fn word_items(n~ : Int32 = 17) -> Array[&@rich.Renderable] {
   words[:n].iter().map(s => (s : &@rich.Renderable)).to_array()
 }
 
 ///|
-fn render(renderable : &@rich.Renderable, width : Int) -> String raise {
+fn render(renderable : &@rich.Renderable, width : Int32) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
     width~,
@@ -30,7 +30,7 @@ fn render(renderable : &@rich.Renderable, width : Int) -> String raise {
 
 ///|
 test "differential layouts" {
-  let cases : Array[(@columns.Columns, Int, String)] = [
+  let cases : Array[(@columns.Columns, Int32, String)] = [
     (
       @columns.Columns::new(word_items()),
       40,

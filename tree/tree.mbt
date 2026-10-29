@@ -42,9 +42,9 @@ pub fn Tree::new(
   label : &@rich.Renderable,
   style? : &@rich.IntoStyle,
   guide_style? : &@rich.IntoStyle,
-  expanded? : Bool = true,
-  highlight? : Bool = false,
-  hide_root? : Bool = false,
+  expanded~ : Bool = true,
+  highlight~ : Bool = false,
+  hide_root~ : Bool = false,
 ) -> Tree {
   {
     label,
@@ -71,8 +71,8 @@ pub fn Tree::add(
   label : &@rich.Renderable,
   style? : &@rich.IntoStyle,
   guide_style? : &@rich.IntoStyle,
-  expanded? : Bool = true,
-  highlight? : Bool? = Some(false),
+  expanded~ : Bool = true,
+  highlight~ : Bool? = Some(false),
 ) -> Tree {
   let node : Tree = {
     label,
@@ -96,7 +96,7 @@ pub fn Tree::add(
 ///|
 priv struct StackFrame {
   nodes : Array[Tree]
-  mut index : Int
+  mut index : Int32
 }
 
 ///|
@@ -120,7 +120,7 @@ let fork_guide = 2
 let end_guide = 3
 
 ///|
-fn guide_at(guides : GuideType, index : Int) -> String {
+fn guide_at(guides : GuideType, index : Int32) -> String {
   match index {
     0 => guides.0
     1 => guides.1
@@ -137,7 +137,7 @@ pub impl @rich.Renderable for Tree with fn rich_console(self, console, options) 
   let null_style = @rich.Style::null()
   let guide_style = console.get_style(self.guide_style, default=Def(""))
   let guide_style = if guide_style.to_bool() { guide_style } else { null_style }
-  fn make_guide(index : Int, style : @rich.Style) -> @rich.Segment {
+  fn make_guide(index : Int32, style : @rich.Style) -> @rich.Segment {
     let line = if options.ascii_only() {
       guide_at(ascii_guides, index)
     } else {

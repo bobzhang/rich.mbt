@@ -41,7 +41,7 @@ pub(all) struct Bar {
   /// End point (between 0 and size, inclusive).
   mut end : Double
   /// Width of the bar, or `None` for maximum width.
-  mut width : Int?
+  mut width : Int32?
   mut style : @rich.Style
 }
 
@@ -51,9 +51,9 @@ pub fn Bar::new(
   size : Double,
   begin : Double,
   end : Double,
-  width? : Int,
-  color? : &IntoColor = "default",
-  bgcolor? : &IntoColor = "default",
+  width? : Int32,
+  color~ : &IntoColor = "default",
+  bgcolor~ : &IntoColor = "default",
 ) -> Bar raise @color.ColorParseError {
   {
     size,

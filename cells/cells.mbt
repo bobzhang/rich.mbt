@@ -7,18 +7,21 @@
 /// Unicode data required to measure the cell widths of glyphs.
 pub struct CellTable {
   unicode_version : String
-  priv widths : FixedArray[Int] // flattened (start, end, width) triples
-  priv narrow_to_wide : FixedArray[Int] // sorted code points
+  priv widths : FixedArray[Int32] // flattened (start, end, width) triples
+  priv narrow_to_wide : FixedArray[Int32] // sorted code points
 }
 
 ///|
 /// Returns `true` if the code point becomes wide when followed by U+FE0F.
-pub fn CellTable::is_narrow_to_wide(self : CellTable, codepoint : Int) -> Bool {
+pub fn CellTable::is_narrow_to_wide(
+  self : CellTable,
+  codepoint : Int32,
+) -> Bool {
   binary_search(self.narrow_to_wide, codepoint)
 }
 
 ///|
-fn binary_search(table : FixedArray[Int], value : Int) -> Bool {
+fn binary_search(table : FixedArray[Int32], value : Int32) -> Bool {
   for lo = 0, hi = table.length() - 1; lo <= hi; {
     let mid = (lo + hi) >> 1
     let v = table[mid]
@@ -38,7 +41,7 @@ fn binary_search(table : FixedArray[Int], value : Int) -> Bool {
 let table_cache : Map[String, CellTable] = Map([])
 
 ///|
-fn parse_version(version : String) -> (Int, Int, Int)? {
+fn parse_version(version : String) -> (Int32, Int32, Int32)? {
   let parts = version.split(".").collect()
   let nums = []
   for part in parts {
@@ -67,7 +70,10 @@ fn parse_version(version : String) -> (Int, Int, Int)? {
 }
 
 ///|
-fn compare_version(a : (Int, Int, Int), b : (Int, Int, Int)) -> Int {
+fn compare_version(
+  a : (Int32, Int32, Int32),
+  b : (Int32, Int32, Int32),
+) -> Int32 {
   if a.0 != b.0 {
     return a.0.compare(b.0)
   }
@@ -89,7 +95,7 @@ pub fn unicode_versions() -> Array[String] {
 /// `"auto"` reads the `UNICODE_VERSION` environment variable (falling back to
 /// `"latest"`); `"latest"` selects the newest table. Unknown versions select
 /// the closest older version.
-pub fn load(unicode_version? : String = "auto") -> CellTable {
+pub fn load(unicode_version~ : String = "auto") -> CellTable {
   if table_cache.get(unicode_version) is Some(t) {
     return t
   }
@@ -131,7 +137,7 @@ pub fn load(unicode_version? : String = "auto") -> CellTable {
 }
 
 ///|
-fn is_single_cell_char(cp : Int) -> Bool {
+fn is_single_cell_char(cp : Int32) -> Bool {
   // upstream `_SINGLE_CELL_UNICODE_RANGES`, unrolled
   (cp >= 0x20 && cp <= 0x7E) ||
   (cp >= 0xA0 && cp <= 0xAC) ||
@@ -156,7 +162,7 @@ pub fn is_single_cell_widths(text : StringView) -> Bool {
 }
 
 ///|
-fn table_lookup(table : CellTable, codepoint : Int) -> Int {
+fn table_lookup(table : CellTable, codepoint : Int32) -> Int32 {
   let widths = table.widths
   let count = widths.length() / 3
   if codepoint > widths[(count - 1) * 3 + 1] {
@@ -181,15 +187,15 @@ fn table_lookup(table : CellTable, codepoint : Int) -> Int {
 ///|
 /// Get the cell size of a code point (0, 1 or 2).
 pub fn codepoint_cell_size(
-  codepoint : Int,
-  unicode_version? : String = "auto",
-) -> Int {
+  codepoint : Int32,
+  unicode_version~ : String = "auto",
+) -> Int32 {
   cell_size_in(load(unicode_version~), codepoint)
 }
 
 ///|
 /// `codepoint_cell_size` with the table already loaded.
-fn cell_size_in(table : CellTable, codepoint : Int) -> Int {
+fn cell_size_in(table : CellTable, codepoint : Int32) -> Int32 {
   if is_single_cell_char(codepoint) {
     // one cell in every table (checked by a test)
     return 1
@@ -205,20 +211,20 @@ fn cell_size_in(table : CellTable, codepoint : Int) -> Int {
 /// Get the cell size of a character (0, 1 or 2).
 pub fn get_character_cell_size(
   character : Char,
-  unicode_version? : String = "auto",
-) -> Int {
+  unicode_version~ : String = "auto",
+) -> Int32 {
   codepoint_cell_size(character.to_int(), unicode_version~)
 }
 
 ///|
-const ZWJ : Int = 0x200D
+const ZWJ : Int32 = 0x200D
 
 ///|
-const VS16 : Int = 0xFE0F
+const VS16 : Int32 = 0xFE0F
 
 ///|
 /// Get the cell length of a string (length as it appears in the terminal).
-pub fn cell_len(text : StringView, unicode_version? : String = "auto") -> Int {
+pub fn cell_len(text : StringView, unicode_version~ : String = "auto") -> Int32 {
   if is_single_cell_widths(text) {
     return text.length()
   }
@@ -238,7 +244,7 @@ pub fn cell_len(text : StringView, unicode_version? : String = "auto") -> Int {
     return total
   }
   let mut total_width = 0
-  let mut last_measured : Int? = None
+  let mut last_measured : Int32? = None
   let mut skip_next = false
   for c in text {
     let cp = c.to_int()
@@ -268,7 +274,7 @@ pub fn cell_len(text : StringView, unicode_version? : String = "auto") -> Int {
 ///|
 /// Decode `text` into code points and the UTF-16 offset of each one
 /// (with a final entry equal to `text.length()`).
-fn decode(text : StringView) -> (Array[Int], Array[Int]) {
+fn decode(text : StringView) -> (Array[Int32], Array[Int32]) {
   let cps = []
   let offsets = []
   let mut offset = 0
@@ -289,14 +295,14 @@ fn decode(text : StringView) -> (Array[Int], Array[Int]) {
 /// offsets. Spans cover every index of the string with no gaps.
 pub fn split_graphemes(
   text : StringView,
-  unicode_version? : String = "auto",
-) -> (Array[(Int, Int, Int)], Int) {
+  unicode_version~ : String = "auto",
+) -> (Array[(Int32, Int32, Int32)], Int32) {
   let table = load(unicode_version~)
   let (cps, offsets) = decode(text)
   let count = cps.length()
-  let spans : Array[(Int, Int, Int)] = []
+  let spans : Array[(Int32, Int32, Int32)] = []
   let mut index = 0
-  let mut last_measured : Int? = None
+  let mut last_measured : Int32? = None
   let mut total_width = 0
   while index < count {
     let cp = cps[index]
@@ -343,14 +349,14 @@ pub fn split_graphemes(
 }
 
 ///|
-fn slice(text : StringView, start : Int, end : Int) -> String {
+fn slice(text : StringView, start : Int32, end : Int32) -> String {
   text.view(start_offset=start, end_offset=end).to_owned()
 }
 
 ///|
 fn split_text_impl(
   text : StringView,
-  cell_position : Int,
+  cell_position : Int32,
   unicode_version : String,
 ) -> (String, String) {
   if cell_position <= 0 {
@@ -402,8 +408,8 @@ fn split_text_impl(
 /// converted to two spaces.
 pub fn split_text(
   text : StringView,
-  cell_position : Int,
-  unicode_version? : String = "auto",
+  cell_position : Int32,
+  unicode_version~ : String = "auto",
 ) -> (String, String) {
   if is_single_cell_widths(text) {
     let n = text.length()
@@ -422,8 +428,8 @@ pub fn split_text(
 /// within the given number of cells.
 pub fn set_cell_size(
   text : StringView,
-  total : Int,
-  unicode_version? : String = "auto",
+  total : Int32,
+  unicode_version~ : String = "auto",
 ) -> String {
   if is_single_cell_widths(text) {
     let size = text.length()
@@ -451,8 +457,8 @@ pub fn set_cell_size(
 /// (cell) width.
 pub fn chop_cells(
   text : StringView,
-  width : Int,
-  unicode_version? : String = "auto",
+  width : Int32,
+  unicode_version~ : String = "auto",
 ) -> Array[String] {
   if is_single_cell_widths(text) {
     // Python `range(0, len(text), width)`

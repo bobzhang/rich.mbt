@@ -2,8 +2,8 @@
 
 ///|
 fn plain_console(
-  width? : Int,
-  height? : Int,
+  width? : Int32,
+  height? : Int32,
 ) -> (@rich.Console, @rich.StringIO) raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(file~, width?, height?, environ={})

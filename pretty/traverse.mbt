@@ -16,7 +16,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let ctx_demo : Array[Int] = [1, 2, 3]
+///   let ctx_demo : Array[Int32] = [1, 2, 3]
 ///   inspect(@pretty.pretty_repr(ctx_demo), content="[1, 2, 3]")
 /// }
 /// ```
@@ -29,16 +29,16 @@ pub(open) trait PrettyRepr {
 /// requested by the caller and the current depth.
 pub struct PrettyContext {
   /// Maximum length of containers before abbreviating.
-  max_length : Int?
+  max_length : Int32?
   /// Maximum length of strings before truncating.
-  max_string : Int?
+  max_string : Int32?
   /// Maximum depth of nested data structures.
-  max_depth : Int?
+  max_depth : Int32?
   /// Depth of the value being traversed (0 for the root).
-  depth : Int
+  depth : Int32
   /// Whether the value being traversed is the root of the tree.
   root : Bool
-  priv visited : Array[Int]
+  priv visited : Array[Int32]
   // Key reprs use the full `repr` of the key, truncating only a top-level
   // string (upstream `to_repr(key)`).
   priv key_mode : Bool
@@ -47,9 +47,9 @@ pub struct PrettyContext {
 ///|
 /// A fresh context for the root of a traversal.
 pub fn PrettyContext::new(
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
 ) -> PrettyContext {
   {
     max_length,
@@ -170,11 +170,11 @@ fn PrettyContext::guard_opt(
 /// A unique identity for objects that may be part of a reference cycle.
 /// Store one in such objects and pass it to the builders (`id=`).
 pub struct PrettyId {
-  priv id : Int
+  priv id : Int32
 }
 
 ///|
-let pretty_id_counter : Ref[Int] = { val: 0, }
+let pretty_id_counter : Ref[Int32] = { val: 0, }
 
 ///|
 /// A new unique identity.
@@ -187,8 +187,8 @@ pub fn PrettyId::new() -> PrettyId {
 /// Shared container logic (upstream's `_CONTAINERS` branch).
 fn PrettyContext::container(
   self : PrettyContext,
-  count : Int,
-  child : (Int) -> Node,
+  count : Int32,
+  child : (Int32) -> Node,
   open_brace~ : String,
   close_brace~ : String,
   empty~ : String,
@@ -232,10 +232,10 @@ fn PrettyContext::container(
 pub fn[T : PrettyRepr] PrettyContext::sequence(
   self : PrettyContext,
   items : ArrayView[T],
-  open_brace? : String = "[",
-  close_brace? : String = "]",
-  empty? : String = "[]",
-  is_tuple? : Bool = false,
+  open_brace~ : String = "[",
+  close_brace~ : String = "]",
+  empty~ : String = "[]",
+  is_tuple~ : Bool = false,
   id? : PrettyId,
 ) -> Node {
   self.container(
@@ -271,9 +271,9 @@ pub fn PrettyContext::tuple(
 pub fn[K : PrettyRepr, V : PrettyRepr] PrettyContext::mapping(
   self : PrettyContext,
   items : ArrayView[(K, V)],
-  open_brace? : String = "{",
-  close_brace? : String = "}",
-  empty? : String = "{}",
+  open_brace~ : String = "{",
+  close_brace~ : String = "}",
+  empty~ : String = "{}",
   id? : PrettyId,
 ) -> Node {
   self.container(
@@ -296,9 +296,9 @@ pub fn[K : PrettyRepr, V : PrettyRepr] PrettyContext::mapping(
 /// Traverse a value and generate a repr tree.
 pub fn[T : PrettyRepr] traverse(
   value : T,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
 ) -> Node {
   value.pretty_node(PrettyContext::new(max_length?, max_string?, max_depth?))
 }

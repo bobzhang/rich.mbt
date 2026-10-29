@@ -2,7 +2,7 @@
 // `PrettyRepr` implementations producing the same repr trees.
 
 ///|
-fn plain_console(width? : Int = 80) -> @rich.Console raise {
+fn plain_console(width~ : Int32 = 80) -> @rich.Console raise {
   @rich.Console::new(
     file=@rich.StringIO::new(),
     width~,
@@ -13,10 +13,10 @@ fn plain_console(width? : Int = 80) -> @rich.Console raise {
 }
 
 ///|
-let none : Int? = None
+let none : Int32? = None
 
 ///|
-fn set_of(items : Array[Int]) -> @set.Set[Int] {
+fn set_of(items : Array[Int32]) -> @set.Set[Int32] {
   @set.Set::from_array(items)
 }
 
@@ -54,11 +54,11 @@ test "pretty" {
 /// `@dataclass class ExampleDataclass` (with `ignore` and `last` declared
 /// `repr=False`).
 struct ExampleDataclass {
-  foo : Int
+  foo : Int32
   mut bar : &@pretty.PrettyRepr
-  ignore : Int
+  ignore : Int32
   baz : Array[String]
-  last : Int
+  last : Int32
   id : @pretty.PrettyId
 }
 
@@ -251,13 +251,13 @@ test "reference_cycle_container" {
 
 ///|
 struct Example {
-  x : Int
+  x : Int32
   mut y : &@pretty.PrettyRepr
   id : @pretty.PrettyId
 }
 
 ///|
-fn Example::new(x : Int, y : &@pretty.PrettyRepr) -> Example {
+fn Example::new(x : Int32, y : &@pretty.PrettyRepr) -> Example {
   { x, y, id: @pretty.PrettyId::new(), }
 }
 
@@ -419,7 +419,7 @@ impl @pretty.PrettyRepr for BarDC with fn pretty_node(self, ctx) {
 
 ///|
 test "max_depth_rich_repr / attrs" {
-  let empty : Array[Int] = []
+  let empty : Array[Int32] = []
   assert_eq(
     @pretty.pretty_repr(
       Foo::{ foo: Bar::{ bar: Foo::{ foo: empty, }, }, },
@@ -431,7 +431,7 @@ test "max_depth_rich_repr / attrs" {
 
 ///|
 test "max_depth_dataclass" {
-  let empty : Array[Int] = []
+  let empty : Array[Int32] = []
   assert_eq(
     @pretty.pretty_repr(
       FooDC::{ foo: BarDC::{ bar: FooDC::{ foo: empty, }, }, },
@@ -444,7 +444,7 @@ test "max_depth_dataclass" {
 ///|
 /// `defaultdict(int, ...)` modelled with the mapping helper.
 struct DefaultDict {
-  items : Array[(String, Int)]
+  items : Array[(String, Int32)]
 }
 
 ///|
@@ -471,14 +471,14 @@ test "deque" {
     @pretty.pretty_repr(@deque.Deque::from_array([1, 2, 3])),
     "deque([1, 2, 3])",
   )
-  let empty : @deque.Deque[Int] = @deque.Deque([])
+  let empty : @deque.Deque[Int32] = @deque.Deque([])
   assert_eq(@pretty.pretty_repr(empty), "deque()")
 }
 
 ///|
 /// `array('I', ...)` modelled with the sequence helper.
 struct UIntArray {
-  items : Array[UInt]
+  items : Array[UInt32]
 }
 
 ///|
@@ -598,10 +598,10 @@ test "empty_repr" {
 ///|
 /// `@attr.define class Point` with `foo: str = attr.field(repr=str.upper)`.
 struct Point {
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
   foo : String
-  z : Int
+  z : Int32
 }
 
 ///|

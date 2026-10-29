@@ -2,7 +2,9 @@
 
 ///|
 test "test_ratio_reduce" {
-  let cases : Array[(Int, Array[Int], Array[Int], Array[Int], Array[Int])] = [
+  let cases : Array[
+    (Int32, Array[Int32], Array[Int32], Array[Int32], Array[Int32]),
+  ] = [
     (20, [2, 4], [20, 20], [5, 5], [-2, -8]),
     (20, [2, 4], [1, 1], [5, 5], [4, 4]),
     (20, [2, 4], [1, 1], [2, 2], [1, 1]),
@@ -17,7 +19,11 @@ test "test_ratio_reduce" {
 }
 
 ///|
-fn edge(size? : Int, ratio? : Int = 1, minimum_size? : Int = 1) -> @rich.Edge {
+fn edge(
+  size? : Int32,
+  ratio~ : Int32 = 1,
+  minimum_size~ : Int32 = 1,
+) -> @rich.Edge {
   { size, ratio, minimum_size, }
 }
 

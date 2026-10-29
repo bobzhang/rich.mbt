@@ -12,8 +12,8 @@ import {
 // Types and methods
 pub(all) struct Columns {
   renderables : Array[&@rich.Renderable]
-  mut width : Int?
-  mut padding : Array[Int]
+  mut width : Int32?
+  mut padding : Array[Int32]
   mut expand : Bool
   mut equal : Bool
   mut column_first : Bool
@@ -22,7 +22,7 @@ pub(all) struct Columns {
   mut title : @rich.TextType?
 }
 pub fn Columns::add_renderable(Self, &@rich.Renderable) -> Unit
-pub fn Columns::new(ArrayView[&@rich.Renderable], padding? : ArrayView[Int], width? : Int, expand? : Bool, equal? : Bool, column_first? : Bool, right_to_left? : Bool, align? : @rich.AlignMethod, title? : &@rich.IntoText) -> Self
+pub fn Columns::new(ArrayView[&@rich.Renderable], padding? : ArrayView[Int32], width? : Int32, expand? : Bool, equal? : Bool, column_first? : Bool, right_to_left? : Bool, align? : @rich.AlignMethod, title? : &@rich.IntoText) -> Self
 pub impl @rich.Renderable for Columns
 
 // Type aliases

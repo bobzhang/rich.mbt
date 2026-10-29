@@ -16,7 +16,7 @@ pub let default_keywords : Array[String] = [
 /// output.
 pub(all) struct RichHandler {
   /// Records below this level are ignored by `handle`.
-  mut level : Int
+  mut level : Int32
   mut console : @rich.Console
   mut highlighter : &@rich.Highlighter
   priv log_render : @rich.LogRender
@@ -44,17 +44,17 @@ pub(all) struct RichHandler {
 ///   instead (upstream accepts a callable as `log_time_format`).
 /// * `keywords`: words to highlight instead of `default_keywords`.
 pub fn RichHandler::new(
-  level? : Int = NOTSET,
+  level~ : Int32 = NOTSET,
   console? : @rich.Console,
-  show_time? : Bool = true,
-  omit_repeated_times? : Bool = true,
-  show_level? : Bool = true,
-  show_path? : Bool = true,
-  enable_link_path? : Bool = true,
+  show_time~ : Bool = true,
+  omit_repeated_times~ : Bool = true,
+  show_level~ : Bool = true,
+  show_path~ : Bool = true,
+  enable_link_path~ : Bool = true,
   highlighter? : &@rich.Highlighter,
-  markup? : Bool = false,
-  rich_tracebacks? : Bool = false,
-  log_time_format? : String = "[%x %X]",
+  markup~ : Bool = false,
+  rich_tracebacks~ : Bool = false,
+  log_time_format~ : String = "[%x %X]",
   log_time_formatter? : (Double) -> @rich.Text,
   keywords? : Array[String],
   formatter? : Formatter,

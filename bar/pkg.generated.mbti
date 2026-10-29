@@ -15,10 +15,10 @@ pub(all) struct Bar {
   mut size : Double
   mut begin : Double
   mut end : Double
-  mut width : Int?
+  mut width : Int32?
   mut style : @rich.Style
 }
-pub fn Bar::new(Double, Double, Double, width? : Int, color? : &IntoColor, bgcolor? : &IntoColor) -> Self raise @color.ColorParseError
+pub fn Bar::new(Double, Double, Double, width? : Int32, color? : &IntoColor, bgcolor? : &IntoColor) -> Self raise @color.ColorParseError
 pub fn Bar::repr(Self) -> String
 pub impl @rich.Renderable for Bar
 pub impl Show for Bar

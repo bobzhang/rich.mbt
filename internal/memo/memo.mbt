@@ -6,12 +6,12 @@
 /// upstream's `lru_cache(maxsize=...)`.
 pub struct Memo[K, V] {
   priv map : Map[K, V]
-  priv capacity : Int
+  priv capacity : Int32
 }
 
 ///|
 /// Create an empty memo table holding at most `capacity` entries.
-pub fn[K : Hash + Eq, V] Memo::new(capacity : Int) -> Memo[K, V] {
+pub fn[K : Hash + Eq, V] Memo::new(capacity : Int32) -> Memo[K, V] {
   { map: Map([]), capacity, }
 }
 
@@ -43,7 +43,7 @@ pub fn[K : Hash + Eq, V] Memo::set(
 
 ///|
 /// Number of memoized entries.
-pub fn[K, V] Memo::length(self : Memo[K, V]) -> Int {
+pub fn[K, V] Memo::length(self : Memo[K, V]) -> Int32 {
   self.map.length()
 }
 

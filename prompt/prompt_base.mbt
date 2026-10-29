@@ -55,20 +55,20 @@ pub(all) struct PromptBase[T] {
 pub fn[T] PromptBase::new(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
   response_type~ : (String) -> T?,
   to_str~ : (T) -> String,
-  validate_error_message? : String = "[prompt.invalid]Please enter a valid value",
-  illegal_choice_message? : String = "[prompt.invalid.choice]Please select one of the available options",
-  prompt_suffix? : String = ": ",
+  validate_error_message~ : String = "[prompt.invalid]Please enter a valid value",
+  illegal_choice_message~ : String = "[prompt.invalid.choice]Please select one of the available options",
+  prompt_suffix~ : String = ": ",
   render_default? : (PromptBase[T], T) -> @rich.Text,
   process_response? : (PromptBase[T], String) -> T raise InvalidResponse,
   pre_prompt? : (PromptBase[T]) -> Unit raise,
-  get_input? : InputFn = get_input,
+  get_input~ : InputFn = get_input,
 ) -> PromptBase[T] raise {
   let console = match console {
     Some(c) => c

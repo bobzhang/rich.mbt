@@ -17,8 +17,8 @@ pub(all) struct Progress {
   mut disable : Bool
   /// Expand the tasks table to fit the width.
   mut expand : Bool
-  priv tasks_ : Map[Int, Task]
-  priv mut task_index : Int
+  priv tasks_ : Map[Int32, Task]
+  priv mut task_index : Int32
   /// The live display used to render the progress.
   live : @live.Live
   /// Get the current time (used for elapsed time and speed estimates).
@@ -54,17 +54,17 @@ pub fn Progress::get_default_columns() -> Array[&ProgressColumn] {
 /// * `disable`: disable the progress display.
 /// * `expand`: expand the tasks table to fit the width.
 pub fn Progress::new(
-  columns? : Array[&ProgressColumn] = [],
+  columns~ : Array[&ProgressColumn] = [],
   console? : @rich.Console,
-  auto_refresh? : Bool = true,
-  refresh_per_second? : Double = 10.0,
-  speed_estimate_period? : Double = 30.0,
-  transient? : Bool = false,
-  redirect_stdout? : Bool = true,
-  redirect_stderr? : Bool = true,
+  auto_refresh~ : Bool = true,
+  refresh_per_second~ : Double = 10.0,
+  speed_estimate_period~ : Double = 30.0,
+  transient~ : Bool = false,
+  redirect_stdout~ : Bool = true,
+  redirect_stderr~ : Bool = true,
   get_time? : () -> Double,
-  disable? : Bool = false,
-  expand? : Bool = false,
+  disable~ : Bool = false,
+  expand~ : Bool = false,
 ) -> Progress {
   guard refresh_per_second > 0.0 else {
     abort("refresh_per_second must be > 0")
@@ -123,7 +123,7 @@ pub fn Progress::tasks(self : Progress) -> Array[Task] {
 
 ///|
 /// The task IDs.
-pub fn Progress::task_ids(self : Progress) -> Array[Int] {
+pub fn Progress::task_ids(self : Progress) -> Array[Int32] {
   self.tasks_.keys().collect()
 }
 
@@ -131,7 +131,7 @@ pub fn Progress::task_ids(self : Progress) -> Array[Int] {
 /// Get a task by ID.
 pub fn Progress::get_task(
   self : Progress,
-  task_id : Int,
+  task_id : Int32,
 ) -> Task raise @rich.RichError {
   match self.tasks_.get(task_id) {
     Some(task) => task
@@ -179,7 +179,7 @@ pub fn Progress::run(self : Progress, f : () -> Unit raise) -> Unit raise {
 ///|
 /// Start a task (used when calculating elapsed time). Needed if the task
 /// was added with `start=false`.
-pub fn Progress::start_task(self : Progress, task_id : Int) -> Unit raise {
+pub fn Progress::start_task(self : Progress, task_id : Int32) -> Unit raise {
   let task = self.get_task(task_id)
   if task.start_time is None {
     task.start_time = Some((self.get_time)())
@@ -188,7 +188,7 @@ pub fn Progress::start_task(self : Progress, task_id : Int) -> Unit raise {
 
 ///|
 /// Stop a task: freezes the elapsed time.
-pub fn Progress::stop_task(self : Progress, task_id : Int) -> Unit raise {
+pub fn Progress::stop_task(self : Progress, task_id : Int32) -> Unit raise {
   let task = self.get_task(task_id)
   let current_time = (self.get_time)()
   if task.start_time is None {
@@ -210,14 +210,14 @@ fn Progress::auto_refresh(self : Progress) -> Unit raise {
 /// unchanged; `fields` are merged into `task.fields`.
 pub fn Progress::update(
   self : Progress,
-  task_id : Int,
+  task_id : Int32,
   total? : Double,
   completed? : Double,
   advance? : Double,
   description? : String,
   visible? : Bool,
-  refresh? : Bool = false,
-  fields? : Map[String, Json] = {},
+  refresh~ : Bool = false,
+  fields~ : Map[String, Json] = {},
 ) -> Unit raise {
   let task = self.get_task(task_id)
   let completed_start = task.completed
@@ -263,13 +263,13 @@ pub fn Progress::update(
 /// Reset a task so completed is 0 and the clock is reset.
 pub fn Progress::reset(
   self : Progress,
-  task_id : Int,
-  start? : Bool = true,
+  task_id : Int32,
+  start~ : Bool = true,
   total? : Double,
-  completed? : Double = 0.0,
+  completed~ : Double = 0.0,
   visible? : Bool,
   description? : String,
-  fields? : Map[String, Json] = {},
+  fields~ : Map[String, Json] = {},
 ) -> Unit raise {
   let current_time = (self.get_time)()
   let task = self.get_task(task_id)
@@ -296,8 +296,8 @@ pub fn Progress::reset(
 /// Advance a task by a number of steps.
 pub fn Progress::advance(
   self : Progress,
-  task_id : Int,
-  advance? : Double = 1.0,
+  task_id : Int32,
+  advance~ : Double = 1.0,
 ) -> Unit raise {
   let current_time = (self.get_time)()
   let task = self.get_task(task_id)
@@ -376,12 +376,12 @@ pub fn Progress::make_tasks_table(
 pub fn Progress::add_task(
   self : Progress,
   description : String,
-  start? : Bool = true,
-  total? : Double? = Some(100.0),
-  completed? : Double = 0.0,
-  visible? : Bool = true,
-  fields? : Map[String, Json] = {},
-) -> Int raise {
+  start~ : Bool = true,
+  total~ : Double? = Some(100.0),
+  completed~ : Double = 0.0,
+  visible~ : Bool = true,
+  fields~ : Map[String, Json] = {},
+) -> Int32 raise {
   let task = Task::new(
     self.task_index,
     description,
@@ -403,7 +403,7 @@ pub fn Progress::add_task(
 
 ///|
 /// Delete a task if it exists.
-pub fn Progress::remove_task(self : Progress, task_id : Int) -> Unit {
+pub fn Progress::remove_task(self : Progress, task_id : Int32) -> Unit {
   self.tasks_.remove(task_id)
 }
 

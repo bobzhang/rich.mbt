@@ -29,7 +29,7 @@ impl ConsoleFile with fn encoding(_self) {
 ///|
 /// Standard output or standard error.
 pub struct StdStream {
-  fd : Int
+  fd : Int32
 }
 
 ///|
@@ -70,7 +70,7 @@ pub struct StringIO {
 
 ///|
 /// Create an in-memory file. With `isatty`, it claims to be a terminal.
-pub fn StringIO::new(isatty? : Bool = false) -> StringIO {
+pub fn StringIO::new(isatty~ : Bool = false) -> StringIO {
   { buffer: StringBuilder(), tty: isatty, }
 }
 
@@ -119,11 +119,11 @@ pub(open) trait RenderHook {
 ///|
 /// A renderable to generate new line(s).
 pub struct NewLine {
-  count : Int
+  count : Int32
 }
 
 ///|
-pub fn NewLine::new(count? : Int = 1) -> NewLine {
+pub fn NewLine::new(count~ : Int32 = 1) -> NewLine {
   { count, }
 }
 
@@ -136,15 +136,15 @@ pub impl Renderable for NewLine with fn rich_console(self, _console, _options) {
 /// Render a list of lines at a given offset.
 pub struct ScreenUpdate {
   lines : Array[Array[Segment]]
-  x : Int
-  y : Int
+  x : Int32
+  y : Int32
 }
 
 ///|
 pub fn ScreenUpdate::new(
   lines : Array[Array[Segment]],
-  x : Int,
-  y : Int,
+  x : Int32,
+  y : Int32,
 ) -> ScreenUpdate {
   { lines, x, y, }
 }
@@ -176,7 +176,7 @@ pub struct Group {
 ///|
 pub fn Group::new(
   renderables : Array[&Renderable],
-  fit? : Bool = true,
+  fit~ : Bool = true,
 ) -> Group {
   { renderables, fit, }
 }
@@ -226,7 +226,7 @@ pub(all) struct Console {
   /// Suppress all output.
   mut quiet : Bool
   /// Number of spaces used to replace a tab character.
-  mut tab_size : Int
+  mut tab_size : Int32
   /// Record terminal output (required for the export methods).
   mut record : Bool
   /// Default soft wrap mode for `print`.
@@ -253,18 +253,18 @@ pub(all) struct Console {
   priv emoji_ : Bool
   priv emoji_variant : EmojiVariant?
   priv highlight_ : Bool
-  priv mut width_ : Int?
-  priv mut height_ : Int?
+  priv mut width_ : Int32?
+  priv mut height_ : Int32?
   priv color_system_ : @color.ColorSystem?
   priv force_terminal : Bool?
   priv environ : Map[String, String]?
   priv log_render : LogRender
   priv buffer : Array[Segment]
-  priv mut buffer_index : Int
+  priv mut buffer_index : Int32
   priv theme_stack : ThemeStack
   priv record_buffer : Array[Segment]
   priv render_hooks : Array[&RenderHook]
-  priv live_stack : Array[Int]
+  priv live_stack : Array[Int32]
   priv mut is_alt_screen_ : Bool
 }
 
@@ -277,32 +277,32 @@ pub(all) struct Console {
 /// `log_time_formatter` (upstream: a callable `log_time_format`) formats
 /// the time of `log` instead of `log_time_format`.
 pub fn Console::new(
-  color_system? : String? = Some("auto"),
+  color_system~ : String? = Some("auto"),
   force_terminal? : Bool,
   force_jupyter? : Bool,
   force_interactive? : Bool,
-  soft_wrap? : Bool = false,
+  soft_wrap~ : Bool = false,
   theme? : Theme,
-  stderr? : Bool = false,
+  stderr~ : Bool = false,
   file? : &ConsoleFile,
-  quiet? : Bool = false,
-  width? : Int,
-  height? : Int,
+  quiet~ : Bool = false,
+  width? : Int32,
+  height? : Int32,
   style? : &IntoStyle,
   no_color? : Bool,
-  tab_size? : Int = 8,
-  record? : Bool = false,
-  markup? : Bool = true,
-  emoji? : Bool = true,
+  tab_size~ : Int32 = 8,
+  record~ : Bool = false,
+  markup~ : Bool = true,
+  emoji~ : Bool = true,
   emoji_variant? : EmojiVariant,
-  highlight? : Bool = true,
-  log_time? : Bool = true,
-  log_path? : Bool = true,
-  log_time_format? : String = "[%X]",
+  highlight~ : Bool = true,
+  log_time~ : Bool = true,
+  log_path~ : Bool = true,
+  log_time_format~ : String = "[%X]",
   log_time_formatter? : (Double) -> Text,
   highlighter? : &Highlighter,
   legacy_windows? : Bool,
-  safe_box? : Bool = true,
+  safe_box~ : Bool = true,
   get_datetime? : () -> Double,
   get_time? : () -> Double,
   environ? : Map[String, String],
@@ -409,7 +409,7 @@ fn is_digits(s : String) -> Bool {
 }
 
 ///|
-fn parse_int_or(s : String, default : Int) -> Int {
+fn parse_int_or(s : String, default : Int32) -> Int32 {
   @string.parse_int(s) catch {
     _ => default
   }
@@ -499,7 +499,7 @@ pub fn Console::buffered(self : Console, f : () -> Unit raise) -> Unit raise {
 
 ///|
 /// Register a live display. Returns `true` if it is the top-most one.
-pub fn Console::set_live(self : Console, live_id : Int) -> Bool {
+pub fn Console::set_live(self : Console, live_id : Int32) -> Bool {
   self.live_stack.push(live_id)
   self.live_stack.length() == 1
 }
@@ -512,7 +512,7 @@ pub fn Console::clear_live(self : Console) -> Unit {
 
 ///|
 /// The ids of the active live displays (innermost last).
-pub fn Console::live_stack(self : Console) -> Array[Int] {
+pub fn Console::live_stack(self : Console) -> Array[Int32] {
   self.live_stack.copy()
 }
 
@@ -563,7 +563,7 @@ pub fn Console::capture(self : Console, f : () -> Unit raise) -> String raise {
 pub fn Console::push_theme(
   self : Console,
   theme : Theme,
-  inherit_styles? : Bool = true,
+  inherit_styles~ : Bool = true,
 ) -> Unit {
   self.theme_stack.push_theme(theme, inherit_styles~)
 }
@@ -580,7 +580,7 @@ pub fn Console::use_theme(
   self : Console,
   theme : Theme,
   f : () -> Unit raise,
-  inherit_styles? : Bool = true,
+  inherit_styles~ : Bool = true,
 ) -> Unit raise {
   self.push_theme(theme, inherit_styles~)
   {
@@ -673,8 +673,8 @@ pub fn Console::size(self : Console) -> ConsoleDimensions {
   if self.is_dumb_terminal() {
     return { width: 80, height: 25, }
   }
-  let mut width : Int? = None
-  let mut height : Int? = None
+  let mut width : Int32? = None
+  let mut height : Int32? = None
   for fd in [0, 1, 2] {
     if @term.terminal_size(fd) is Some((w, h)) {
       width = Some(w)
@@ -710,32 +710,32 @@ pub fn Console::size(self : Console) -> ConsoleDimensions {
 
 ///|
 /// Set a new size for the terminal.
-pub fn Console::set_size(self : Console, width : Int, height : Int) -> Unit {
+pub fn Console::set_size(self : Console, width : Int32, height : Int32) -> Unit {
   self.width_ = Some(width)
   self.height_ = Some(height)
 }
 
 ///|
 /// The width of the console.
-pub fn Console::width(self : Console) -> Int {
+pub fn Console::width(self : Console) -> Int32 {
   self.size().width
 }
 
 ///|
 /// Set the width of the console.
-pub fn Console::set_width(self : Console, width : Int) -> Unit {
+pub fn Console::set_width(self : Console, width : Int32) -> Unit {
   self.width_ = Some(width)
 }
 
 ///|
 /// The height of the console.
-pub fn Console::height(self : Console) -> Int {
+pub fn Console::height(self : Console) -> Int32 {
   self.size().height
 }
 
 ///|
 /// Set the height of the console.
-pub fn Console::set_height(self : Console, height : Int) -> Unit {
+pub fn Console::set_height(self : Console, height : Int32) -> Unit {
   self.height_ = Some(height)
 }
 
@@ -747,14 +747,14 @@ pub fn Console::bell(self : Console) -> Unit raise {
 
 ///|
 /// Write new line(s).
-pub fn Console::line(self : Console, count? : Int = 1) -> Unit raise {
+pub fn Console::line(self : Console, count~ : Int32 = 1) -> Unit raise {
   guard count >= 0 else { raise ValueError("count must be >= 0") }
   self.print(NewLine::new(count~))
 }
 
 ///|
 /// Clear the screen.
-pub fn Console::clear(self : Console, home? : Bool = true) -> Unit raise {
+pub fn Console::clear(self : Console, home~ : Bool = true) -> Unit raise {
   if home {
     self.control([Control::clear(), Control::home()])
   } else {
@@ -764,7 +764,7 @@ pub fn Console::clear(self : Console, home? : Bool = true) -> Unit raise {
 
 ///|
 /// Show or hide the cursor.
-pub fn Console::show_cursor(self : Console, show? : Bool = true) -> Bool raise {
+pub fn Console::show_cursor(self : Console, show~ : Bool = true) -> Bool raise {
   if self.is_terminal() {
     self.control([Control::show_cursor(show)])
     true
@@ -778,7 +778,7 @@ pub fn Console::show_cursor(self : Console, show? : Bool = true) -> Bool raise {
 /// control codes were written.
 pub fn Console::set_alt_screen(
   self : Console,
-  enable? : Bool = true,
+  enable~ : Bool = true,
 ) -> Bool raise {
   if self.is_terminal() && !self.legacy_windows {
     self.control([Control::alt_screen(enable)])
@@ -820,7 +820,7 @@ pub struct ScreenContext {
 /// Create a screen context; call `enter` / `exit`, or use `Console::screen`.
 pub fn Console::screen_context(
   self : Console,
-  hide_cursor? : Bool = true,
+  hide_cursor~ : Bool = true,
   style? : &IntoStyle,
 ) -> ScreenContext {
   {
@@ -835,7 +835,7 @@ pub fn Console::screen_context(
 /// Update the screen with new renderables (and / or a new style).
 pub fn ScreenContext::update(
   self : ScreenContext,
-  renderables? : Array[&Renderable] = [],
+  renderables~ : Array[&Renderable] = [],
   style? : &IntoStyle,
 ) -> Unit raise {
   if renderables.length() > 0 {
@@ -877,7 +877,7 @@ pub fn ScreenContext::exit(self : ScreenContext) -> Unit raise {
 pub fn Console::screen(
   self : Console,
   f : (ScreenContext) -> Unit raise,
-  hide_cursor? : Bool = true,
+  hide_cursor~ : Bool = true,
   style? : &IntoStyle,
 ) -> Unit raise {
   let context = self.screen_context(hide_cursor~, style?)
@@ -926,7 +926,7 @@ fn Console::render_into(
   renderable : &Renderable,
   options : ConsoleOptions,
   out : Array[Segment],
-  depth : Int,
+  depth : Int32,
 ) -> Unit raise {
   if options.max_width < 1 {
     return
@@ -977,8 +977,8 @@ pub fn Console::render_lines(
   renderable : &Renderable,
   options? : ConsoleOptions,
   style? : Style,
-  pad? : Bool = true,
-  new_lines? : Bool = false,
+  pad~ : Bool = true,
+  new_lines~ : Bool = false,
 ) -> Array[Array[Segment]] raise {
   let render_options = options.unwrap_or_else(() => self.options())
   let mut rendered = self.render(renderable, options=render_options)
@@ -1168,9 +1168,9 @@ fn Console::collect_renderables(
 pub fn Console::rule(
   self : Console,
   title? : &IntoText,
-  characters? : String = "─",
+  characters~ : String = "─",
   style? : &IntoStyle,
-  align? : AlignMethod = Center,
+  align~ : AlignMethod = Center,
 ) -> Unit raise {
   let rule = Rule::new(
     title=match title {
@@ -1208,7 +1208,7 @@ pub fn Console::control(
 pub fn Console::out(
   self : Console,
   text : String,
-  end? : String = "\n",
+  end~ : String = "\n",
   style? : &IntoStyle,
   highlight? : Bool,
 ) -> Unit raise {
@@ -1221,8 +1221,8 @@ pub fn Console::out(
 pub fn Console::out_many(
   self : Console,
   objects : ArrayView[String],
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   style? : &IntoStyle,
   highlight? : Bool,
 ) -> Unit raise {
@@ -1245,8 +1245,8 @@ pub fn Console::out_many(
 pub fn Console::print(
   self : Console,
   object : &Renderable,
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   style? : &IntoStyle,
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
@@ -1254,11 +1254,11 @@ pub fn Console::print(
   emoji? : Bool,
   markup? : Bool,
   highlight? : Bool,
-  width? : Int,
-  height? : Int,
-  crop? : Bool = true,
+  width? : Int32,
+  height? : Int32,
+  crop~ : Bool = true,
   soft_wrap? : Bool,
-  new_line_start? : Bool = false,
+  new_line_start~ : Bool = false,
 ) -> Unit raise {
   self.print_many(
     [object],
@@ -1285,8 +1285,8 @@ pub fn Console::print(
 pub fn Console::print_many(
   self : Console,
   objects : ArrayView[&Renderable],
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   style? : &IntoStyle,
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
@@ -1294,11 +1294,11 @@ pub fn Console::print_many(
   emoji? : Bool,
   markup? : Bool,
   highlight? : Bool,
-  width? : Int,
-  height? : Int,
-  crop? : Bool = true,
+  width? : Int32,
+  height? : Int32,
+  crop~ : Bool = true,
   soft_wrap? : Bool,
-  new_line_start? : Bool = false,
+  new_line_start~ : Bool = false,
 ) -> Unit raise {
   let objects : ArrayView[&Renderable] = if objects.length() == 0 {
     if end == "\n" {
@@ -1400,11 +1400,11 @@ pub fn Console::print_json(
   self : Console,
   json? : String,
   data? : Json,
-  indent? : Int? = Some(2),
+  indent~ : Int32? = Some(2),
   indent_str? : String,
-  highlight? : Bool = true,
-  ensure_ascii? : Bool = false,
-  sort_keys? : Bool = false,
+  highlight~ : Bool = true,
+  ensure_ascii~ : Bool = false,
+  sort_keys~ : Bool = false,
 ) -> Unit raise {
   let renderable = match json {
     Some(j) =>
@@ -1458,8 +1458,8 @@ pub fn Console::update_screen(
 pub fn Console::update_screen_lines(
   self : Console,
   lines : Array[Array[Segment]],
-  x? : Int = 0,
-  y? : Int = 0,
+  x~ : Int32 = 0,
+  y~ : Int32 = 0,
 ) -> Unit raise {
   if !self.is_alt_screen() {
     raise NoAltScreen("Alt screen must be enabled to call update_screen")
@@ -1476,8 +1476,8 @@ pub fn Console::update_screen_lines(
 pub fn Console::log(
   self : Console,
   object : &Renderable,
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   style? : &IntoStyle,
   justify? : JustifyMethod,
   emoji? : Bool,
@@ -1500,7 +1500,7 @@ pub fn Console::log(
 
 ///|
 /// Split a `SourceLoc` (`path:line:col-line:col`) into `(path, line)`.
-fn parse_source_loc(loc : SourceLoc) -> (String, Int) {
+fn parse_source_loc(loc : SourceLoc) -> (String, Int32) {
   let s = loc.to_string()
   let parts : Array[String] = s.split(":").map(p => p.to_owned()).collect()
   if parts.length() >= 4 {
@@ -1517,8 +1517,8 @@ fn parse_source_loc(loc : SourceLoc) -> (String, Int) {
 pub fn Console::log_many(
   self : Console,
   objects : ArrayView[&Renderable],
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   style? : &IntoStyle,
   justify? : JustifyMethod,
   emoji? : Bool,
@@ -1645,9 +1645,9 @@ fn Console::render_buffer(self : Console, buffer : Array[Segment]) -> String {
 pub fn Console::input(
   self : Console,
   prompt? : &IntoText,
-  markup? : Bool = true,
-  emoji? : Bool = true,
-  password? : Bool = false,
+  markup~ : Bool = true,
+  emoji~ : Bool = true,
+  password~ : Bool = false,
   stream? : () -> String raise,
 ) -> String raise {
   if prompt is Some(prompt) && prompt.into_text_type().to_bool() {
@@ -1678,8 +1678,8 @@ pub fn Console::input(
 /// Generate text from console contents (requires `record=true`).
 pub fn Console::export_text(
   self : Console,
-  clear? : Bool = true,
-  styles? : Bool = false,
+  clear~ : Bool = true,
+  styles~ : Bool = false,
 ) -> String {
   guard self.record else {
     abort(
@@ -1713,8 +1713,8 @@ pub fn Console::export_text(
 pub fn Console::save_text(
   self : Console,
   path : String,
-  clear? : Bool = true,
-  styles? : Bool = false,
+  clear~ : Bool = true,
+  styles~ : Bool = false,
 ) -> Unit raise {
   let text = self.export_text(clear~, styles~)
   if !@term.write_file(path, text) {
@@ -1754,9 +1754,9 @@ pub fn html_escape(text : String) -> String {
 pub fn Console::export_html(
   self : Console,
   theme? : @color.TerminalTheme,
-  clear? : Bool = true,
+  clear~ : Bool = true,
   code_format? : String,
-  inline_styles? : Bool = false,
+  inline_styles~ : Bool = false,
 ) -> String {
   guard self.record else {
     abort(
@@ -1786,7 +1786,7 @@ pub fn Console::export_html(
       fragments.write_string(text)
     }
   } else {
-    let styles : Map[String, Int] = Map([])
+    let styles : Map[String, Int32] = Map([])
     for segment in segments {
       let mut text = html_escape(segment.text)
       match segment.style {
@@ -1836,9 +1836,9 @@ pub fn Console::save_html(
   self : Console,
   path : String,
   theme? : @color.TerminalTheme,
-  clear? : Bool = true,
+  clear~ : Bool = true,
   code_format? : String,
-  inline_styles? : Bool = false,
+  inline_styles~ : Bool = false,
 ) -> Unit raise {
   let html = self.export_html(theme?, clear~, code_format?, inline_styles~)
   if !@term.write_file(path, html) {
@@ -1852,8 +1852,8 @@ pub fn Console::pager(
   self : Console,
   f : () -> Unit raise,
   pager? : &Pager,
-  styles? : Bool = false,
-  links? : Bool = false,
+  styles~ : Bool = false,
+  links~ : Bool = false,
 ) -> Unit raise {
   let pager : &Pager = match pager {
     Some(p) => p

@@ -9,7 +9,7 @@ fn dump_tokens(markup : String) -> String {
 ///|
 fn render_with_options(
   markup : String,
-  width : Int,
+  width : Int32,
   options : String,
 ) -> String raise {
   let kwargs : Map[String, String] = Map([])

@@ -28,7 +28,7 @@ pub fn reconfigure(console : Console) -> Unit {
 /// enabled). With `file`, a new console writing to it is used.
 pub fn print(
   object : &Renderable,
-  end? : String = "\n",
+  end~ : String = "\n",
   file? : &ConsoleFile,
 ) -> Unit raise {
   let console = match file {
@@ -42,8 +42,8 @@ pub fn print(
 /// Print several objects separated by `sep` with the global console.
 pub fn print_many(
   objects : ArrayView[&Renderable],
-  sep? : String = " ",
-  end? : String = "\n",
+  sep~ : String = " ",
+  end~ : String = "\n",
   file? : &ConsoleFile,
 ) -> Unit raise {
   let console = match file {
@@ -58,10 +58,10 @@ pub fn print_many(
 pub fn print_json(
   json? : String,
   data? : Json,
-  indent? : Int? = Some(2),
-  highlight? : Bool = true,
-  ensure_ascii? : Bool = false,
-  sort_keys? : Bool = false,
+  indent~ : Int32? = Some(2),
+  highlight~ : Bool = true,
+  ensure_ascii~ : Bool = false,
+  sort_keys~ : Bool = false,
 ) -> Unit raise {
   get_console().print_json(
     json?,

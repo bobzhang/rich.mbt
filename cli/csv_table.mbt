@@ -8,13 +8,13 @@ fn is_number(value : String) -> Bool {
   if i < chars.length() && chars[i] == '-' {
     i += 1
   }
-  while i < chars.length() && chars[i] is ('0'..='9') {
+  while i < chars.length() && chars[i] is ('0'..<='9') {
     i += 1
   }
   if i < chars.length() && chars[i] == '.' {
     i += 1
   }
-  while i < chars.length() && chars[i] is ('0'..='9') {
+  while i < chars.length() && chars[i] is ('0'..<='9') {
     i += 1
   }
   i == chars.length()

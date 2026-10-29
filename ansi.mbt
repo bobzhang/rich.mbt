@@ -61,7 +61,7 @@ fn ansi_tokenize(ansi_text : String) -> Array[AnsiToken] {
 }
 
 ///|
-let sgr_style_map : Map[Int, String] = {
+let sgr_style_map : Map[Int32, String] = {
   1: "bold",
   2: "dim",
   3: "italic",
@@ -204,7 +204,7 @@ pub fn AnsiDecoder::decode_line(self : AnsiDecoder, line : String) -> Text {
         }
       }
       let mut i = 0
-      fn next() -> Int? {
+      fn next() -> Int32? {
         if i < codes.length() {
           let c = codes[i]
           i += 1

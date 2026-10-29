@@ -5,7 +5,7 @@
 ///
 /// ```mbt check
 /// test {
-///   let data : Map[String, Array[Int]] = { "foo": [1, 2, 3], "bar": [] }
+///   let data : Map[String, Array[Int32]] = { "foo": [1, 2, 3], "bar": [] }
 ///   inspect(@pretty.pretty_repr(data), content="{'foo': [1, 2, 3], 'bar': []}")
 ///   inspect(
 ///     @pretty.pretty_repr(data, max_width=16),
@@ -24,12 +24,12 @@
 /// ```
 pub fn[T : PrettyRepr] pretty_repr(
   value : T,
-  max_width? : Int = 80,
-  indent_size? : Int = 4,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
-  expand_all? : Bool = false,
+  max_width~ : Int32 = 80,
+  indent_size~ : Int32 = 4,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
+  expand_all~ : Bool = false,
 ) -> String {
   traverse(value, max_length?, max_string?, max_depth?).render(
     max_width~,
@@ -43,16 +43,16 @@ pub fn[T : PrettyRepr] pretty_repr(
 pub(all) struct Pretty {
   mut value : &PrettyRepr
   mut highlighter : &@rich.Highlighter
-  mut indent_size : Int
+  mut indent_size : Int32
   mut justify : @rich.JustifyMethod?
   mut overflow : @rich.OverflowMethod?
   mut no_wrap : Bool?
   mut indent_guides : Bool
-  mut max_length : Int?
-  mut max_string : Int?
-  mut max_depth : Int?
+  mut max_length : Int32?
+  mut max_string : Int32?
+  mut max_depth : Int32?
   mut expand_all : Bool
-  mut margin : Int
+  mut margin : Int32
   mut insert_line : Bool
 }
 
@@ -72,17 +72,17 @@ pub(all) struct Pretty {
 pub fn Pretty::new(
   value : &PrettyRepr,
   highlighter? : &@rich.Highlighter,
-  indent_size? : Int = 4,
+  indent_size~ : Int32 = 4,
   justify? : @rich.JustifyMethod,
   overflow? : @rich.OverflowMethod,
-  no_wrap? : Bool? = Some(false),
-  indent_guides? : Bool = false,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
-  expand_all? : Bool = false,
-  margin? : Int = 0,
-  insert_line? : Bool = false,
+  no_wrap~ : Bool? = Some(false),
+  indent_guides~ : Bool = false,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
+  expand_all~ : Bool = false,
+  margin~ : Int32 = 0,
+  insert_line~ : Bool = false,
 ) -> Pretty {
   {
     value,
@@ -105,7 +105,7 @@ pub fn Pretty::new(
 }
 
 ///|
-fn Pretty::repr(self : Pretty, max_width : Int) -> String {
+fn Pretty::repr(self : Pretty, max_width : Int32) -> String {
   traverse(
     self.value,
     max_length?=self.max_length,
@@ -180,11 +180,11 @@ pub impl @rich.Renderable for Pretty with fn rich_measure(
 pub fn[T : PrettyRepr] pprint(
   value : T,
   console? : @rich.Console,
-  indent_guides? : Bool = true,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
-  expand_all? : Bool = false,
+  indent_guides~ : Bool = true,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
+  expand_all~ : Bool = false,
 ) -> Unit raise {
   let console = match console {
     Some(c) => c

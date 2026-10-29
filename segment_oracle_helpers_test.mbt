@@ -11,9 +11,9 @@ fn seg_repr(seg : @rich.Segment) -> String {
 ///|
 fn segment_ops(
   segs : Array[(String, String?)],
-  cuts : Array[Int],
-  cut : Int,
-  width : Int,
+  cuts : Array[Int32],
+  cut : Int32,
+  width : Int32,
 ) -> (String, String, String) raise {
   let segments = segs.map(s => {
     match s.1 {

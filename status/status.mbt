@@ -27,10 +27,10 @@ pub(all) struct Status {
 pub fn Status::new(
   status : &@rich.Renderable,
   console? : @rich.Console,
-  spinner? : String = "dots",
-  spinner_style? : &@rich.IntoStyle = "status.spinner",
-  speed? : Double = 1.0,
-  refresh_per_second? : Double = 12.5,
+  spinner~ : String = "dots",
+  spinner_style~ : &@rich.IntoStyle = "status.spinner",
+  speed~ : Double = 1.0,
+  refresh_per_second~ : Double = 12.5,
 ) -> Status raise @rich.RichError {
   let spinner_style = spinner_style.into_style_type()
   let spinner = @spinner.Spinner::new(

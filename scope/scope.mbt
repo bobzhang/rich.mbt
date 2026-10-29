@@ -2,7 +2,7 @@
 
 ///|
 /// Compare strings by code point, as Python does.
-fn compare_code_points(a : String, b : String) -> Int {
+fn compare_code_points(a : String, b : String) -> Int32 {
   let ai = a.iter()
   let bi = b.iter()
   for ;; {
@@ -52,11 +52,11 @@ fn compare_code_points(a : String, b : String) -> Int {
 pub fn render_scope(
   scope : Map[String, &@pretty.PrettyRepr],
   title? : &@rich.IntoText,
-  sort_keys? : Bool = true,
-  indent_guides? : Bool = false,
-  max_length? : Int,
-  max_string? : Int,
-  max_depth? : Int,
+  sort_keys~ : Bool = true,
+  indent_guides~ : Bool = false,
+  max_length? : Int32,
+  max_string? : Int32,
+  max_depth? : Int32,
   overflow? : @rich.OverflowMethod,
 ) -> @panel.Panel {
   let highlighter = @rich.ReprHighlighter::new()

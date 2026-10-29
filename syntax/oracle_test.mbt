@@ -252,9 +252,9 @@ let sample_clojure : String = "(defn f [x] (* x 2)) ; c\n" +
 ///|
 fn oracle_render(
   syntax : @syntax.Syntax,
-  width~ : Int,
+  width~ : Int32,
   color_system~ : String?,
-  no_wrap? : Bool = false,
+  no_wrap~ : Bool = false,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(

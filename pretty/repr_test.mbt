@@ -7,12 +7,12 @@
 /// yield "bar", self.bar, None; yield "egg", self.egg`.
 struct ReprFoo {
   foo : String
-  bar : Int?
-  egg : Int
+  bar : Int32?
+  egg : Int32
 }
 
 ///|
-fn ReprFoo::new(foo : String, bar? : Int, egg? : Int = 1) -> ReprFoo {
+fn ReprFoo::new(foo : String, bar? : Int32, egg~ : Int32 = 1) -> ReprFoo {
   { foo, bar, egg, }
 }
 
@@ -84,7 +84,7 @@ test "rich_repr_auto" {
   // signature of `__init__`.
   let egg = @pretty.repr_string("Egg", [
     @pretty.arg("hello"),
-    @pretty.kwarg_default("bar", (None : Int?), None),
+    @pretty.kwarg_default("bar", (None : Int32?), None),
     @pretty.kwarg_default("egg", 2, 1),
   ])
   assert_eq(egg, "Egg('hello', egg=2)")
@@ -104,7 +104,7 @@ test "rich_repr_auto_angular" {
       "AngularEgg",
       [
         @pretty.arg("hello"),
-        @pretty.kwarg_default("bar", (None : Int?), None),
+        @pretty.kwarg_default("bar", (None : Int32?), None),
         @pretty.kwarg_default("egg", 2, 1),
       ],
       angular=true,

@@ -4,7 +4,7 @@
 /// Upstream tests/render.py `render`.
 fn render_for_test(
   renderable : &@rich.Renderable,
-  no_wrap? : Bool = false,
+  no_wrap~ : Bool = false,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(

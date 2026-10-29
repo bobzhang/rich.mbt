@@ -93,7 +93,7 @@ pub async fn[X] run_status(status : @status.Status, body : async () -> X) -> X {
 pub async fn[T] track(
   items : Array[T],
   body : async (T) -> Unit,
-  description? : String = "Working...",
+  description~ : String = "Working...",
   progress? : @progress.Progress,
 ) -> Unit {
   let progress = match progress {

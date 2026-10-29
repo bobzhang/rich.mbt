@@ -14,7 +14,7 @@ fn normalize_links(s : String) -> String {
 fn run_case(
   args : Array[String],
   stdin : String,
-  width : Int,
+  width : Int32,
   tty : Bool,
 ) -> @cli.Output {
   let files : Map[String, String] = Map::from_array(fixtures)

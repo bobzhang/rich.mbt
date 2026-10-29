@@ -3,7 +3,7 @@
 ///|
 test "wrap oracle cases" {
   let cases : Array[
-    (String, Int, @rich.JustifyMethod?, @rich.OverflowMethod?, Array[String]),
+    (String, Int32, @rich.JustifyMethod?, @rich.OverflowMethod?, Array[String]),
   ] = [
     (
       "Hello, World!",
@@ -13526,7 +13526,7 @@ test "wrap oracle cases" {
 
 ///|
 test "print oracle cases" {
-  let cases : Array[(String, Int, @rich.JustifyMethod?, String)] = [
+  let cases : Array[(String, Int32, @rich.JustifyMethod?, String)] = [
     (
       "Hello, World!",
       7,

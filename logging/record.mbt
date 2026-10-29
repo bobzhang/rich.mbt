@@ -2,33 +2,33 @@
 // `logging` module.
 
 ///|
-pub const CRITICAL : Int = 50
+pub const CRITICAL : Int32 = 50
 
 ///|
-pub const FATAL : Int = 50
+pub const FATAL : Int32 = 50
 
 ///|
-pub const ERROR : Int = 40
+pub const ERROR : Int32 = 40
 
 ///|
-pub const WARNING : Int = 30
+pub const WARNING : Int32 = 30
 
 ///|
-pub const WARN : Int = 30
+pub const WARN : Int32 = 30
 
 ///|
-pub const INFO : Int = 20
+pub const INFO : Int32 = 20
 
 ///|
-pub const DEBUG : Int = 10
+pub const DEBUG : Int32 = 10
 
 ///|
-pub const NOTSET : Int = 0
+pub const NOTSET : Int32 = 0
 
 ///|
 /// The name of a level (Python `logging.getLevelName`): `"Level n"` for
 /// levels without a name.
-pub fn get_level_name(level : Int) -> String {
+pub fn get_level_name(level : Int32) -> String {
   match level {
     50 => "CRITICAL"
     40 => "ERROR"
@@ -42,7 +42,7 @@ pub fn get_level_name(level : Int) -> String {
 
 ///|
 /// The level of a level name (`"INFO"`, `"WARN"`, ...), or `None`.
-pub fn level_from_name(name : String) -> Int? {
+pub fn level_from_name(name : String) -> Int32? {
   match name {
     "CRITICAL" | "FATAL" => Some(CRITICAL)
     "ERROR" => Some(ERROR)
@@ -70,10 +70,10 @@ pub fn level_from_name(name : String) -> Int? {
 pub(all) struct LogRecord {
   name : String
   msg : String
-  levelno : Int
+  levelno : Int32
   levelname : String
   pathname : String
-  lineno : Int
+  lineno : Int32
   func_name : String
   created : Double
   exc_text : String?
@@ -88,19 +88,19 @@ pub(all) struct LogRecord {
 /// Create a log record. `created` defaults to the current time (seconds
 /// since the epoch); `levelname` is derived from `level`.
 pub fn LogRecord::new(
-  name? : String = "root",
-  level : Int,
+  name~ : String = "root",
+  level : Int32,
   msg : String,
-  pathname? : String = "",
-  lineno? : Int = 0,
-  func_name? : String = "",
+  pathname~ : String = "",
+  lineno~ : Int32 = 0,
+  func_name~ : String = "",
   created? : Double,
   exc_text? : String,
   stack_info? : String,
   traceback? : &@rich.Renderable,
   markup? : Bool,
   highlighter? : &@rich.Highlighter,
-  extra? : Map[String, String] = {},
+  extra~ : Map[String, String] = {},
 ) -> LogRecord {
   {
     name,
@@ -147,7 +147,7 @@ pub fn LogRecord::module_(self : LogRecord) -> String {
 
 ///|
 /// The millisecond part of the creation time (Python `record.msecs`).
-pub fn LogRecord::msecs(self : LogRecord) -> Int {
+pub fn LogRecord::msecs(self : LogRecord) -> Int32 {
   let frac = self.created - self.created.floor()
   (frac * 1000.0).floor().to_int()
 }

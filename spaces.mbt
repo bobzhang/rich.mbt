@@ -7,7 +7,7 @@ let space_strings : FixedArray[String] = FixedArray::makei(256, n => {
 
 ///|
 /// `" ".repeat(n)`.
-fn space_string(n : Int) -> String {
+fn space_string(n : Int32) -> String {
   if n >= 0 && n < space_strings.length() {
     space_strings[n]
   } else {

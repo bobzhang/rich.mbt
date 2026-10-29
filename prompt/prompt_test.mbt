@@ -3,7 +3,7 @@
 ///|
 /// Upstream `Console(file=io.StringIO())` (not a terminal, so no styles).
 fn plain_console(
-  markup? : Bool = true,
+  markup~ : Bool = true,
 ) -> (@rich.Console, @rich.StringIO) raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(file~, width=80, markup~, environ={})

@@ -13,7 +13,7 @@ priv enum HighlighterKind {
 fn highlight_spans(
   kind : HighlighterKind,
   s : String,
-) -> Array[(Int, Int, String)] raise {
+) -> Array[(Int32, Int32, String)] raise {
   let text = @rich.Text::new(text=s)
   let highlighter : &@rich.Highlighter = match kind {
     Repr => (@rich.ReprHighlighter::new() : &@rich.Highlighter)
