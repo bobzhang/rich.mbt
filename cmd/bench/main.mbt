@@ -14,7 +14,7 @@ let warmup_seconds : Double = 0.3
 let round_seconds : Double = 0.3
 
 ///|
-let rounds : Int = 3
+let rounds : Int32 = 3
 
 ///|
 let words : Array[String] = [
@@ -41,7 +41,7 @@ fn new_console(file : @rich.StringIO) -> @rich.Console raise {
 }
 
 ///|
-fn lorem(n_words : Int) -> String {
+fn lorem(n_words : Int32) -> String {
   let sb = StringBuilder()
   for i in 0..<n_words {
     if i > 0 {
@@ -53,7 +53,7 @@ fn lorem(n_words : Int) -> String {
 }
 
 ///|
-fn pad2(n : Int) -> String {
+fn pad2(n : Int32) -> String {
   if n < 10 {
     "0\{n}"
   } else {
@@ -62,7 +62,7 @@ fn pad2(n : Int) -> String {
 }
 
 ///|
-fn json_doc(n : Int) -> String {
+fn json_doc(n : Int32) -> String {
   let items = []
   for i in 0..<n {
     let active = if i % 2 == 0 { "true" } else { "false" }
@@ -212,12 +212,12 @@ let workloads : Array[(String, (@rich.Console) -> (() -> Unit raise) raise)] = [
 ]
 
 ///|
-fn pad_left(s : String, width : Int) -> String {
+fn pad_left(s : String, width : Int32) -> String {
   " ".repeat(@cmp.maximum(0, width - s.length())) + s
 }
 
 ///|
-fn pad_right(s : String, width : Int) -> String {
+fn pad_right(s : String, width : Int32) -> String {
   s + " ".repeat(@cmp.maximum(0, width - s.length()))
 }
 

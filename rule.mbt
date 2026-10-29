@@ -13,10 +13,10 @@ pub struct Rule {
 ///|
 pub fn Rule::new(
   title? : &IntoText,
-  characters? : String = "─",
+  characters~ : String = "─",
   style? : &IntoStyle,
-  end? : String = "\n",
-  align? : AlignMethod = Center,
+  end~ : String = "\n",
+  align~ : AlignMethod = Center,
 ) -> Rule raise RichError {
   if @cells.cell_len(characters) < 1 {
     raise ValueError(
@@ -58,7 +58,7 @@ fn is_ascii(s : String) -> Bool {
 }
 
 ///|
-fn Rule::rule_line(self : Rule, chars_len : Int, width : Int) -> Text {
+fn Rule::rule_line(self : Rule, chars_len : Int32, width : Int32) -> Text {
   let rule_text = Text::new(
     text=self.characters.repeat(floor_div(width, chars_len) + 1),
     style=self.style,

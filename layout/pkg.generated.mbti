@@ -27,9 +27,9 @@ pub impl IntoSplitter for ColumnSplitter
 pub impl Splitter for ColumnSplitter
 
 pub(all) struct Layout {
-  mut size : Int?
-  mut minimum_size : Int
-  mut ratio : Int
+  mut size : Int32?
+  mut minimum_size : Int32
+  mut ratio : Int32
   mut name : String?
   mut visible : Bool
   mut splitter : &Splitter
@@ -41,8 +41,8 @@ pub fn Layout::at(Self, String) -> Self raise LayoutError
 pub fn Layout::children(Self) -> Array[Self]
 pub fn Layout::get(Self, String) -> Self?
 pub fn Layout::map(Self) -> Map[Self, LayoutRender]
-pub fn Layout::new(renderable? : &@rich.Renderable, name? : String, size? : Int, minimum_size? : Int, ratio? : Int, visible? : Bool) -> Self
-pub fn Layout::pretty_repr(Self, max_width? : Int, indent_size? : Int) -> String
+pub fn Layout::new(renderable? : &@rich.Renderable, name? : String, size? : Int32, minimum_size? : Int32, ratio? : Int32, visible? : Bool) -> Self
+pub fn Layout::pretty_repr(Self, max_width? : Int32, indent_size? : Int32) -> String
 pub fn Layout::refresh_screen(Self, @rich.Console, String) -> Unit raise
 pub fn Layout::render(Self, @rich.Console, @rich.ConsoleOptions) -> Map[Self, LayoutRender] raise
 pub fn Layout::renderable(Self) -> &@rich.Renderable

@@ -214,9 +214,9 @@ priv struct FormatSpec {
   fill : Char
   align : Char?
   sign : Char
-  width : Int
+  width : Int32
   grouping : Char?
-  precision : Int?
+  precision : Int32?
   type_ : Char?
 }
 
@@ -264,7 +264,7 @@ fn parse_spec(spec : String) -> FormatSpec raise @rich.RichError {
     grouping = Some(chars[i])
     i += 1
   }
-  let mut precision : Int? = None
+  let mut precision : Int32? = None
   if i < n && chars[i] == '.' {
     i += 1
     let mut p = 0
@@ -336,7 +336,7 @@ fn sign_of(negative : Bool, spec : FormatSpec) -> String {
 }
 
 ///|
-fn format_exponent(d : Double, precision : Int, upper : Bool) -> String {
+fn format_exponent(d : Double, precision : Int32, upper : Bool) -> String {
   // d >= 0
   if d == 0.0 {
     let mantissa = @rich.py_format_fixed(0.0, precision)

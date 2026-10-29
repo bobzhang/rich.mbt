@@ -2,7 +2,10 @@
 // tests/test_palette.py (`__rich__` of Color and Palette).
 
 ///|
-fn render_to_string(obj : &@rich.Renderable, width? : Int = 60) -> String raise {
+fn render_to_string(
+  obj : &@rich.Renderable,
+  width~ : Int32 = 60,
+) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
     file~,

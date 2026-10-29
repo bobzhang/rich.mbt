@@ -1,15 +1,15 @@
 ///|
 #borrow(path, ok)
-extern "c" fn c_read_file(path : Bytes, ok : Ref[Int]) -> Bytes = "rich_fs_read_file"
+extern "c" fn c_read_file(path : Bytes, ok : Ref[Int32]) -> Bytes = "rich_fs_read_file"
 
 ///|
 #borrow(path)
-extern "c" fn c_exists(path : Bytes) -> Int = "rich_fs_exists"
+extern "c" fn c_exists(path : Bytes) -> Int32 = "rich_fs_exists"
 
 ///|
 /// Read a whole file as UTF-8 text. `None` if it cannot be read.
 pub fn read_file(path : String) -> String? {
-  let ok : Ref[Int] = { val: 0, }
+  let ok : Ref[Int32] = { val: 0, }
   let data = c_read_file(@utf8.encode(path + "\u{0}"), ok)
   if ok.val == 0 {
     return None
@@ -25,11 +25,11 @@ pub fn exists(path : String) -> Bool {
 
 ///|
 #borrow(path, data)
-extern "c" fn c_write_file(path : Bytes, data : Bytes) -> Int = "rich_fs_write_file"
+extern "c" fn c_write_file(path : Bytes, data : Bytes) -> Int32 = "rich_fs_write_file"
 
 ///|
 #borrow(path)
-extern "c" fn c_remove(path : Bytes) -> Int = "rich_fs_remove"
+extern "c" fn c_remove(path : Bytes) -> Int32 = "rich_fs_remove"
 
 ///|
 /// Write `text` (UTF-8) to a file. Returns `false` on failure.

@@ -13,7 +13,7 @@ pub struct Formatter {
 ///|
 /// Create a formatter; `fmt` defaults to `"%(message)s"`.
 pub fn Formatter::new(
-  fmt? : String = "%(message)s",
+  fmt~ : String = "%(message)s",
   datefmt? : String,
 ) -> Formatter {
   { fmt, datefmt, }
@@ -47,7 +47,7 @@ pub fn Formatter::format_time(
 ///|
 priv enum FieldValue {
   S(String)
-  I(Int)
+  I(Int32)
   F(Double)
 }
 
@@ -102,8 +102,8 @@ fn Formatter::lookup(
 fn format_field(
   value : FieldValue,
   flags : String,
-  width : Int?,
-  precision : Int?,
+  width : Int32?,
+  precision : Int32?,
   conversion : Char,
 ) -> String {
   let left = flags.contains("-")
@@ -261,16 +261,16 @@ pub fn Formatter::format_message(
       flags.write_char(fmt[j].to_int().unsafe_to_char())
       j += 1
     }
-    let mut width : Int? = None
-    while j < n && fmt[j] is ('0'..='9') {
+    let mut width : Int32? = None
+    while j < n && fmt[j] is ('0'..<='9') {
       width = Some(width.unwrap_or(0) * 10 + (fmt[j].to_int() - '0'.to_int()))
       j += 1
     }
-    let mut precision : Int? = None
+    let mut precision : Int32? = None
     if j < n && fmt[j] == '.' {
       j += 1
       precision = Some(0)
-      while j < n && fmt[j] is ('0'..='9') {
+      while j < n && fmt[j] is ('0'..<='9') {
         precision = Some(
           precision.unwrap_or(0) * 10 + (fmt[j].to_int() - '0'.to_int()),
         )
@@ -317,7 +317,7 @@ pub fn Formatter::format(
 
 ///|
 /// Find `needle` in `self` at or after `start`.
-fn String::find_from(self : String, needle : String, start : Int) -> Int? {
+fn String::find_from(self : String, needle : String, start : Int32) -> Int32? {
   match self.view(start_offset=start).find(needle) {
     Some(i) => Some(start + i)
     None => None

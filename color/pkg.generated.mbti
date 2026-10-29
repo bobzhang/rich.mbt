@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub fn ansi_color_name_list() -> Array[(String, Int)]
+pub fn ansi_color_name_list() -> Array[(String, Int32)]
 
 pub fn blend_rgb(ColorTriplet, ColorTriplet, cross_fade? : Double) -> ColorTriplet
 
@@ -22,7 +22,7 @@ pub let night_owlish : TerminalTheme
 
 pub fn parse_rgb_hex(String) -> ColorTriplet
 
-pub fn py_round(Double) -> Int
+pub fn py_round(Double) -> Int32
 
 pub fn rgb_to_hls(Double, Double, Double) -> (Double, Double, Double)
 
@@ -30,7 +30,7 @@ pub let standard_palette : Palette
 
 pub let svg_export_theme : TerminalTheme
 
-pub fn unicode_decimal_value(Char) -> Int?
+pub fn unicode_decimal_value(Char) -> Int32?
 
 pub let windows_palette : Palette
 
@@ -44,19 +44,19 @@ pub impl Show for ColorParseError
 pub(all) struct Color {
   name : String
   type_ : ColorType
-  number : Int?
+  number : Int32?
   triplet : ColorTriplet?
 } derive(Eq, Hash, @debug.Debug)
 pub fn Color::default() -> Self
 pub fn Color::downgrade(Self, ColorSystem) -> Self
-pub fn Color::from_ansi(Int) -> Self
+pub fn Color::from_ansi(Int32) -> Self
 pub fn Color::from_rgb(Double, Double, Double) -> Self
 pub fn Color::from_triplet(ColorTriplet) -> Self
 pub fn Color::get_ansi_codes(Self, foreground? : Bool) -> Array[String]
 pub fn Color::get_truecolor(Self, theme? : TerminalTheme, foreground? : Bool) -> ColorTriplet
 pub fn Color::is_default(Self) -> Bool
 pub fn Color::is_system_defined(Self) -> Bool
-pub fn Color::new(String, ColorType, number? : Int, triplet? : ColorTriplet) -> Self
+pub fn Color::new(String, ColorType, number? : Int32, triplet? : ColorTriplet) -> Self
 pub fn Color::parse(String) -> Self raise ColorParseError
 pub fn Color::system(Self) -> ColorSystem
 pub impl Show for Color
@@ -67,16 +67,16 @@ pub(all) enum ColorSystem {
   Truecolor
   Windows
 } derive(Compare, Eq, Hash, @debug.Debug)
-pub fn ColorSystem::to_int(Self) -> Int
+pub fn ColorSystem::to_int(Self) -> Int32
 pub impl Show for ColorSystem
 
 pub(all) struct ColorTriplet {
-  red : Int
-  green : Int
-  blue : Int
+  red : Int32
+  green : Int32
+  blue : Int32
 } derive(Compare, Eq, Hash, @debug.Debug)
 pub fn ColorTriplet::hex(Self) -> String
-pub fn ColorTriplet::new(Int, Int, Int) -> Self
+pub fn ColorTriplet::new(Int32, Int32, Int32) -> Self
 pub fn ColorTriplet::normalized(Self) -> (Double, Double, Double)
 pub fn ColorTriplet::rgb(Self) -> String
 pub impl Show for ColorTriplet
@@ -89,24 +89,24 @@ pub(all) enum ColorType {
   Windows
 } derive(Compare, Eq, Hash, @debug.Debug)
 pub fn ColorType::name(Self) -> String
-pub fn ColorType::to_int(Self) -> Int
+pub fn ColorType::to_int(Self) -> Int32
 pub impl Show for ColorType
 
 pub struct Palette {
   // private fields
 }
-pub fn Palette::at(Self, Int) -> ColorTriplet
-pub fn Palette::colors(Self) -> Array[(Int, Int, Int)]
-pub fn Palette::length(Self) -> Int
-pub fn Palette::match_color(Self, ColorTriplet) -> Int
-pub fn Palette::new(Array[(Int, Int, Int)]) -> Self
+pub fn Palette::at(Self, Int32) -> ColorTriplet
+pub fn Palette::colors(Self) -> Array[(Int32, Int32, Int32)]
+pub fn Palette::length(Self) -> Int32
+pub fn Palette::match_color(Self, ColorTriplet) -> Int32
+pub fn Palette::new(Array[(Int32, Int32, Int32)]) -> Self
 
 pub struct TerminalTheme {
   background_color : ColorTriplet
   foreground_color : ColorTriplet
   ansi_colors : Palette
 }
-pub fn TerminalTheme::new((Int, Int, Int), (Int, Int, Int), Array[(Int, Int, Int)], bright? : Array[(Int, Int, Int)]) -> Self
+pub fn TerminalTheme::new((Int32, Int32, Int32), (Int32, Int32, Int32), Array[(Int32, Int32, Int32)], bright? : Array[(Int32, Int32, Int32)]) -> Self
 
 // Type aliases
 

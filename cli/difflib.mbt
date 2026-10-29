@@ -3,22 +3,27 @@
 ///|
 /// The number of matching characters of `a` and `b`
 /// (`SequenceMatcher(None, a, b).get_matching_blocks()`, summed).
-fn matching_characters(a : Array[Char], b : Array[Char]) -> Int {
+fn matching_characters(a : Array[Char], b : Array[Char]) -> Int32 {
   // `b2j`: positions of each character in `b` (no junk: `b` is short)
-  let b2j : Map[Char, Array[Int]] = Map([])
+  let b2j : Map[Char, Array[Int32]] = Map([])
   for j, c in b {
     match b2j.get(c) {
       Some(js) => js.push(j)
       None => b2j[c] = [j]
     }
   }
-  fn longest(alo : Int, ahi : Int, blo : Int, bhi : Int) -> (Int, Int, Int) {
+  fn longest(
+    alo : Int32,
+    ahi : Int32,
+    blo : Int32,
+    bhi : Int32,
+  ) -> (Int32, Int32, Int32) {
     let mut besti = alo
     let mut bestj = blo
     let mut bestsize = 0
-    let mut j2len : Map[Int, Int] = Map([])
+    let mut j2len : Map[Int32, Int32] = Map([])
     for i in alo..<ahi {
-      let newj2len : Map[Int, Int] = Map([])
+      let newj2len : Map[Int32, Int32] = Map([])
       if b2j.get(a[i]) is Some(js) {
         for j in js {
           if j < blo {
@@ -41,7 +46,7 @@ fn matching_characters(a : Array[Char], b : Array[Char]) -> Int {
     (besti, bestj, bestsize)
   }
 
-  fn total(alo : Int, ahi : Int, blo : Int, bhi : Int) -> Int {
+  fn total(alo : Int32, ahi : Int32, blo : Int32, bhi : Int32) -> Int32 {
     let (i, j, k) = longest(alo, ahi, blo, bhi)
     if k == 0 {
       return 0
@@ -98,7 +103,7 @@ fn get_close_matches(
 
 ///|
 /// Python's string ordering (by code points).
-fn py_compare(a : String, b : String) -> Int {
+fn py_compare(a : String, b : String) -> Int32 {
   let xs = a.to_array()
   let ys = b.to_array()
   for i in 0..<@cmp.minimum(xs.length(), ys.length()) {

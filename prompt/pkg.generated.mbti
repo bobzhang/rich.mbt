@@ -33,8 +33,8 @@ pub fn InputStream::readline(Self) -> String
 
 pub(all) struct IntPrompt {
 }
-pub fn IntPrompt::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : Int, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Int raise
-pub fn IntPrompt::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[Int] raise
+pub fn IntPrompt::ask(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, default? : Int32, stream? : InputStream, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> Int32 raise
+pub fn IntPrompt::new(&@rich.IntoText, console? : @rich.Console, password? : Bool, choices? : Array[String], case_sensitive? : Bool, show_default? : Bool, show_choices? : Bool, get_input? : (@rich.Console, @rich.Text, Bool, InputStream?) -> String raise) -> PromptBase[Int32] raise
 
 pub(all) struct Prompt {
 }

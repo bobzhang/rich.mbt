@@ -4,8 +4,8 @@
 
 ///|
 fn term_console(
-  width : Int,
-  color_system? : String? = Some("truecolor"),
+  width : Int32,
+  color_system~ : String? = Some("truecolor"),
 ) -> (@rich.Console, @rich.StringIO) raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
@@ -28,7 +28,7 @@ fn normalize_links(s : String) -> String {
     out.write_string(rest[:i + 6].to_owned())
     out.write_char('0')
     let mut j = i + 6
-    while j < rest.length() && rest[j] is ('0'..='9') {
+    while j < rest.length() && rest[j] is ('0'..<='9') {
       j += 1
     }
     rest = rest[j:]

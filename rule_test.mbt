@@ -52,7 +52,7 @@ test "test_rule_cjk" {
 }
 
 ///|
-fn rule_console(width : Int) -> (@rich.Console, @rich.StringIO) raise {
+fn rule_console(width : Int32) -> (@rich.Console, @rich.StringIO) raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(width~, file~, record=true, environ={})
   (console, file)

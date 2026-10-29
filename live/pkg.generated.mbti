@@ -39,9 +39,9 @@ pub(all) struct LiveRender {
   mut renderable : &@rich.Renderable
   mut style : @rich.StyleType
   mut vertical_overflow : VerticalOverflowMethod
-  mut shape : (Int, Int)?
+  mut shape : (Int32, Int32)?
 }
-pub fn LiveRender::last_render_height(Self) -> Int
+pub fn LiveRender::last_render_height(Self) -> Int32
 pub fn LiveRender::new(&@rich.Renderable, style? : &@rich.IntoStyle, vertical_overflow? : VerticalOverflowMethod) -> Self
 pub fn LiveRender::position_cursor(Self) -> @rich.Control
 pub fn LiveRender::restore_cursor(Self) -> @rich.Control

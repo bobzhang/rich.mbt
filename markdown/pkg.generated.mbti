@@ -34,7 +34,7 @@ pub impl @rich.Renderable for Markdown
 pub(all) struct Token {
   type_ : String
   tag : String
-  nesting : Int
+  nesting : Int32
   content : String
   info : String
   attrs : Map[String, String]

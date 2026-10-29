@@ -18,7 +18,7 @@ pub fn ansi_light() -> Map[@token.TokenType, @rich.Style]
 
 pub fn dedent(String) -> String
 
-pub fn expandtabs(String, Int) -> String
+pub fn expandtabs(String, Int32) -> String
 
 pub fn get_theme(String) -> &SyntaxTheme
 
@@ -57,42 +57,42 @@ pub(all) struct Syntax {
   mut lexer_spec : LexerSpec
   mut dedent : Bool
   mut line_numbers : Bool
-  mut start_line : Int
-  mut line_range : (Int?, Int?)?
-  mut highlight_lines : Array[Int]
-  mut code_width : Int?
-  mut tab_size : Int
+  mut start_line : Int32
+  mut line_range : (Int32?, Int32?)?
+  mut highlight_lines : Array[Int32]
+  mut code_width : Int32?
+  mut tab_size : Int32
   mut word_wrap : Bool
   mut background_color : String?
   mut background_style : @rich.Style
   mut indent_guides : Bool
-  mut padding : (Int, Int, Int, Int)
+  mut padding : (Int32, Int32, Int32, Int32)
   mut theme : &SyntaxTheme
   stylized_ranges : Array[SyntaxHighlightRange]
   // private fields
 }
 pub fn Syntax::default_lexer(Self) -> @lexer.Lexer
-pub fn Syntax::from_path(String, lexer? : &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, line_range? : (Int?, Int?), start_line? : Int, highlight_lines? : ArrayView[Int], code_width? : Int, tab_size? : Int, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int]) -> Self raise
+pub fn Syntax::from_path(String, lexer? : &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, line_range? : (Int32?, Int32?), start_line? : Int32, highlight_lines? : ArrayView[Int32], code_width? : Int32, tab_size? : Int32, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int32]) -> Self raise
 pub fn Syntax::get_line_numbers_color(Self, blend? : Double) -> @color.Color
 pub fn Syntax::get_number_styles(Self, @rich.Console) -> (@rich.Style, @rich.Style, @rich.Style)
 pub fn Syntax::guess_lexer(String, code? : String) -> String
-pub fn Syntax::highlight(Self, String, line_range? : (Int?, Int?)) -> @rich.Text raise
+pub fn Syntax::highlight(Self, String, line_range? : (Int32?, Int32?)) -> @rich.Text raise
 pub fn Syntax::lexer(Self) -> @lexer.Lexer?
-pub fn Syntax::new(String, &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, start_line? : Int, line_range? : (Int?, Int?), highlight_lines? : ArrayView[Int], code_width? : Int, tab_size? : Int, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int]) -> Self raise
-pub fn Syntax::numbers_column_width(Self) -> Int
-pub fn Syntax::set_padding(Self, ArrayView[Int]) -> Unit raise
-pub fn Syntax::stylize_range(Self, &@rich.IntoStyle, (Int, Int), (Int, Int), style_before? : Bool) -> Unit
+pub fn Syntax::new(String, &IntoLexer, theme? : &IntoSyntaxTheme, dedent? : Bool, line_numbers? : Bool, start_line? : Int32, line_range? : (Int32?, Int32?), highlight_lines? : ArrayView[Int32], code_width? : Int32, tab_size? : Int32, word_wrap? : Bool, background_color? : String, indent_guides? : Bool, padding? : ArrayView[Int32]) -> Self raise
+pub fn Syntax::numbers_column_width(Self) -> Int32
+pub fn Syntax::set_padding(Self, ArrayView[Int32]) -> Unit raise
+pub fn Syntax::stylize_range(Self, &@rich.IntoStyle, (Int32, Int32), (Int32, Int32), style_before? : Bool) -> Unit
 pub impl @rich.Renderable for Syntax
 
 pub(all) struct SyntaxHighlightRange {
   style : @rich.StyleType
-  start : (Int, Int)
-  end : (Int, Int)
+  start : (Int32, Int32)
+  end : (Int32, Int32)
   style_before : Bool
 }
 
 // Type aliases
-pub type SyntaxPosition = (Int, Int)
+pub type SyntaxPosition = (Int32, Int32)
 
 // Traits
 pub(open) trait IntoLexer {

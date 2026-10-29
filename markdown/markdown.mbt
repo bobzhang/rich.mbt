@@ -47,13 +47,13 @@ pub struct Markdown {
 ///   (`""` when there is none) and `code_theme`.
 pub fn Markdown::new(
   markup : String,
-  code_theme? : String = "monokai",
+  code_theme~ : String = "monokai",
   justify? : @rich.JustifyMethod,
   style? : &@rich.IntoStyle,
-  hyperlinks? : Bool = true,
+  hyperlinks~ : Bool = true,
   inline_code_lexer? : String,
   inline_code_theme? : String,
-  code_renderers? : Map[
+  code_renderers~ : Map[
     String,
     (String, String, String) -> &@rich.Renderable raise,
   ] = Map([]),
@@ -86,7 +86,7 @@ priv struct Context {
   stack : Array[Element]
   syntax : @syntax.Syntax?
   /// Number of styles entered (and not left).
-  mut depth : Int
+  mut depth : Int32
 }
 
 ///|

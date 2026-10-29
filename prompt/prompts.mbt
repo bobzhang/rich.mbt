@@ -17,12 +17,12 @@ pub(all) struct Prompt {}
 pub fn Prompt::new(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
-  get_input? : InputFn = get_input,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
+  get_input~ : InputFn = get_input,
 ) -> PromptBase[String] raise {
   PromptBase::new(
     prompt,
@@ -43,14 +43,14 @@ pub fn Prompt::new(
 pub fn Prompt::ask(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
   default? : String,
   stream? : InputStream,
-  get_input? : InputFn = get_input,
+  get_input~ : InputFn = get_input,
 ) -> String raise {
   Prompt::new(
     prompt,
@@ -73,13 +73,13 @@ pub(all) struct IntPrompt {}
 pub fn IntPrompt::new(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
-  get_input? : InputFn = get_input,
-) -> PromptBase[Int] raise {
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
+  get_input~ : InputFn = get_input,
+) -> PromptBase[Int32] raise {
   PromptBase::new(
     prompt,
     console?,
@@ -100,15 +100,15 @@ pub fn IntPrompt::new(
 pub fn IntPrompt::ask(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
-  default? : Int,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
+  default? : Int32,
   stream? : InputStream,
-  get_input? : InputFn = get_input,
-) -> Int raise {
+  get_input~ : InputFn = get_input,
+) -> Int32 raise {
   IntPrompt::new(
     prompt,
     console?,
@@ -130,12 +130,12 @@ pub(all) struct FloatPrompt {}
 pub fn FloatPrompt::new(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
-  get_input? : InputFn = get_input,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
+  get_input~ : InputFn = get_input,
 ) -> PromptBase[Double] raise {
   PromptBase::new(
     prompt,
@@ -157,14 +157,14 @@ pub fn FloatPrompt::new(
 pub fn FloatPrompt::ask(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
+  password~ : Bool = false,
   choices? : Array[String],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
   default? : Double,
   stream? : InputStream,
-  get_input? : InputFn = get_input,
+  get_input~ : InputFn = get_input,
 ) -> Double raise {
   FloatPrompt::new(
     prompt,
@@ -220,12 +220,12 @@ fn confirm_process_response(
 pub fn Confirm::new(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
-  choices? : Array[String] = ["y", "n"],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
-  get_input? : InputFn = get_input,
+  password~ : Bool = false,
+  choices~ : Array[String] = ["y", "n"],
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
+  get_input~ : InputFn = get_input,
 ) -> PromptBase[Bool] raise {
   PromptBase::new(
     prompt,
@@ -249,14 +249,14 @@ pub fn Confirm::new(
 pub fn Confirm::ask(
   prompt : &@rich.IntoText,
   console? : @rich.Console,
-  password? : Bool = false,
-  choices? : Array[String] = ["y", "n"],
-  case_sensitive? : Bool = true,
-  show_default? : Bool = true,
-  show_choices? : Bool = true,
+  password~ : Bool = false,
+  choices~ : Array[String] = ["y", "n"],
+  case_sensitive~ : Bool = true,
+  show_default~ : Bool = true,
+  show_choices~ : Bool = true,
   default? : Bool,
   stream? : InputStream,
-  get_input? : InputFn = get_input,
+  get_input~ : InputFn = get_input,
 ) -> Bool raise {
   Confirm::new(
     prompt,

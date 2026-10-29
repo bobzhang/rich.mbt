@@ -5,8 +5,8 @@
 /// Python `str.isspace` for a single character.
 fn is_py_space(c : Char) -> Bool {
   match c.to_int() {
-    0x09..=0x0D | 0x1C..=0x20 | 0x85 | 0xA0 | 0x1680 => true
-    0x2000..=0x200A | 0x2028 | 0x2029 | 0x202F | 0x205F | 0x3000 => true
+    0x09..<=0x0D | 0x1C..<=0x20 | 0x85 | 0xA0 | 0x1680 => true
+    0x2000..<=0x200A | 0x2028 | 0x2029 | 0x202F | 0x205F | 0x3000 => true
     _ => false
   }
 }
@@ -49,7 +49,7 @@ fn ascii_digits(s : String) -> String {
 /// Python `int(s)` for base 10 (`None` where Python raises `ValueError`).
 /// Surrounding whitespace, a sign and single underscores between digits are
 /// accepted. Values that do not fit in an `Int` are rejected.
-fn py_int(s : String) -> Int? {
+fn py_int(s : String) -> Int32? {
   let s = ascii_digits(py_strip(s))
   let chars = s.to_array()
   let n = chars.length()
@@ -57,13 +57,13 @@ fn py_int(s : String) -> Int? {
   if i < n && (chars[i] == '+' || chars[i] == '-') {
     i += 1
   }
-  if i >= n || !(chars[i] is ('0'..='9')) {
+  if i >= n || !(chars[i] is ('0'..<='9')) {
     return None
   }
   let mut prev_underscore = false
   for j in i..<n {
     match chars[j] {
-      '0'..='9' => prev_underscore = false
+      '0'..<='9' => prev_underscore = false
       '_' if !prev_underscore => prev_underscore = true
       _ => return None
     }

@@ -42,14 +42,14 @@ pub(all) struct LiveRender {
   /// How to handle a renderable taller than the console.
   mut vertical_overflow : VerticalOverflowMethod
   /// `(width, height)` of the last render (upstream `_shape`).
-  mut shape : (Int, Int)?
+  mut shape : (Int32, Int32)?
 }
 
 ///|
 pub fn LiveRender::new(
   renderable : &@rich.Renderable,
-  style? : &@rich.IntoStyle = "",
-  vertical_overflow? : VerticalOverflowMethod = Ellipsis,
+  style~ : &@rich.IntoStyle = "",
+  vertical_overflow~ : VerticalOverflowMethod = Ellipsis,
 ) -> LiveRender {
   {
     renderable,
@@ -61,7 +61,7 @@ pub fn LiveRender::new(
 
 ///|
 /// The number of lines in the last render (0 if nothing was rendered).
-pub fn LiveRender::last_render_height(self : LiveRender) -> Int {
+pub fn LiveRender::last_render_height(self : LiveRender) -> Int32 {
   match self.shape {
     None => 0
     Some((_, height)) => height
@@ -115,7 +115,7 @@ pub fn LiveRender::restore_cursor(self : LiveRender) -> @rich.Control {
 
 ///|
 /// Python `lines[:end]` (negative `end` counts from the end).
-fn[T] py_head(xs : Array[T], end : Int) -> Array[T] {
+fn[T] py_head(xs : Array[T], end : Int32) -> Array[T] {
   let n = xs.length()
   let end = if end < 0 {
     @cmp.maximum(0, n + end)

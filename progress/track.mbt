@@ -19,10 +19,10 @@ pub fn[T] Progress::track(
   sequence : Iter[T],
   f : (T) -> Unit raise,
   total? : Double,
-  completed? : Double = 0.0,
-  task_id? : Int,
-  description? : String = "Working...",
-  update_period? : Double = 0.1,
+  completed~ : Double = 0.0,
+  task_id? : Int32,
+  description~ : String = "Working...",
+  update_period~ : Double = 0.1,
 ) -> Unit raise {
   let total = match total {
     Some(t) => Some(t)
@@ -99,21 +99,21 @@ pub fn[T] Progress::track(
 pub fn[T] track(
   sequence : Iter[T],
   f : (T) -> Unit raise,
-  description? : String = "Working...",
+  description~ : String = "Working...",
   total? : Double,
-  completed? : Double = 0.0,
-  auto_refresh? : Bool = true,
+  completed~ : Double = 0.0,
+  auto_refresh~ : Bool = true,
   console? : @rich.Console,
-  transient? : Bool = false,
+  transient~ : Bool = false,
   get_time? : () -> Double,
-  refresh_per_second? : Double = 10.0,
-  style? : &@rich.IntoStyle = "bar.back",
-  complete_style? : &@rich.IntoStyle = "bar.complete",
-  finished_style? : &@rich.IntoStyle = "bar.finished",
-  pulse_style? : &@rich.IntoStyle = "bar.pulse",
-  update_period? : Double = 0.1,
-  disable? : Bool = false,
-  show_speed? : Bool = true,
+  refresh_per_second~ : Double = 10.0,
+  style~ : &@rich.IntoStyle = "bar.back",
+  complete_style~ : &@rich.IntoStyle = "bar.complete",
+  finished_style~ : &@rich.IntoStyle = "bar.finished",
+  pulse_style~ : &@rich.IntoStyle = "bar.pulse",
+  update_period~ : Double = 0.1,
+  disable~ : Bool = false,
+  show_speed~ : Bool = true,
 ) -> Unit raise {
   let columns : Array[&ProgressColumn] = if description != "" {
     [TextColumn::new("[progress.description]{task.description}")]

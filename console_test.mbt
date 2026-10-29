@@ -2,16 +2,16 @@
 
 ///|
 fn string_console(
-  width? : Int,
-  height? : Int,
-  color_system? : String? = Some("truecolor"),
+  width? : Int32,
+  height? : Int32,
+  color_system~ : String? = Some("truecolor"),
   force_terminal? : Bool,
   legacy_windows? : Bool,
-  environ? : Map[String, String] = {},
-  soft_wrap? : Bool = false,
-  record? : Bool = false,
-  highlight? : Bool = true,
-  quiet? : Bool = false,
+  environ~ : Map[String, String] = {},
+  soft_wrap~ : Bool = false,
+  record~ : Bool = false,
+  highlight~ : Bool = true,
+  quiet~ : Bool = false,
   no_color? : Bool,
   style? : &@rich.IntoStyle,
 ) -> (@rich.Console, @rich.StringIO) raise {
@@ -422,7 +422,7 @@ test "test_justify_right" {
 }
 
 ///|
-fn panel_console(width : Int) -> (@rich.Console, @rich.StringIO) raise {
+fn panel_console(width : Int32) -> (@rich.Console, @rich.StringIO) raise {
   string_console(
     color_system=Some("auto"),
     force_terminal=true,
@@ -478,7 +478,7 @@ test "test_justify_renderable_right" {
 }
 
 ///|
-fn record_console(width? : Int = 100) -> @rich.Console raise {
+fn record_console(width~ : Int32 = 100) -> @rich.Console raise {
   @rich.Console::new(record=true, width~, file=@rich.NullFile::new(), environ={})
 }
 

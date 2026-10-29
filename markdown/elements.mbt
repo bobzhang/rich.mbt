@@ -17,7 +17,7 @@ priv enum Kind {
   TableBody
   TableRow
   TableData
-  ListElement(String, Int)
+  ListElement(String, Int32)
   ListItem
   Link(String)
   ImageItem(String, Bool)
@@ -53,8 +53,8 @@ priv struct Element {
 ///|
 fn Element::new(
   kind : Kind,
-  text? : @rich.Text = @rich.Text::new(),
-  justify? : @rich.JustifyMethod = Default,
+  text~ : @rich.Text = @rich.Text::new(),
+  justify~ : @rich.JustifyMethod = Default,
 ) -> Element {
   {
     kind,
@@ -432,8 +432,8 @@ fn Element::render_number(
   self : Element,
   console : @rich.Console,
   options : @rich.ConsoleOptions,
-  number : Int,
-  last_number : Int,
+  number : Int32,
+  last_number : Int32,
 ) -> Array[@rich.RenderItem] raise {
   let number_width = last_number.to_string().length() + 2
   let render_options = options.update(width=options.max_width - number_width)

@@ -56,11 +56,11 @@ test "scalars" {
 
 ///|
 test "option and result" {
-  let some : Int? = Some(1)
-  let none : Int? = None
+  let some : Int32? = Some(1)
+  let none : Int32? = None
   inspect(@pretty.pretty_repr([some, none]), content="[1, None]")
-  let ok : Result[Array[Int], String] = Ok([1, 2])
-  let err : Result[Array[Int], String] = Err("boom")
+  let ok : Result[Array[Int32], String] = Ok([1, 2])
+  let err : Result[Array[Int32], String] = Err("boom")
   inspect(@pretty.pretty_repr(ok), content="Ok([1, 2])")
   inspect(@pretty.pretty_repr(err), content="Err('boom')")
   inspect(
@@ -78,19 +78,19 @@ test "option and result" {
 
 ///|
 test "arrays and maps" {
-  let fixed : FixedArray[Int] = [1, 2]
+  let fixed : FixedArray[Int32] = [1, 2]
   inspect(@pretty.pretty_repr(fixed), content="[1, 2]")
-  let view : ArrayView[Int] = [1, 2, 3][1:]
+  let view : ArrayView[Int32] = [1, 2, 3][1:]
   inspect(@pretty.pretty_repr(view), content="[2, 3]")
   let ro : ReadOnlyArray[String] = ["a"]
   inspect(@pretty.pretty_repr(ro), content="['a']")
-  let hm : @hashmap.HashMap[String, Int] = @hashmap.HashMap::from_array([
+  let hm : @hashmap.HashMap[String, Int32] = @hashmap.HashMap::from_array([
     ("a", 1),
   ])
   inspect(@pretty.pretty_repr(hm), content="{'a': 1}")
-  let hs : @hashset.HashSet[Int] = @hashset.HashSet::from_array([1])
+  let hs : @hashset.HashSet[Int32] = @hashset.HashSet::from_array([1])
   inspect(@pretty.pretty_repr(hs), content="{1}")
-  let empty_hs : @hashset.HashSet[Int] = @hashset.HashSet::from_array([])
+  let empty_hs : @hashset.HashSet[Int32] = @hashset.HashSet::from_array([])
   inspect(@pretty.pretty_repr(empty_hs), content="set()")
   inspect(
     @pretty.pretty_repr((1, "a", 2.5, true, 'c', [1])),
@@ -116,7 +116,7 @@ test "json" {
 #warnings("-unused_constructor")
 enum Color {
   Red
-  Rgb(Int, Int, Int)
+  Rgb(Int32, Int32, Int32)
 } derive(Debug)
 
 ///|

@@ -50,7 +50,7 @@ pub fn Control::home() -> Control {
 
 ///|
 /// Move cursor relative to current position.
-pub fn Control::move_(x? : Int = 0, y? : Int = 0) -> Control {
+pub fn Control::move_(x~ : Int32 = 0, y~ : Int32 = 0) -> Control {
   let codes = []
   if x != 0 {
     codes.push(
@@ -65,7 +65,7 @@ pub fn Control::move_(x? : Int = 0, y? : Int = 0) -> Control {
 
 ///|
 /// Move to the given column, optionally add offset to row.
-pub fn Control::move_to_column(x : Int, y? : Int = 0) -> Control {
+pub fn Control::move_to_column(x : Int32, y~ : Int32 = 0) -> Control {
   if y != 0 {
     Control::new([
       CodeInt(CursorMoveToColumn, x),
@@ -78,7 +78,7 @@ pub fn Control::move_to_column(x : Int, y? : Int = 0) -> Control {
 
 ///|
 /// Move cursor to absolute position.
-pub fn Control::move_to(x : Int, y : Int) -> Control {
+pub fn Control::move_to(x : Int32, y : Int32) -> Control {
   Control::new([CodeXY(CursorMoveTo, x, y)])
 }
 

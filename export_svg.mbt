@@ -60,7 +60,7 @@ pub let console_svg_format : String =
 
 ///|
 /// zlib's Adler-32 checksum.
-pub fn adler32(data : Bytes) -> UInt {
+pub fn adler32(data : Bytes) -> UInt32 {
   let mod_adler = 65521U
   let mut a = 1U
   let mut b = 0U
@@ -75,7 +75,7 @@ pub fn adler32(data : Bytes) -> UInt {
 /// A value for an SVG attribute: ints are printed as is, floats with
 /// Python's `format(value, "g")`.
 priv enum SvgValue {
-  I(Int)
+  I(Int32)
   F(Double)
   S(String)
 }
@@ -119,11 +119,11 @@ fn svg_escape_text(text : String) -> String {
 /// Generate an SVG from the console contents (requires `record=true`).
 pub fn Console::export_svg(
   self : Console,
-  title? : String = "Rich",
+  title~ : String = "Rich",
   theme? : @color.TerminalTheme,
-  clear? : Bool = true,
-  code_format? : String = console_svg_format,
-  font_aspect_ratio? : Double = 0.61,
+  clear~ : Bool = true,
+  code_format~ : String = console_svg_format,
+  font_aspect_ratio~ : Double = 0.61,
   unique_id? : String,
 ) -> String {
   let theme = theme.unwrap_or(@color.svg_export_theme)
@@ -186,7 +186,7 @@ pub fn Console::export_svg(
   let margin_height = margin_top + margin_bottom
   let text_backgrounds = []
   let text_group = []
-  let classes : Map[String, Int] = Map([])
+  let classes : Map[String, Int32] = Map([])
   let mut style_no = 1
   let segments = Segment::filter_control(self.record_buffer)
   if clear {
@@ -350,11 +350,11 @@ pub fn Console::export_svg(
 pub fn Console::save_svg(
   self : Console,
   path : String,
-  title? : String = "Rich",
+  title~ : String = "Rich",
   theme? : @color.TerminalTheme,
-  clear? : Bool = true,
-  code_format? : String = console_svg_format,
-  font_aspect_ratio? : Double = 0.61,
+  clear~ : Bool = true,
+  code_format~ : String = console_svg_format,
+  font_aspect_ratio~ : Double = 0.61,
   unique_id? : String,
 ) -> Unit raise {
   let svg = self.export_svg(

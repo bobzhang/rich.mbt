@@ -2,7 +2,7 @@
 /// Segments with their link ids renumbered by first appearance, so that two
 /// renders can be compared (link ids come from a global counter).
 fn normalized_segments(segments : Array[Segment]) -> Array[String] {
-  let ids : Map[String, Int] = Map([])
+  let ids : Map[String, Int32] = Map([])
   segments.map(s => {
     let style = match s.style {
       None => "None"
@@ -41,7 +41,7 @@ test "render_joined_lines matches join + render" {
   ]
   let chars = ["a", "b", " ", "中", "😀"]
   let mut seed = 7
-  fn next(n : Int) -> Int {
+  fn next(n : Int32) -> Int32 {
     seed = (seed * 1103515245 + 12345) & 0x7fffffff
     (seed >> 8) % n
   }

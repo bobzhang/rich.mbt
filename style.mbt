@@ -7,18 +7,18 @@
 pub struct Style {
   priv color_ : @color.Color?
   priv bgcolor_ : @color.Color?
-  priv attributes : Int
-  priv set_attributes : Int
+  priv attributes : Int32
+  priv set_attributes : Int32
   priv link_ : String?
   priv link_id_ : String
   priv meta_ : Map[String, Json]?
   priv null : Bool
   /// Color system (`ColorSystem::to_int`) of `ansi_codes`, or -1.
-  priv mut ansi_system : Int
+  priv mut ansi_system : Int32
   /// Cached SGR parameters for `ansi_system` (upstream `_ansi`).
   priv mut ansi_codes : String
   /// Cached hash of the compared fields, 0 when not computed yet.
-  priv mut hash_ : Int
+  priv mut hash_ : Int32
   priv mut definition : String?
 }
 
@@ -37,7 +37,7 @@ let style_map : FixedArray[String] = [
 
 ///|
 /// Style attribute names accepted by `Style::parse`, and the bit they map to.
-let style_attributes : Map[String, Int] = {
+let style_attributes : Map[String, Int32] = {
   "dim": 1,
   "d": 1,
   "bold": 0,
@@ -63,16 +63,16 @@ let style_attributes : Map[String, Int] = {
 }
 
 ///|
-let id_counter : Ref[Int] = Ref(initial_link_id())
+let id_counter : Ref[Int32] = Ref(initial_link_id())
 
 ///|
-fn initial_link_id() -> Int {
+fn initial_link_id() -> Int32 {
   // upstream starts from getrandbits(24)
   (@env.now() % 16777216UL).to_int()
 }
 
 ///|
-fn next_link_id() -> Int {
+fn next_link_id() -> Int32 {
   let id = id_counter.val
   id_counter.val = id + 1
   id
@@ -146,13 +146,13 @@ fn meta_truthy(meta : Map[String, Json]?) -> Bool {
 fn make_style(
   color~ : @color.Color?,
   bgcolor~ : @color.Color?,
-  attributes~ : Int,
-  set_attributes~ : Int,
+  attributes~ : Int32,
+  set_attributes~ : Int32,
   link~ : String?,
   link_id~ : String,
   meta~ : Map[String, Json]?,
   null~ : Bool,
-  definition? : String? = None,
+  definition~ : String? = None,
 ) -> Style {
   {
     color_: color,
@@ -291,7 +291,7 @@ pub fn Style::on(
 }
 
 ///|
-fn Style::bit(self : Style, bit : Int) -> Bool? {
+fn Style::bit(self : Style, bit : Int32) -> Bool? {
   if (self.set_attributes & (1 << bit)) != 0 {
     Some((self.attributes & (1 << bit)) != 0)
   } else {
@@ -502,7 +502,7 @@ pub fn Style::repr(self : Style) -> String {
 }
 
 ///|
-fn color_key(c : @color.Color?) -> Int {
+fn color_key(c : @color.Color?) -> Int32 {
   match c {
     None => 0
     Some(c) => c.hash()
@@ -529,7 +529,7 @@ pub impl Hash for Style with fn hash_combine(self, hasher) {
 
 ///|
 /// Hash of the fields compared by `Eq`, computed once (styles are immutable).
-fn Style::hash_value(self : Style) -> Int {
+fn Style::hash_value(self : Style) -> Int32 {
   if self.hash_ != 0 {
     return self.hash_
   }
@@ -618,18 +618,18 @@ fn write_color_codes(
 ///|
 /// `buf.write_string(n.to_string())` without the temporary string for the
 /// usual 0..=999.
-fn write_decimal(buf : StringBuilder, n : Int) -> Unit {
+fn write_decimal(buf : StringBuilder, n : Int32) -> Unit {
   if n < 0 || n > 999 {
     buf.write_string(n.to_string())
     return
   }
   if n >= 100 {
-    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 100))
+    buf.write_char(Int32::unsafe_to_char('0'.to_int() + n / 100))
   }
   if n >= 10 {
-    buf.write_char(Int::unsafe_to_char('0'.to_int() + n / 10 % 10))
+    buf.write_char(Int32::unsafe_to_char('0'.to_int() + n / 10 % 10))
   }
-  buf.write_char(Int::unsafe_to_char('0'.to_int() + n % 10))
+  buf.write_char(Int32::unsafe_to_char('0'.to_int() + n % 10))
 }
 
 ///|
@@ -663,7 +663,7 @@ fn split_words(s : String) -> Array[String] {
 /// Call `f(start, end)` for each maximal run of non-whitespace code units
 /// (Python `str.split()`; whitespace characters are all in the BMP, so
 /// scanning UTF-16 code units is exact).
-fn for_each_word(s : String, f : (Int, Int) -> Unit) -> Unit {
+fn for_each_word(s : String, f : (Int32, Int32) -> Unit) -> Unit {
   let n = s.length()
   let mut i = 0
   while i < n {
@@ -682,7 +682,7 @@ fn for_each_word(s : String, f : (Int, Int) -> Unit) -> Unit {
 
 ///|
 /// `is_py_whitespace` for a UTF-16 code unit (surrogates are not spaces).
-fn is_py_space_unit(u : Int) -> Bool {
+fn is_py_space_unit(u : Int32) -> Bool {
   if u < 0x80 {
     u == 0x20 || (u >= 0x09 && u <= 0x0d) || (u >= 0x1c && u <= 0x1f)
   } else {
@@ -1003,9 +1003,9 @@ pub fn Style::update_link(self : Style, link : String?) -> Style {
 /// `None` the text is returned unstyled.
 pub fn Style::render(
   self : Style,
-  text? : String = "",
-  color_system? : @color.ColorSystem? = Some(Truecolor),
-  legacy_windows? : Bool = false,
+  text~ : String = "",
+  color_system~ : @color.ColorSystem? = Some(Truecolor),
+  legacy_windows~ : Bool = false,
 ) -> String {
   guard text != "" && color_system is Some(color_system) else { return text }
   let attrs = self.make_ansi_codes(color_system)

@@ -18,14 +18,14 @@ pub fn[T] track(Iter[T], (T) -> Unit raise, description? : String, total? : Doub
 
 // Types and methods
 pub(all) struct BarColumn {
-  mut bar_width : Int?
+  mut bar_width : Int32?
   mut style : @rich.StyleType
   mut complete_style : @rich.StyleType
   mut finished_style : @rich.StyleType
   mut pulse_style : @rich.StyleType
   state : ColumnState
 }
-pub fn BarColumn::new(bar_width? : Int?, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, table_column? : @rich.Column) -> Self
+pub fn BarColumn::new(bar_width? : Int32?, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, table_column? : @rich.Column) -> Self
 pub fn BarColumn::render(Self, Task) -> @progress_bar.ProgressBar
 pub impl ProgressColumn for BarColumn
 
@@ -67,28 +67,28 @@ pub(all) struct Progress {
   get_time : () -> Double
   // private fields
 }
-pub fn Progress::add_task(Self, String, start? : Bool, total? : Double?, completed? : Double, visible? : Bool, fields? : Map[String, Json]) -> Int raise
-pub fn Progress::advance(Self, Int, advance? : Double) -> Unit raise
+pub fn Progress::add_task(Self, String, start? : Bool, total? : Double?, completed? : Double, visible? : Bool, fields? : Map[String, Json]) -> Int32 raise
+pub fn Progress::advance(Self, Int32, advance? : Double) -> Unit raise
 pub fn Progress::console(Self) -> @rich.Console
 pub fn Progress::finished(Self) -> Bool
 pub fn Progress::get_default_columns() -> Array[&ProgressColumn]
 pub fn Progress::get_renderable(Self) -> &@rich.Renderable raise
 pub fn Progress::get_renderables(Self) -> Array[&@rich.Renderable] raise
-pub fn Progress::get_task(Self, Int) -> Task raise @rich.RichError
+pub fn Progress::get_task(Self, Int32) -> Task raise @rich.RichError
 pub fn Progress::make_tasks_table(Self, Array[Task]) -> @rich.Table raise
 pub fn Progress::new(columns? : Array[&ProgressColumn], console? : @rich.Console, auto_refresh? : Bool, refresh_per_second? : Double, speed_estimate_period? : Double, transient? : Bool, redirect_stdout? : Bool, redirect_stderr? : Bool, get_time? : () -> Double, disable? : Bool, expand? : Bool) -> Self
 pub fn Progress::refresh(Self) -> Unit raise
-pub fn Progress::remove_task(Self, Int) -> Unit
-pub fn Progress::reset(Self, Int, start? : Bool, total? : Double, completed? : Double, visible? : Bool, description? : String, fields? : Map[String, Json]) -> Unit raise
+pub fn Progress::remove_task(Self, Int32) -> Unit
+pub fn Progress::reset(Self, Int32, start? : Bool, total? : Double, completed? : Double, visible? : Bool, description? : String, fields? : Map[String, Json]) -> Unit raise
 pub fn Progress::run(Self, () -> Unit raise) -> Unit raise
 pub fn Progress::start(Self) -> Unit raise
-pub fn Progress::start_task(Self, Int) -> Unit raise
+pub fn Progress::start_task(Self, Int32) -> Unit raise
 pub fn Progress::stop(Self) -> Unit raise
-pub fn Progress::stop_task(Self, Int) -> Unit raise
-pub fn Progress::task_ids(Self) -> Array[Int]
+pub fn Progress::stop_task(Self, Int32) -> Unit raise
+pub fn Progress::task_ids(Self) -> Array[Int32]
 pub fn Progress::tasks(Self) -> Array[Task]
-pub fn[T] Progress::track(Self, Iter[T], (T) -> Unit raise, total? : Double, completed? : Double, task_id? : Int, description? : String, update_period? : Double) -> Unit raise
-pub fn Progress::update(Self, Int, total? : Double, completed? : Double, advance? : Double, description? : String, visible? : Bool, refresh? : Bool, fields? : Map[String, Json]) -> Unit raise
+pub fn[T] Progress::track(Self, Iter[T], (T) -> Unit raise, total? : Double, completed? : Double, task_id? : Int32, description? : String, update_period? : Double) -> Unit raise
+pub fn Progress::update(Self, Int32, total? : Double, completed? : Double, advance? : Double, description? : String, visible? : Bool, refresh? : Bool, fields? : Map[String, Json]) -> Unit raise
 pub impl @rich.Renderable for Progress
 
 pub(all) struct ProgressSample {
@@ -113,7 +113,7 @@ pub fn SpinnerColumn::set_spinner(Self, String, spinner_style? : &@rich.IntoStyl
 pub impl ProgressColumn for SpinnerColumn
 
 pub(all) struct Task {
-  id : Int
+  id : Int32
   mut description : String
   mut total : Double?
   mut completed : Double
@@ -128,7 +128,7 @@ pub(all) struct Task {
 pub fn Task::elapsed(Self) -> Double?
 pub fn Task::finished(Self) -> Bool
 pub fn Task::get_time(Self) -> Double
-pub fn Task::new(Int, String, Double?, Double, get_time~ : () -> Double, finished_time? : Double, visible? : Bool, fields? : Map[String, Json]) -> Self
+pub fn Task::new(Int32, String, Double?, Double, get_time~ : () -> Double, finished_time? : Double, visible? : Bool, fields? : Map[String, Json]) -> Self
 pub fn Task::percentage(Self) -> Double
 pub fn Task::remaining(Self) -> Double?
 pub fn Task::samples(Self) -> Array[ProgressSample]

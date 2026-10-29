@@ -81,12 +81,12 @@ priv enum LitTok {
 
 ///|
 fn is_name_start(c : Char) -> Bool {
-  c is ('a'..='z' | 'A'..='Z' | '_') || c.to_int() > 0x7f
+  c is ('a'..<='z' | 'A'..<='Z' | '_') || c.to_int() > 0x7f
 }
 
 ///|
 fn is_name_char(c : Char) -> Bool {
-  is_name_start(c) || c is ('0'..='9')
+  is_name_start(c) || c is ('0'..<='9')
 }
 
 ///|
@@ -183,23 +183,23 @@ fn lit_tokenize(src : String) -> Array[LitTok] raise LitError {
       i = k
       continue
     }
-    if c is ('0'..='9') ||
-      (c == '.' && i + 1 < n && chars[i + 1] is ('0'..='9')) {
+    if c is ('0'..<='9') ||
+      (c == '.' && i + 1 < n && chars[i + 1] is ('0'..<='9')) {
       let mut k = i
       if c == '0' &&
         i + 1 < n &&
         chars[i + 1] is ('x' | 'X' | 'o' | 'O' | 'b' | 'B') {
         k = i + 2
-        while k < n && chars[k] is ('0'..='9' | 'a'..='f' | 'A'..='F' | '_') {
+        while k < n && chars[k] is ('0'..<='9' | 'a'..<='f' | 'A'..<='F' | '_') {
           k += 1
         }
       } else {
-        while k < n && chars[k] is ('0'..='9' | '_') {
+        while k < n && chars[k] is ('0'..<='9' | '_') {
           k += 1
         }
         if k < n && chars[k] == '.' {
           k += 1
-          while k < n && chars[k] is ('0'..='9' | '_') {
+          while k < n && chars[k] is ('0'..<='9' | '_') {
             k += 1
           }
         }
@@ -208,9 +208,9 @@ fn lit_tokenize(src : String) -> Array[LitTok] raise LitError {
           if e < n && chars[e] is ('+' | '-') {
             e += 1
           }
-          if e < n && chars[e] is ('0'..='9') {
+          if e < n && chars[e] is ('0'..<='9') {
             k = e
-            while k < n && chars[k] is ('0'..='9' | '_') {
+            while k < n && chars[k] is ('0'..<='9' | '_') {
               k += 1
             }
           }
@@ -261,22 +261,22 @@ fn lit_tokenize(src : String) -> Array[LitTok] raise LitError {
 /// after it.
 fn lit_escape(
   chars : Array[Char],
-  k : Int,
+  k : Int32,
   buf : StringBuilder,
   bytes : Bool,
-) -> Int raise LitError {
+) -> Int32 raise LitError {
   let n = chars.length()
   let e = chars[k]
-  fn hex(start : Int, count : Int) -> Int raise LitError {
+  fn hex(start : Int32, count : Int32) -> Int32 raise LitError {
     if start + count > n {
       raise LitSyntax("truncated escape")
     }
     let mut v = 0
     for idx in start..<(start + count) {
       let d = match chars[idx] {
-        '0'..='9' as d => d.to_int() - '0'.to_int()
-        'a'..='f' as d => d.to_int() - 'a'.to_int() + 10
-        'A'..='F' as d => d.to_int() - 'A'.to_int() + 10
+        '0'..<='9' as d => d.to_int() - '0'.to_int()
+        'a'..<='f' as d => d.to_int() - 'a'.to_int() + 10
+        'A'..<='F' as d => d.to_int() - 'A'.to_int() + 10
         _ => raise LitSyntax("truncated escape")
       }
       v = v * 16 + d
@@ -318,10 +318,10 @@ fn lit_escape(
       buf.write_char('\u{0b}')
       k + 1
     }
-    '0'..='7' => {
+    '0'..<='7' => {
       let mut v = 0
       let mut idx = k
-      while idx < n && idx < k + 3 && chars[idx] is ('0'..='7') {
+      while idx < n && idx < k + 3 && chars[idx] is ('0'..<='7') {
         v = v * 8 + (chars[idx].to_int() - '0'.to_int())
         idx += 1
       }
@@ -396,7 +396,7 @@ fn LitNode::repr(self : LitNode) -> String {
 ///|
 priv struct LitParser {
   tokens : Array[LitTok]
-  mut pos : Int
+  mut pos : Int32
 }
 
 ///|
@@ -542,8 +542,8 @@ fn parse_number(s : String) -> PyValue raise LitError {
     let mut v = 0L
     for c in lower.view(start_offset=2) {
       let d = match c {
-        '0'..='9' => c.to_int() - '0'.to_int()
-        'a'..='f' => c.to_int() - 'a'.to_int() + 10
+        '0'..<='9' => c.to_int() - '0'.to_int()
+        'a'..<='f' => c.to_int() - 'a'.to_int() + 10
         _ => base
       }
       if d >= base {

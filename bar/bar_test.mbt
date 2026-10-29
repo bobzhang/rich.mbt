@@ -3,7 +3,7 @@
 
 ///|
 /// Upstream tests/render.py `render`.
-fn render(renderable : &@rich.Renderable, width? : Int = 100) -> String raise {
+fn render(renderable : &@rich.Renderable, width~ : Int32 = 100) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
     width~,
@@ -67,7 +67,7 @@ test "zero total" {
 
 ///|
 test "differential" {
-  let cases : Array[(Double, Double, Double, Int, String, String, String)] = [
+  let cases : Array[(Double, Double, Double, Int32, String, String, String)] = [
     (
       10, 0, 10, 20, "default", "default", "\u{1b}[39;49m████████████████████\u{1b}[0m\n",
     ),

@@ -12,7 +12,7 @@ pub(all) struct ProgressSample {
 ///|
 /// Maximum number of progress samples kept per task (upstream
 /// `deque(maxlen=1000)`).
-let max_samples : Int = 1000
+let max_samples : Int32 = 1000
 
 ///|
 /// Information regarding a progress task.
@@ -20,7 +20,7 @@ let max_samples : Int = 1000
 /// This object should be considered read-only outside of `Progress`.
 pub(all) struct Task {
   /// Task ID associated with this task (used in `Progress` methods).
-  id : Int
+  id : Int32
   /// Description of the task.
   mut description : String
   /// Total number of steps in this task, or `None` if unknown.
@@ -47,14 +47,14 @@ pub(all) struct Task {
 ///|
 /// Create a task (normally done by `Progress::add_task`).
 pub fn Task::new(
-  id : Int,
+  id : Int32,
   description : String,
   total : Double?,
   completed : Double,
   get_time~ : () -> Double,
   finished_time? : Double,
-  visible? : Bool = true,
-  fields? : Map[String, Json] = {},
+  visible~ : Bool = true,
+  fields~ : Map[String, Json] = {},
 ) -> Task {
   {
     id,

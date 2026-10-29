@@ -1,7 +1,7 @@
 // Tests for the thread-less auto refresh (not upstream tests).
 
 ///|
-fn count(haystack : String, needle : String) -> Int {
+fn count(haystack : String, needle : String) -> Int32 {
   let mut n = 0
   let mut rest = haystack[:]
   while rest.find(needle) is Some(i) {

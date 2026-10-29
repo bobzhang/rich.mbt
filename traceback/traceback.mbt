@@ -3,19 +3,19 @@
 
 ///|
 /// Default maximum length of containers in locals.
-pub const LOCALS_MAX_LENGTH : Int = 10
+pub const LOCALS_MAX_LENGTH : Int32 = 10
 
 ///|
 /// Default maximum length of strings in locals.
-pub const LOCALS_MAX_STRING : Int = 80
+pub const LOCALS_MAX_STRING : Int32 = 80
 
 ///|
 /// Yield (line, column1, column2) per line between two positions; `-1` as
 /// `column2` means "to the end of the line".
 fn iter_syntax_lines(
-  start : (Int, Int),
-  end : (Int, Int),
-) -> Array[(Int, Int, Int)] {
+  start : (Int32, Int32),
+  end : (Int32, Int32),
+) -> Array[(Int32, Int32, Int32)] {
   let (line1, column1) = start
   let (line2, column2) = end
   if line1 == line2 {
@@ -40,11 +40,11 @@ pub(all) struct Traceback {
   /// The trace to render.
   mut trace : Trace
   /// Number of characters used to render the traceback (`None` = all).
-  mut width : Int?
+  mut width : Int32?
   /// Number of code characters used to render code (`None` = all).
-  mut code_width : Int?
+  mut code_width : Int32?
   /// Additional lines of code to render around the error line.
-  mut extra_lines : Int
+  mut extra_lines : Int32
   /// The syntax theme.
   mut theme : &@syntax.SyntaxTheme
   /// Enable word wrapping of long lines.
@@ -54,11 +54,11 @@ pub(all) struct Traceback {
   /// Enable indent guides in code and locals.
   mut indent_guides : Bool
   /// Maximum length of containers in locals.
-  mut locals_max_length : Int
+  mut locals_max_length : Int32
   /// Maximum length of strings in locals.
-  mut locals_max_string : Int
+  mut locals_max_string : Int32
   /// Maximum depth of locals.
-  mut locals_max_depth : Int?
+  mut locals_max_depth : Int32?
   /// Hide locals prefixed with double underscore.
   mut locals_hide_dunder : Bool
   /// Hide locals prefixed with single underscore.
@@ -68,7 +68,7 @@ pub(all) struct Traceback {
   /// Normalized paths whose frames do not show source code.
   mut suppress : Array[String]
   /// Maximum number of frames per stack (0 for no maximum).
-  mut max_frames : Int
+  mut max_frames : Int32
   /// Reads the source of a file (upstream `linecache.getlines`).
   mut source_reader : (String) -> String?
   /// Whether a file exists (upstream `os.path.exists`).
@@ -139,21 +139,21 @@ fn normalize_path(path : String) -> String {
 ///   returns `Some` if a reader was given, else the file system).
 pub fn Traceback::new(
   trace : Trace,
-  width? : Int? = Some(100),
-  code_width? : Int? = Some(88),
-  extra_lines? : Int = 3,
+  width~ : Int32? = Some(100),
+  code_width~ : Int32? = Some(88),
+  extra_lines~ : Int32 = 3,
   theme? : &@syntax.IntoSyntaxTheme,
-  word_wrap? : Bool = false,
-  show_locals? : Bool = false,
-  locals_max_length? : Int = LOCALS_MAX_LENGTH,
-  locals_max_string? : Int = LOCALS_MAX_STRING,
-  locals_max_depth? : Int,
-  locals_hide_dunder? : Bool = true,
-  locals_hide_sunder? : Bool = false,
+  word_wrap~ : Bool = false,
+  show_locals~ : Bool = false,
+  locals_max_length~ : Int32 = LOCALS_MAX_LENGTH,
+  locals_max_string~ : Int32 = LOCALS_MAX_STRING,
+  locals_max_depth? : Int32,
+  locals_hide_dunder~ : Bool = true,
+  locals_hide_sunder~ : Bool = false,
   locals_overflow? : @rich.OverflowMethod,
-  indent_guides? : Bool = true,
-  suppress? : ArrayView[String] = [],
-  max_frames? : Int = 100,
+  indent_guides~ : Bool = true,
+  suppress~ : ArrayView[String] = [],
+  max_frames~ : Int32 = 100,
   source_reader? : (String) -> String?,
   path_exists? : (String) -> Bool,
 ) -> Traceback {
@@ -235,8 +235,8 @@ pub fn Traceback::guess_lexer(
 fn is_py_space(c : Char) -> Bool {
   match c {
     ' ' | '\t' | '\n' | '\r' | '\u{0b}' | '\u{0c}' => true
-    '\u{1c}'..='\u{1f}' | '\u{85}' | '\u{a0}' | '\u{1680}' => true
-    '\u{2000}'..='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' => true
+    '\u{1c}'..<='\u{1f}' | '\u{85}' | '\u{a0}' | '\u{1680}' => true
+    '\u{2000}'..<='\u{200a}' | '\u{2028}' | '\u{2029}' | '\u{202f}' => true
     '\u{205f}' | '\u{3000}' => true
     _ => false
   }
@@ -254,7 +254,7 @@ fn py_rstrip(s : String) -> String {
 
 ///|
 /// Length of the leading whitespace of `s` (`len(s) - len(s.lstrip())`).
-fn leading_space(s : String) -> Int {
+fn leading_space(s : String) -> Int32 {
   let mut i = 0
   while i < s.length() && is_py_space(s[i].unsafe_to_char()) {
     i += 1
@@ -348,7 +348,7 @@ fn Traceback::render_locals(
 
 ///|
 /// Python list indexing (negative indexes count from the end).
-fn[T] py_index(xs : Array[T], i : Int) -> T? {
+fn[T] py_index(xs : Array[T], i : Int32) -> T? {
   let i = if i < 0 { i + xs.length() } else { i }
   if i >= 0 && i < xs.length() {
     Some(xs[i])
@@ -652,13 +652,13 @@ pub impl @rich.Renderable for Traceback with fn rich_console(
 pub fn print_exception(
   console : @rich.Console,
   trace : Trace,
-  width? : Int? = Some(100),
-  extra_lines? : Int = 3,
+  width~ : Int32? = Some(100),
+  extra_lines~ : Int32 = 3,
   theme? : &@syntax.IntoSyntaxTheme,
-  word_wrap? : Bool = false,
-  show_locals? : Bool = false,
-  suppress? : ArrayView[String] = [],
-  max_frames? : Int = 100,
+  word_wrap~ : Bool = false,
+  show_locals~ : Bool = false,
+  suppress~ : ArrayView[String] = [],
+  max_frames~ : Int32 = 100,
   source_reader? : (String) -> String?,
 ) -> Unit raise {
   let traceback = Traceback::new(
@@ -681,8 +681,8 @@ pub fn print_exception(
 pub fn print_error(
   console : @rich.Console,
   error : Error,
-  exc_type? : String = "Error",
-  width? : Int? = Some(100),
+  exc_type~ : String = "Error",
+  width~ : Int32? = Some(100),
 ) -> Unit raise {
   print_exception(console, Trace::from_error(error, exc_type~), width~)
 }

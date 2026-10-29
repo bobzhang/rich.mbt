@@ -20,37 +20,37 @@ pub(all) struct Column {
   /// Overflow method.
   mut overflow : OverflowMethod
   /// Width of the column, or `None` to auto calculate width.
-  mut width : Int?
+  mut width : Int32?
   /// Minimum width of column.
-  mut min_width : Int?
+  mut min_width : Int32?
   /// Maximum width of column.
-  mut max_width : Int?
+  mut max_width : Int32?
   /// Ratio to use when calculating column width.
-  mut ratio : Int?
+  mut ratio : Int32?
   /// Prevent wrapping of text within the column.
   mut no_wrap : Bool
   /// Apply highlighter to column.
   mut highlight : Bool
-  priv mut index : Int
+  priv mut index : Int32
   priv cells_ : Array[&Renderable]
 }
 
 ///|
 pub fn Column::new(
-  header? : &Renderable = "",
-  footer? : &Renderable = "",
+  header~ : &Renderable = "",
+  footer~ : &Renderable = "",
   header_style? : &IntoStyle,
   footer_style? : &IntoStyle,
   style? : &IntoStyle,
-  justify? : JustifyMethod = Left,
-  vertical? : VerticalAlignMethod = Top,
-  overflow? : OverflowMethod = Ellipsis,
-  width? : Int,
-  min_width? : Int,
-  max_width? : Int,
-  ratio? : Int,
-  no_wrap? : Bool = false,
-  highlight? : Bool = false,
+  justify~ : JustifyMethod = Left,
+  vertical~ : VerticalAlignMethod = Top,
+  overflow~ : OverflowMethod = Ellipsis,
+  width? : Int32,
+  min_width? : Int32,
+  max_width? : Int32,
+  ratio? : Int32,
+  no_wrap~ : Bool = false,
+  highlight~ : Bool = false,
 ) -> Column {
   {
     header,
@@ -144,18 +144,18 @@ pub(all) struct Table {
   rows : Array[Row]
   mut title : TextType?
   mut caption : TextType?
-  mut width : Int?
-  mut min_width : Int?
+  mut width : Int32?
+  mut min_width : Int32?
   mut box_ : Box?
   mut safe_box : Bool?
-  priv mut padding_ : (Int, Int, Int, Int)
+  priv mut padding_ : (Int32, Int32, Int32, Int32)
   mut pad_edge : Bool
   priv mut expand_ : Bool
   mut show_header : Bool
   mut show_footer : Bool
   mut show_edge : Bool
   mut show_lines : Bool
-  mut leading : Int
+  mut leading : Int32
   mut collapse_padding : Bool
   mut style : StyleType
   mut header_style : StyleType
@@ -173,33 +173,33 @@ pub(all) struct Table {
 /// Create a table. `headers` are column headers (strings or `Column`s).
 /// `box_` is the box style; pass `no_box=true` for no box.
 pub fn Table::new(
-  headers? : Array[&IntoColumn] = [],
+  headers~ : Array[&IntoColumn] = [],
   title? : &IntoText,
   caption? : &IntoText,
-  width? : Int,
-  min_width? : Int,
-  box_? : Box = box_heavy_head,
-  no_box? : Bool = false,
+  width? : Int32,
+  min_width? : Int32,
+  box_~ : Box = box_heavy_head,
+  no_box~ : Bool = false,
   safe_box? : Bool,
-  padding? : ArrayView[Int] = [0, 1],
-  collapse_padding? : Bool = false,
-  pad_edge? : Bool = true,
-  expand? : Bool = false,
-  show_header? : Bool = true,
-  show_footer? : Bool = false,
-  show_edge? : Bool = true,
-  show_lines? : Bool = false,
-  leading? : Int = 0,
+  padding~ : ArrayView[Int32] = [0, 1],
+  collapse_padding~ : Bool = false,
+  pad_edge~ : Bool = true,
+  expand~ : Bool = false,
+  show_header~ : Bool = true,
+  show_footer~ : Bool = false,
+  show_edge~ : Bool = true,
+  show_lines~ : Bool = false,
+  leading~ : Int32 = 0,
   style? : &IntoStyle,
-  row_styles? : Array[&IntoStyle] = [],
+  row_styles~ : Array[&IntoStyle] = [],
   header_style? : &IntoStyle,
   footer_style? : &IntoStyle,
   border_style? : &IntoStyle,
   title_style? : &IntoStyle,
   caption_style? : &IntoStyle,
-  title_justify? : JustifyMethod = Center,
-  caption_justify? : JustifyMethod = Center,
-  highlight? : Bool = false,
+  title_justify~ : JustifyMethod = Center,
+  caption_justify~ : JustifyMethod = Center,
+  highlight~ : Bool = false,
 ) -> Table raise RichError {
   let table : Table = {
     columns: [],
@@ -254,11 +254,11 @@ pub fn Table::new(
 ///|
 /// Get a table with no lines, headers, or footer.
 pub fn Table::grid(
-  headers? : Array[&IntoColumn] = [],
-  padding? : ArrayView[Int] = [0],
-  collapse_padding? : Bool = true,
-  pad_edge? : Bool = false,
-  expand? : Bool = false,
+  headers~ : Array[&IntoColumn] = [],
+  padding~ : ArrayView[Int32] = [0],
+  collapse_padding~ : Bool = true,
+  pad_edge~ : Bool = false,
+  expand~ : Bool = false,
 ) -> Table raise RichError {
   Table::new(
     headers~,
@@ -286,7 +286,7 @@ pub fn Table::set_expand(self : Table, expand : Bool) -> Unit {
 
 ///|
 /// Cell padding as `(top, right, bottom, left)`.
-pub fn Table::padding(self : Table) -> (Int, Int, Int, Int) {
+pub fn Table::padding(self : Table) -> (Int32, Int32, Int32, Int32) {
   self.padding_
 }
 
@@ -294,13 +294,13 @@ pub fn Table::padding(self : Table) -> (Int, Int, Int, Int) {
 /// Set cell padding (1, 2 or 4 values).
 pub fn Table::set_padding(
   self : Table,
-  padding : ArrayView[Int],
+  padding : ArrayView[Int32],
 ) -> Unit raise RichError {
   self.padding_ = unpack_padding(padding)
 }
 
 ///|
-fn Table::extra_width(self : Table) -> Int {
+fn Table::extra_width(self : Table) -> Int32 {
   let mut width = 0
   if self.box_ is Some(_) && self.show_edge {
     width += 2
@@ -313,7 +313,7 @@ fn Table::extra_width(self : Table) -> Int {
 
 ///|
 /// The number of rows in the table.
-pub fn Table::row_count(self : Table) -> Int {
+pub fn Table::row_count(self : Table) -> Int32 {
   self.rows.length()
 }
 
@@ -322,7 +322,7 @@ pub fn Table::row_count(self : Table) -> Int {
 pub fn Table::get_row_style(
   self : Table,
   console : Console,
-  index : Int,
+  index : Int32,
 ) -> Style raise {
   let mut style = Style::null()
   if !self.row_styles.is_empty() {
@@ -381,20 +381,20 @@ pub impl Renderable for Table with fn rich_measure(self, console, options) {
 /// Add a column to the table.
 pub fn Table::add_column(
   self : Table,
-  header? : &Renderable = "",
-  footer? : &Renderable = "",
+  header~ : &Renderable = "",
+  footer~ : &Renderable = "",
   header_style? : &IntoStyle,
   highlight? : Bool,
   footer_style? : &IntoStyle,
   style? : &IntoStyle,
-  justify? : JustifyMethod = Left,
-  vertical? : VerticalAlignMethod = Top,
-  overflow? : OverflowMethod = Ellipsis,
-  width? : Int,
-  min_width? : Int,
-  max_width? : Int,
-  ratio? : Int,
-  no_wrap? : Bool = false,
+  justify~ : JustifyMethod = Left,
+  vertical~ : VerticalAlignMethod = Top,
+  overflow~ : OverflowMethod = Ellipsis,
+  width? : Int32,
+  min_width? : Int32,
+  max_width? : Int32,
+  ratio? : Int32,
+  no_wrap~ : Bool = false,
 ) -> Unit {
   let column = Column::new(
     header~,
@@ -422,7 +422,7 @@ pub fn Table::add_row(
   self : Table,
   renderables : ArrayView[&Renderable],
   style? : &IntoStyle,
-  end_section? : Bool = false,
+  end_section~ : Bool = false,
 ) -> Unit {
   let cells : Array[&Renderable] = renderables.to_owned()
   while cells.length() < self.columns.length() {
@@ -516,7 +516,7 @@ pub impl Renderable for Table with fn rich_console(self, console, options) {
 }
 
 ///|
-fn sum(xs : ArrayView[Int]) -> Int {
+fn sum(xs : ArrayView[Int32]) -> Int32 {
   let mut total = 0
   for x in xs {
     total += x
@@ -531,7 +531,7 @@ fn Table::calculate_column_widths(
   self : Table,
   console : Console,
   options : ConsoleOptions,
-) -> Array[Int] raise {
+) -> Array[Int32] raise {
   let max_width = options.max_width
   let columns = self.columns
   let width_ranges = columns.map(c => self.measure_column(console, options, c))
@@ -626,10 +626,10 @@ fn Table::calculate_column_widths(
 ///|
 /// Reduce widths so that the total is under max_width.
 fn Table::collapse_widths(
-  widths : Array[Int],
+  widths : Array[Int32],
   wrapable : Array[Bool],
-  max_width : Int,
-) -> Array[Int] {
+  max_width : Int32,
+) -> Array[Int32] {
   let mut widths = widths
   let mut total_width = sum(widths)
   let mut excess_width = total_width - max_width
@@ -675,7 +675,7 @@ fn Table::collapse_widths(
 fn Table::get_cells(
   self : Table,
   console : Console,
-  column_index : Int,
+  column_index : Int32,
   column : Column,
 ) -> Array[Cell] raise {
   let collapse_padding = self.collapse_padding
@@ -687,7 +687,7 @@ fn Table::get_cells(
     padding.3 != 0
   let first_column = column_index == 0
   let last_column = column_index == self.columns.length() - 1
-  fn get_padding(first_row : Bool, last_row : Bool) -> Array[Int] {
+  fn get_padding(first_row : Bool, last_row : Bool) -> Array[Int32] {
     let (t, r, b, l) = padding
     let mut top = t
     let mut right = r
@@ -753,7 +753,7 @@ fn Table::get_cells(
 }
 
 ///|
-fn Table::get_padding_width(self : Table, column_index : Int) -> Int {
+fn Table::get_padding_width(self : Table, column_index : Int32) -> Int32 {
   let (_, pad_right, _, pad_left) = self.padding_
   let mut pad_left = pad_left
   let mut pad_right = pad_right
@@ -796,7 +796,7 @@ fn Table::measure_column(
     min_widths.push(m.minimum)
     max_widths.push(m.maximum)
   }
-  fn max_of(xs : Array[Int], default : Int) -> Int {
+  fn max_of(xs : Array[Int32], default : Int32) -> Int32 {
     if xs.is_empty() {
       return default
     }
@@ -822,7 +822,7 @@ fn Table::render_table(
   self : Table,
   console : Console,
   options : ConsoleOptions,
-  widths : Array[Int],
+  widths : Array[Int32],
 ) -> Array[Segment] raise {
   let out = []
   let table_style = console.get_style(self.style)
@@ -932,7 +932,7 @@ fn Table::render_table(
     fn align_cell(
       cell : Array[Array[Segment]],
       vertical : VerticalAlignMethod,
-      width : Int,
+      width : Int32,
       style : Style,
     ) -> Array[Array[Segment]] {
       let vertical = if header_row {

@@ -14,7 +14,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -53,7 +53,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -92,7 +92,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -131,7 +131,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -170,7 +170,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -209,7 +209,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -248,7 +248,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -287,7 +287,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -326,7 +326,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -365,7 +365,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -404,7 +404,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -443,7 +443,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -482,7 +482,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -521,7 +521,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -560,7 +560,7 @@ test "oracle progress bar" {
       force_terminal=true,
       environ={},
     )
-    let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+    let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
       (Some(100.0), 0.0, None, false, None),
       (Some(100.0), 33.0, Some(20), false, None),
       (Some(100.0), 34.0, Some(20), false, None),
@@ -598,7 +598,7 @@ test "oracle progress bar" {
     force_terminal=true,
     environ={},
   )
-  let cases : Array[(Double?, Double, Int?, Bool, Double?)] = [
+  let cases : Array[(Double?, Double, Int32?, Bool, Double?)] = [
     (Some(100.0), 0.0, None, false, None),
     (Some(100.0), 33.0, Some(20), false, None),
     (Some(100.0), 34.0, Some(20), false, None),

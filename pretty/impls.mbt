@@ -2,7 +2,7 @@
 // the Python value they correspond to would be.
 
 ///|
-pub impl PrettyRepr for Int with fn pretty_node(self, ctx) {
+pub impl PrettyRepr for Int32 with fn pretty_node(self, ctx) {
   ctx.leaf(self.to_string())
 }
 
@@ -12,7 +12,7 @@ pub impl PrettyRepr for Int64 with fn pretty_node(self, ctx) {
 }
 
 ///|
-pub impl PrettyRepr for UInt with fn pretty_node(self, ctx) {
+pub impl PrettyRepr for UInt32 with fn pretty_node(self, ctx) {
   ctx.leaf(self.to_string())
 }
 

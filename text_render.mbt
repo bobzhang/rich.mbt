@@ -6,14 +6,14 @@
 /// leaving flag, sequence number) so that sorting the integers sorts by
 /// `(offset, leaving)` and keeps equal keys in sequence order, like
 /// upstream's stable `spans.sort(key=itemgetter(0, 1))`.
-fn pack_event(offset : Int, leaving : Bool, seq : Int) -> UInt64 {
+fn pack_event(offset : Int32, leaving : Bool, seq : Int32) -> UInt64 {
   ((offset.to_int64() + 0x8000_0000L).reinterpret_as_uint64() << 32) |
   (if leaving { 0x8000_0000UL } else { 0UL }) |
   seq.to_uint64()
 }
 
 ///|
-fn event_offset(e : UInt64) -> Int {
+fn event_offset(e : UInt64) -> Int32 {
   ((e >> 32).reinterpret_as_int64() - 0x8000_0000L).to_int()
 }
 
@@ -23,7 +23,7 @@ fn event_leaving(e : UInt64) -> Bool {
 }
 
 ///|
-fn event_seq(e : UInt64) -> Int {
+fn event_seq(e : UInt64) -> Int32 {
   (e & 0x7FFF_FFFFUL).to_int()
 }
 
@@ -33,8 +33,8 @@ fn event_seq(e : UInt64) -> Int {
 /// the combination of their styles in id order.
 priv struct ActiveStyles {
   style_map : FixedArray[Style]
-  stack : Array[Int]
-  mut cache : Map[Array[Int], Style]?
+  stack : Array[Int32]
+  mut cache : Map[Array[Int32], Style]?
 }
 
 ///|
@@ -43,14 +43,14 @@ fn ActiveStyles::new(style_map : FixedArray[Style]) -> ActiveStyles {
 }
 
 ///|
-fn ActiveStyles::enter(self : ActiveStyles, id : Int) -> Unit {
+fn ActiveStyles::enter(self : ActiveStyles, id : Int32) -> Unit {
   match self.stack.binary_search(id) {
     Ok(idx) | Err(idx) => self.stack.insert(idx, id)
   }
 }
 
 ///|
-fn ActiveStyles::leave(self : ActiveStyles, id : Int) -> Unit {
+fn ActiveStyles::leave(self : ActiveStyles, id : Int32) -> Unit {
   match self.stack.binary_search(id) {
     Ok(idx) => self.stack.remove(idx) |> ignore
     Err(_) => ()
@@ -203,7 +203,7 @@ fn render_joined_lines(
     span_count + 1,
     null_style,
   )
-  let first_ids : FixedArray[Int] = FixedArray::make(line_count, 0)
+  let first_ids : FixedArray[Int32] = FixedArray::make(line_count, 0)
   let mut id = 0
   for i, line in lines {
     first_ids[i] = id + 1
@@ -218,14 +218,14 @@ fn render_joined_lines(
   }
   style_map[0] = console.get_style(null, default=null)
   // offset of each line in the joined text
-  let starts : FixedArray[Int] = FixedArray::make(line_count + 1, 0)
+  let starts : FixedArray[Int32] = FixedArray::make(line_count + 1, 0)
   for i, line in lines {
     starts[i + 1] = starts[i] + line.length_ + 1
   }
   let total_length = starts[line_count] - 1
   // text of the joined text between `a` and `b`, with `a` in line `cursor`
   let mut cursor = 0
-  fn slice(a : Int, b : Int) -> String {
+  fn slice(a : Int32, b : Int32) -> String {
     while cursor + 1 < line_count && starts[cursor + 1] <= a {
       cursor += 1
     }

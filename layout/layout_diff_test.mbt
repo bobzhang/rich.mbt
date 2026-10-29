@@ -5,9 +5,9 @@
 ///|
 fn render(
   renderable : &@rich.Renderable,
-  width~ : Int,
-  height? : Int,
-  color? : Bool = true,
+  width~ : Int32,
+  height? : Int32,
+  color~ : Bool = true,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(

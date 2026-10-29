@@ -7,7 +7,7 @@ pub struct Renderables {
 }
 
 ///|
-pub fn Renderables::new(renderables? : Array[&Renderable] = []) -> Renderables {
+pub fn Renderables::new(renderables~ : Array[&Renderable] = []) -> Renderables {
   { renderables: renderables.copy(), }
 }
 
@@ -66,28 +66,28 @@ pub fn Lines::new(lines : ArrayView[Text]) -> Lines {
 }
 
 ///|
-pub fn Lines::length(self : Lines) -> Int {
+pub fn Lines::length(self : Lines) -> Int32 {
   self.lines.length()
 }
 
 ///|
 /// The line at `index` (negative indices count from the end, as in
 /// Python). Aborts if out of range.
-pub fn Lines::get(self : Lines, index : Int) -> Text {
+pub fn Lines::get(self : Lines, index : Int32) -> Text {
   self.lines[if index < 0 { self.lines.length() + index } else { index }]
 }
 
 ///|
 /// Replace the line at `index` (negative indices count from the end).
-pub fn Lines::set(self : Lines, index : Int, value : Text) -> Unit {
+pub fn Lines::set(self : Lines, index : Int32, value : Text) -> Unit {
   self.lines[if index < 0 { self.lines.length() + index } else { index }] = value
 }
 
 ///|
 /// Lines `start..end` with Python slice semantics (upstream `lines[a:b]`).
-pub fn Lines::slice(self : Lines, start? : Int, end? : Int) -> Array[Text] {
+pub fn Lines::slice(self : Lines, start? : Int32, end? : Int32) -> Array[Text] {
   let n = self.lines.length()
-  fn clamp(i : Int?, default : Int) -> Int {
+  fn clamp(i : Int32?, default : Int32) -> Int32 {
     match i {
       None => default
       Some(i) => if i < 0 { @cmp.maximum(0, n + i) } else { @cmp.minimum(i, n) }
@@ -118,7 +118,7 @@ pub fn Lines::extend_(self : Lines, lines : ArrayView[Text]) -> Unit {
 ///|
 /// Remove and return the line at `index` (default: the last line;
 /// negative indices count from the end). `None` if out of range.
-pub fn Lines::pop(self : Lines, index? : Int = -1) -> Text? {
+pub fn Lines::pop(self : Lines, index~ : Int32 = -1) -> Text? {
   let n = self.lines.length()
   let i = if index < 0 { n + index } else { index }
   if i < 0 || i >= n {
@@ -149,9 +149,9 @@ pub impl Renderable for Lines with fn rich_console(self, _console, _options) {
 pub fn Lines::justify(
   self : Lines,
   console : Console,
-  width : Int,
-  justify? : JustifyMethod = Left,
-  overflow? : OverflowMethod = Fold,
+  width : Int32,
+  justify~ : JustifyMethod = Left,
+  overflow~ : OverflowMethod = Fold,
 ) -> Unit raise {
   match justify {
     Left =>
@@ -216,7 +216,7 @@ pub fn Lines::justify(
 
 ///|
 /// Match `\s*\S+\s*` at `position`; returns the end offset.
-fn match_word(text : String, position : Int) -> Int? {
+fn match_word(text : String, position : Int32) -> Int32? {
   let n = text.length()
   let mut i = position
   while i < n && is_py_whitespace(text[i].to_int().unsafe_to_char()) {
@@ -238,7 +238,7 @@ fn match_word(text : String, position : Int) -> Int? {
 ///|
 /// Words of `text` as `(start, end, word)` where a word includes the
 /// whitespace around it.
-pub fn words(text : String) -> Array[(Int, Int, String)] {
+pub fn words(text : String) -> Array[(Int32, Int32, String)] {
   let out = []
   let mut position = 0
   while match_word(text, position) is Some(end) {
@@ -260,9 +260,9 @@ pub fn words(text : String) -> Array[(Int, Int, String)] {
 /// With `fold`, words longer than `width` are folded onto new lines.
 pub fn divide_line(
   text : String,
-  width : Int,
-  fold? : Bool = true,
-) -> Array[Int] {
+  width : Int32,
+  fold~ : Bool = true,
+) -> Array[Int32] {
   let break_positions = []
   let mut cell_offset = 0
   let mut position = 0

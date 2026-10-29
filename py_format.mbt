@@ -41,7 +41,7 @@ fn py_format_spec(value : String, spec : String) -> String {
     width = width * 10 + (chars[i].to_int() - '0'.to_int())
     i += 1
   }
-  let mut precision : Int? = None
+  let mut precision : Int32? = None
   if i < n && chars[i] == '.' {
     i += 1
     let mut p = 0

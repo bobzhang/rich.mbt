@@ -5,19 +5,19 @@
 /// A source line of a paragraph (or setext heading).
 priv struct Line {
   /// 1-based line number in the converter's source.
-  line : Int
+  line : Int32
   /// Text from the first non-blank character to the end of the line
   /// (trailing blanks kept, except on the last line of the block).
   text : String
   /// Indentation in columns relative to the block's first line (negative
   /// for lazy continuation lines).
-  indent : Int
+  indent : Int32
   /// The blanks before `text` on the source line.
   lead : String
 }
 
 ///|
-fn Converter::column(self : Converter, line : Int, pos : Int) -> Int {
+fn Converter::column(self : Converter, line : Int32, pos : Int32) -> Int32 {
   let start = self.line_starts[line - 1]
   let mut col = 0
   for i in start..<pos {
@@ -33,9 +33,9 @@ fn Converter::column(self : Converter, line : Int, pos : Int) -> Int {
 ///|
 fn Converter::make_line(
   self : Converter,
-  line : Int,
-  start : Int,
-  end : Int,
+  line : Int32,
+  start : Int32,
+  end : Int32,
 ) -> Line {
   let mut s = start
   while s < end && self.src[s] is (' ' | '\t') {
@@ -56,9 +56,9 @@ fn Converter::make_line(
 
 ///|
 fn record_candidate(
-  cands : Map[Int, Int],
+  cands : Map[Int32, Int32],
   loc : @cmark_base.TextLoc,
-  first? : Int,
+  first? : Int32,
 ) -> Unit {
   if loc.is_none() {
     return
@@ -75,7 +75,10 @@ fn record_candidate(
 }
 
 ///|
-fn collect_line_starts(inline : @cmark.Inline, cands : Map[Int, Int]) -> Unit {
+fn collect_line_starts(
+  inline : @cmark.Inline,
+  cands : Map[Int32, Int32],
+) -> Unit {
   record_candidate(cands, inline.meta().loc)
   match inline {
     Inlines(seq) =>
@@ -129,7 +132,7 @@ fn Converter::inline_lines(
   if loc.is_none() {
     return []
   }
-  let cands : Map[Int, Int] = Map([])
+  let cands : Map[Int32, Int32] = Map([])
   collect_line_starts(inline, cands)
   let first = loc.first_line.0
   let last = loc.last_line.0
@@ -277,7 +280,10 @@ fn delimiter_row(line : Line) -> Array[String]? {
 
 ///|
 /// If a table starts at `lines[i]`: its header cells and alignments.
-fn table_start(lines : Array[Line], i : Int) -> (Array[String], Array[String])? {
+fn table_start(
+  lines : Array[Line],
+  i : Int32,
+) -> (Array[String], Array[String])? {
   guard i + 1 < lines.length() else { None }
   guard lines[i].indent >= 0 && lines[i].indent < 4 else { None }
   guard delimiter_row(lines[i + 1]) is Some(aligns) else { None }
@@ -339,9 +345,9 @@ fn terminates_table(line : Line) -> Bool {
     return true
   }
   // ordered list
-  if c is ('0'..='9') && n >= 2 {
+  if c is ('0'..<='9') && n >= 2 {
     let mut i = 1
-    while i < n && s[i] is ('0'..='9') && i < 10 {
+    while i < n && s[i] is ('0'..<='9') && i < 10 {
       i += 1
     }
     if i < 10 && i < n && s[i] is ('.' | ')') {
@@ -374,7 +380,7 @@ fn terminates_table(line : Line) -> Bool {
 }
 
 ///|
-let max_autocompleted_cells : Int = 0x10000
+let max_autocompleted_cells : Int32 = 0x10000
 
 ///|
 /// Split block `lines` into paragraph / table / remaining blocks as
@@ -397,7 +403,7 @@ fn Converter::split_tables(self : Converter, lines : Array[Line]) -> Bool {
     self.push(Token::make("paragraph_close", "p", -1))
   }
   let column_count = header.length()
-  fn cell_attrs(i : Int) -> Map[String, String] {
+  fn cell_attrs(i : Int32) -> Map[String, String] {
     if aligns[i] != "" {
       { "style": "text-align:" + aligns[i] }
     } else {

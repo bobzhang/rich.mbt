@@ -1,6 +1,6 @@
 name = "bobzhang/rich"
 
-version = "0.1.1"
+version = "0.1.2"
 
 readme = "README.mbt.md"
 
@@ -16,7 +16,7 @@ preferred_target = "native"
 
 import {
   "bobzhang/pygments@0.2.4",
-  "moonbit-community/cmark@0.4.10",
+  "moonbit-community/cmark@0.4.12",
   "moonbitlang/async@0.22.4",
   "moonbitlang/x@0.5.5",
 }

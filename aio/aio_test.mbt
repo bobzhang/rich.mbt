@@ -1,7 +1,7 @@
 ///|
 /// A renderable that counts how often it is rendered.
 struct Counter {
-  mut renders : Int
+  mut renders : Int32
 }
 
 ///|
@@ -33,7 +33,7 @@ async test "run_live refreshes from a timer while the body sleeps" {
     console~,
     refresh_per_second=20.0,
   )
-  let result : Int = @aio.run_live(live, () => {
+  let result : Int32 = @aio.run_live(live, () => {
     @async.sleep(300)
     42
   })

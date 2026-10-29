@@ -1,7 +1,7 @@
 // Helpers for text_oracle_test.mbt (see scripts/gen_text_tests.py).
 
 ///|
-fn oracle_console(width? : Int = 80, file? : @rich.StringIO) -> @rich.Console {
+fn oracle_console(width~ : Int32 = 80, file? : @rich.StringIO) -> @rich.Console {
   @rich.Console::new(
     file=file.unwrap_or(@rich.StringIO::new()),
     width~,

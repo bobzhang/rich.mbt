@@ -2,9 +2,9 @@
 
 ///|
 fn create_capture_console(
-  width? : Int = 60,
-  height? : Int = 80,
-  force_terminal? : Bool = true,
+  width~ : Int32 = 60,
+  height~ : Int32 = 80,
+  force_terminal~ : Bool = true,
 ) -> @rich.Console raise {
   @rich.Console::new(
     width~,

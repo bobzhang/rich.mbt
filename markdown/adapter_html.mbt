@@ -35,7 +35,7 @@ fn compile_opt(pattern : String) -> @regex.Regex? {
 
 ///|
 /// End of the match of `re` at the start of `s` (0 when none).
-fn match_length(re : @regex.Regex, s : String) -> Int {
+fn match_length(re : @regex.Regex, s : String) -> Int32 {
   try re.match_at(s, 0) catch {
     _ => 0
   } noraise {
@@ -81,7 +81,7 @@ fn InlineConv::raw_html(self : InlineConv, content : String) -> Unit {
 ///|
 /// markdown-it's autolink rule at `content[i] == '<'`: whether a valid
 /// autolink starts there.
-fn autolink_at(content : String, i : Int) -> Bool {
+fn autolink_at(content : String, i : Int32) -> Bool {
   let n = content.length()
   let mut pos = i + 1
   while pos < n {

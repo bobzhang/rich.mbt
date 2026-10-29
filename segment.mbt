@@ -22,7 +22,7 @@ pub(all) enum ControlType {
 } derive(Eq, Hash, Debug)
 
 ///|
-pub fn ControlType::to_int(self : ControlType) -> Int {
+pub fn ControlType::to_int(self : ControlType) -> Int32 {
   match self {
     Bell => 1
     CarriageReturn => 2
@@ -47,9 +47,9 @@ pub fn ControlType::to_int(self : ControlType) -> Int {
 /// A control code with its parameters.
 pub(all) enum ControlCode {
   Code(ControlType)
-  CodeInt(ControlType, Int)
+  CodeInt(ControlType, Int32)
   CodeStr(ControlType, String)
-  CodeXY(ControlType, Int, Int)
+  CodeXY(ControlType, Int32, Int32)
 } derive(Eq, Hash, Debug)
 
 ///|
@@ -141,7 +141,7 @@ pub impl Debug for Segment with fn to_repr(self) {
 ///|
 /// The number of terminal cells required to display the text (0 for
 /// control segments).
-pub fn Segment::cell_length(self : Segment) -> Int {
+pub fn Segment::cell_length(self : Segment) -> Int32 {
   if self.has_codes() {
     0
   } else {
@@ -175,7 +175,7 @@ pub fn Segment::to_bool(self : Segment) -> Bool {
 /// Split a segment in to two at a given cell position. If the cut point
 /// falls in the middle of a 2-cell wide character then it is replaced by two
 /// spaces, to preserve the display width.
-pub fn Segment::split_cells(self : Segment, cut : Int) -> (Segment, Segment) {
+pub fn Segment::split_cells(self : Segment, cut : Int32) -> (Segment, Segment) {
   let { text, style, control, } = self
   if @cells.is_single_cell_widths(text) {
     if cut >= text.length() {
@@ -190,7 +190,7 @@ pub fn Segment::split_cells(self : Segment, cut : Int) -> (Segment, Segment) {
 }
 
 ///|
-fn split_cells_slow(segment : Segment, cut : Int) -> (Segment, Segment) {
+fn split_cells_slow(segment : Segment, cut : Int32) -> (Segment, Segment) {
   let { text, style, control, } = segment
   let cell_length = segment.cell_length()
   if cut >= cell_length {
@@ -199,7 +199,7 @@ fn split_cells_slow(segment : Segment, cut : Int) -> (Segment, Segment) {
   // Work in code points as upstream does.
   let chars = text.to_array()
   let n = chars.length()
-  fn join(a : Int, b : Int) -> String {
+  fn join(a : Int32, b : Int32) -> String {
     String::from_array(chars[a:b])
   }
 
@@ -286,7 +286,7 @@ pub fn Segment::apply_style(
 /// Filter segments by their `is_control` attribute.
 pub fn Segment::filter_control(
   segments : Array[Segment],
-  is_control? : Bool = false,
+  is_control~ : Bool = false,
 ) -> Array[Segment] {
   segments.filter(s => s.has_codes() == is_control)
 }
@@ -356,10 +356,10 @@ fn partition(s : String, sep : String) -> (String, Bool, String) {
 /// Split segments in to lines, and crop lines greater than a given length.
 pub fn Segment::split_and_crop_lines(
   segments : Array[Segment],
-  length : Int,
+  length : Int32,
   style? : Style,
-  pad? : Bool = true,
-  include_new_lines? : Bool = true,
+  pad~ : Bool = true,
+  include_new_lines~ : Bool = true,
 ) -> Array[Array[Segment]] {
   let lines = []
   let mut line = []
@@ -408,9 +408,9 @@ pub fn Segment::split_and_crop_lines(
 /// Adjust a line to a given width (cropping or padding as required).
 pub fn Segment::adjust_line_length(
   line : Array[Segment],
-  length : Int,
+  length : Int32,
   style? : Style,
-  pad? : Bool = true,
+  pad~ : Bool = true,
 ) -> Array[Segment] {
   adjust_line_length_owned(line.copy(), length, style, pad)
 }
@@ -420,7 +420,7 @@ pub fn Segment::adjust_line_length(
 /// the result instead of being copied.
 fn adjust_line_length_owned(
   line : Array[Segment],
-  length : Int,
+  length : Int32,
   style : Style?,
   pad : Bool,
 ) -> Array[Segment] {
@@ -459,7 +459,7 @@ fn adjust_line_length_owned(
 
 ///|
 /// Get the length of a line of segments (assumes no new lines).
-pub fn Segment::get_line_length(line : ArrayView[Segment]) -> Int {
+pub fn Segment::get_line_length(line : ArrayView[Segment]) -> Int32 {
   let mut total = 0
   for segment in line {
     if !segment.has_codes() {
@@ -471,7 +471,7 @@ pub fn Segment::get_line_length(line : ArrayView[Segment]) -> Int {
 
 ///|
 /// Get the shape (enclosing rectangle) of a list of lines.
-pub fn Segment::get_shape(lines : Array[Array[Segment]]) -> (Int, Int) {
+pub fn Segment::get_shape(lines : Array[Array[Segment]]) -> (Int32, Int32) {
   let mut max_width = 0
   for line in lines {
     max_width = @cmp.maximum(max_width, Segment::get_line_length(line))
@@ -483,10 +483,10 @@ pub fn Segment::get_shape(lines : Array[Array[Segment]]) -> (Int, Int) {
 /// Set the shape of a list of lines (enclosing rectangle).
 pub fn Segment::set_shape(
   lines : Array[Array[Segment]],
-  width : Int,
-  height? : Int,
+  width : Int32,
+  height? : Int32,
   style? : Style,
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> Array[Array[Segment]] {
   let height = match height {
     Some(h) if h != 0 => h
@@ -509,7 +509,7 @@ pub fn Segment::set_shape(
 }
 
 ///|
-fn blank_line(width : Int, style : Style?, new_lines : Bool) -> Segment {
+fn blank_line(width : Int32, style : Style?, new_lines : Bool) -> Segment {
   if new_lines {
     { text: space_string(width) + "\n", style, control: None, }
   } else {
@@ -521,10 +521,10 @@ fn blank_line(width : Int, style : Style?, new_lines : Bool) -> Segment {
 /// Align lines to top (adds extra lines to bottom as required).
 pub fn Segment::align_top(
   lines : Array[Array[Segment]],
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   style : Style?,
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> Array[Array[Segment]] {
   let extra_lines = height - lines.length()
   if extra_lines == 0 {
@@ -542,10 +542,10 @@ pub fn Segment::align_top(
 /// Align lines to bottom (adds extra lines above as required).
 pub fn Segment::align_bottom(
   lines : Array[Array[Segment]],
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   style : Style?,
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> Array[Array[Segment]] {
   let extra_lines = height - lines.length()
   if extra_lines == 0 {
@@ -564,10 +564,10 @@ pub fn Segment::align_bottom(
 /// Align lines to middle (adds extra lines above and below as required).
 pub fn Segment::align_middle(
   lines : Array[Array[Segment]],
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
   style : Style?,
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> Array[Array[Segment]] {
   let extra_lines = height - lines.length()
   if extra_lines == 0 {
@@ -589,7 +589,7 @@ pub fn Segment::align_middle(
 
 ///|
 /// Python `xs[:n]`.
-fn[T] py_head(xs : Array[T], n : Int) -> Array[T] {
+fn[T] py_head(xs : Array[T], n : Int32) -> Array[T] {
   let len = xs.length()
   let end = if n < 0 { @cmp.maximum(0, len + n) } else { @cmp.minimum(n, len) }
   xs[0:end].to_owned()
@@ -597,7 +597,7 @@ fn[T] py_head(xs : Array[T], n : Int) -> Array[T] {
 
 ///|
 /// Python floor division.
-fn floor_div(a : Int, b : Int) -> Int {
+fn floor_div(a : Int32, b : Int32) -> Int32 {
   let q = a / b
   if a % b != 0 && (a < 0) != (b < 0) {
     q - 1
@@ -608,7 +608,7 @@ fn floor_div(a : Int, b : Int) -> Int {
 
 ///|
 /// Python modulo.
-fn py_mod(a : Int, b : Int) -> Int {
+fn py_mod(a : Int32, b : Int32) -> Int32 {
   let r = a % b
   if r != 0 && (r < 0) != (b < 0) {
     r + b
@@ -700,12 +700,12 @@ pub fn Segment::remove_color(segments : Array[Segment]) -> Array[Segment] {
 /// Divide segments in to portions at the given cell positions.
 pub fn Segment::divide(
   segments : Array[Segment],
-  cuts : Array[Int],
+  cuts : Array[Int32],
 ) -> Array[Array[Segment]] {
   let result = []
   let split_segments = []
   let mut cut_index = 0
-  fn next_cut() -> Int {
+  fn next_cut() -> Int32 {
     if cut_index < cuts.length() {
       let c = cuts[cut_index]
       cut_index += 1
@@ -785,7 +785,7 @@ pub struct Segments {
 /// With `new_lines`, a new line is added after each segment.
 pub fn Segments::new(
   segments : Array[Segment],
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> Segments {
   { segments: segments.copy(), new_lines, }
 }
@@ -813,7 +813,7 @@ pub struct SegmentLines {
 /// With `new_lines`, a new line is added after each line.
 pub fn SegmentLines::new(
   lines : Array[Array[Segment]],
-  new_lines? : Bool = false,
+  new_lines~ : Bool = false,
 ) -> SegmentLines {
   { lines: lines.copy(), new_lines, }
 }

@@ -15,14 +15,14 @@ fn highlighted(
 /// `blend_text`: color each character, blending from `color1` to `color2`.
 fn blend_text(
   message : String,
-  color1 : (Int, Int, Int),
-  color2 : (Int, Int, Int),
+  color1 : (Int32, Int32, Int32),
+  color2 : (Int32, Int32, Int32),
 ) -> @rich.Text {
   let text = @rich.Text::new(text=message)
   let (r1, g1, b1) = color1
   let (r2, g2, b2) = color2
   let size = text.length()
-  fn hex(start : Int, delta : Int, blend : Double) -> String {
+  fn hex(start : Int32, delta : Int32, blend : Double) -> String {
     let v = (start.to_double() + delta.to_double() * blend).to_int()
     let digits = "0123456789ABCDEF"
     "\{digits[v / 16:v / 16 + 1]}\{digits[v % 16:v % 16 + 1]}"

@@ -11,16 +11,16 @@ priv struct Converter {
   /// The source the AST locations refer to.
   src : String
   /// Offsets of the start of each line (index 0 is line 1).
-  line_starts : Array[Int]
+  line_starts : Array[Int32]
   defs : Map[String, @cmark.LabelDef]
   out : Array[Token]
   /// Number of enclosing block quotes.
-  mut quote_depth : Int
+  mut quote_depth : Int32
   /// Number of enclosing list items.
-  mut list_depth : Int
+  mut list_depth : Int32
   /// Content column of the list item that is the innermost container (-1
   /// when there is none).
-  mut list_indent : Int
+  mut list_indent : Int32
 }
 
 ///|
@@ -29,7 +29,7 @@ fn parse_cmark(src : String, defs : Map[String, @cmark.LabelDef]) -> @cmark.Doc 
 }
 
 ///|
-fn compute_line_starts(src : String) -> Array[Int] {
+fn compute_line_starts(src : String) -> Array[Int32] {
   let starts = [0]
   for i in 0..<src.length() {
     if src[i] == '\n' {
@@ -208,7 +208,7 @@ fn Converter::drop_final_newline(
 
 ///|
 /// Offset of the end of the line containing `pos` (before the newline).
-fn Converter::line_end(self : Converter, pos : Int) -> Int {
+fn Converter::line_end(self : Converter, pos : Int32) -> Int32 {
   let n = self.src.length()
   let mut i = pos
   while i < n && self.src[i] != '\n' {

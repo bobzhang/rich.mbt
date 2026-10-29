@@ -11,7 +11,7 @@ struct MockClock {
 }
 
 ///|
-fn MockClock::new(time? : Double = 0.0, auto? : Bool = true) -> MockClock {
+fn MockClock::new(time~ : Double = 0.0, auto~ : Bool = true) -> MockClock {
   { time, auto, }
 }
 
@@ -28,8 +28,8 @@ fn MockClock::get_time(self : MockClock) -> () -> Double {
 
 ///|
 fn make_console(
-  width? : Int = 80,
-  force_terminal? : Bool = true,
+  width~ : Int32 = 80,
+  force_terminal~ : Bool = true,
   force_interactive? : Bool,
 ) -> @rich.Console raise {
   @rich.Console::new(
@@ -96,7 +96,7 @@ test "time_elapsed_column" {
 ///|
 /// A task whose estimated time remaining is `task_time` (upstream fakes
 /// the `time_remaining` property): one step per second has been done.
-fn task_with_time_remaining(task_time : Int?) -> @progress.Task raise {
+fn task_with_time_remaining(task_time : Int32?) -> @progress.Task raise {
   let clock = MockClock::new(auto=false)
   let progress = @progress.Progress::new(
     console=make_console(),
@@ -143,7 +143,7 @@ test "time_remaining_column" {
 
 ///|
 test "compact_time_remaining_column" {
-  let cases : Array[(Int?, String)] = [
+  let cases : Array[(Int32?, String)] = [
     (None, "--:--"),
     (Some(0), "00:00"),
     (Some(59), "00:59"),

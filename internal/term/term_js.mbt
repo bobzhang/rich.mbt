@@ -1,5 +1,5 @@
 ///|
-extern "js" fn js_write(fd : Int, text : String) -> Bool =
+extern "js" fn js_write(fd : Int32, text : String) -> Bool =
   #|(fd, text) => {
   #|  try {
   #|    if (typeof process !== "undefined" && process.stdout) {
@@ -12,7 +12,7 @@ extern "js" fn js_write(fd : Int, text : String) -> Bool =
   #|}
 
 ///|
-extern "js" fn js_isatty(fd : Int) -> Bool =
+extern "js" fn js_isatty(fd : Int32) -> Bool =
   #|(fd) => {
   #|  try {
   #|    const s = fd === 2 ? process.stderr : process.stdout;
@@ -21,7 +21,7 @@ extern "js" fn js_isatty(fd : Int) -> Bool =
   #|}
 
 ///|
-extern "js" fn js_columns(fd : Int) -> Int =
+extern "js" fn js_columns(fd : Int32) -> Int32 =
   #|(fd) => {
   #|  try {
   #|    const s = fd === 2 ? process.stderr : process.stdout;
@@ -30,7 +30,7 @@ extern "js" fn js_columns(fd : Int) -> Int =
   #|}
 
 ///|
-extern "js" fn js_rows(fd : Int) -> Int =
+extern "js" fn js_rows(fd : Int32) -> Int32 =
   #|(fd) => {
   #|  try {
   #|    const s = fd === 2 ? process.stderr : process.stdout;
@@ -47,22 +47,22 @@ extern "js" fn js_time() -> Double =
   #|() => Date.now() / 1000
 
 ///|
-pub fn write_fd(fd : Int, text : String) -> Bool {
+pub fn write_fd(fd : Int32, text : String) -> Bool {
   js_write(fd, text)
 }
 
 ///|
-pub fn flush_fd(_fd : Int) -> Unit {
+pub fn flush_fd(_fd : Int32) -> Unit {
   ()
 }
 
 ///|
-pub fn isatty(fd : Int) -> Bool {
+pub fn isatty(fd : Int32) -> Bool {
   js_isatty(fd)
 }
 
 ///|
-pub fn terminal_size(fd : Int) -> (Int, Int)? {
+pub fn terminal_size(fd : Int32) -> (Int32, Int32)? {
   let c = js_columns(fd)
   let r = js_rows(fd)
   if c < 0 || r < 0 {
@@ -93,7 +93,7 @@ pub fn strftime(format : String, epoch : Double) -> String {
 }
 
 ///|
-pub fn read_line(echo? : Bool = true) -> String? {
+pub fn read_line(echo~ : Bool = true) -> String? {
   ignore(echo)
   None
 }

@@ -51,7 +51,7 @@ test "set_cell_size infinite" {
 ///|
 test "split_text" {
   let fm = "👩\u{200d}🔧"
-  let cases : Array[(String, Int, String, String)] = [
+  let cases : Array[(String, Int32, String, String)] = [
     ("", -1, "", ""),
     ("x", -1, "", "x"),
     ("x", 1, "x", ""),
@@ -118,7 +118,7 @@ test "is_single_cell_widths" {
 ///|
 test "split_graphemes" {
   // (text, spans in UTF-16 offsets, cell length)
-  let cases : Array[(String, Array[(Int, Int, Int)], Int)] = [
+  let cases : Array[(String, Array[(Int32, Int32, Int32)], Int32)] = [
     ("", [], 0),
     ("a", [(0, 1, 1)], 1),
     ("ab", [(0, 1, 1), (1, 2, 1)], 2),
@@ -156,7 +156,7 @@ test "nerd font, zwj, non printable" {
   assert_eq(@cells.cell_len("1\u{200d}"), 1)
   assert_eq(@cells.cell_len("1\u{200d}2"), 1)
   for i in 0..<31 {
-    assert_eq(@cells.cell_len(Int::unsafe_to_char(i).to_string()), 0)
+    assert_eq(@cells.cell_len(Int32::unsafe_to_char(i).to_string()), 0)
   }
 }
 

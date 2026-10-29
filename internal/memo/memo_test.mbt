@@ -1,6 +1,6 @@
 ///|
 test "memo evicts the oldest entry when full" {
-  let m : @memo.Memo[String, Int] = @memo.Memo::new(2)
+  let m : @memo.Memo[String, Int32] = @memo.Memo::new(2)
   m.set("a", 1)
   m.set("b", 2)
   m.set("a", 10)
