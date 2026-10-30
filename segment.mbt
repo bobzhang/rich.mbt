@@ -185,8 +185,8 @@ pub fn Segment::split_cells(self : Segment, cut : Int32) -> (Segment, Segment) {
       return (self, { text: "", style, control, })
     }
     return (
-      { text: text.view(end_offset=cut).to_owned(), style, control, },
-      { text: text.view(start_offset=cut).to_owned(), style, control, },
+      { text: text[:cut].to_owned(), style, control, },
+      { text: text[cut:].to_owned(), style, control, },
     )
   }
   split_cells_slow(self, cut)
@@ -314,7 +314,7 @@ pub fn Segment::split_lines_terminator(
       let n = text.length()
       let mut pos = 0
       while pos < n {
-        let nl = match text.view(start_offset=pos).find("\n") {
+        let nl = match text[pos:].find("\n") {
           Some(i) => pos + i
           None => n
         }
@@ -345,12 +345,7 @@ pub fn Segment::split_lines_terminator(
 /// Python `str.partition(sep)`.
 fn partition(s : String, sep : String) -> (String, Bool, String) {
   match s.find(sep) {
-    Some(i) =>
-      (
-        s.view(end_offset=i).to_owned(),
-        true,
-        s.view(start_offset=i + sep.length()).to_owned(),
-      )
+    Some(i) => (s[:i].to_owned(), true, s[i + sep.length():].to_owned())
     None => (s, false, "")
   }
 }
@@ -375,7 +370,7 @@ pub fn Segment::split_and_crop_lines(
       let n = text.length()
       let mut pos = 0
       while pos < n {
-        let nl = match text.view(start_offset=pos).find("\n") {
+        let nl = match text[pos:].find("\n") {
           Some(i) => pos + i
           None => n
         }

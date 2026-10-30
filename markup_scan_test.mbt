@@ -15,10 +15,7 @@ fn regex_parse_markup(markup : String) -> Array[@rich.MarkupItem] {
     let end = m.end()
     if start > position {
       out.push(
-        @rich.MarkupItem::PlainText(
-          start,
-          markup.view(start_offset=position, end_offset=start).to_owned(),
-        ),
+        @rich.MarkupItem::PlainText(start, markup[position:start].to_owned()),
       )
     }
     if escapes != "" {
@@ -28,12 +25,7 @@ fn regex_parse_markup(markup : String) -> Array[@rich.MarkupItem] {
         start += backslashes * 2
       }
       if escapes.length() % 2 != 0 {
-        out.push(
-          PlainText(
-            start,
-            full_text.view(start_offset=escapes.length()).to_owned(),
-          ),
-        )
+        out.push(PlainText(start, full_text[escapes.length():].to_owned()))
         position = end
         continue
       }
@@ -41,8 +33,8 @@ fn regex_parse_markup(markup : String) -> Array[@rich.MarkupItem] {
     let tag : @rich.Tag = match tag_text.find("=") {
       Some(i) =>
         {
-          name: tag_text.view(end_offset=i).to_owned(),
-          parameters: Some(tag_text.view(start_offset=i + 1).to_owned()),
+          name: tag_text[:i].to_owned(),
+          parameters: Some(tag_text[i + 1:].to_owned()),
         }
       None => { name: tag_text, parameters: None, }
     }
@@ -50,7 +42,7 @@ fn regex_parse_markup(markup : String) -> Array[@rich.MarkupItem] {
     position = end
   }
   if position < markup.length() {
-    out.push(PlainText(position, markup.view(start_offset=position).to_owned()))
+    out.push(PlainText(position, markup[position:].to_owned()))
   }
   out
 }

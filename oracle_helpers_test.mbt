@@ -18,7 +18,7 @@ fn normalize_link_ids(s : String) -> String {
   let n = s.length()
   let mut i = 0
   while i < n {
-    if s.view(start_offset=i).has_prefix("id=") {
+    if s[i:].has_prefix("id=") {
       let mut j = i + 3
       while j < n && s[j] >= '0' && s[j] <= '9' {
         j += 1

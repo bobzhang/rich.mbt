@@ -38,11 +38,11 @@ fn os_error_message(e : Error, path : String) -> String {
 fn strerror(e : @os_error.OSError) -> String {
   let s = e.to_string()
   let msg = match s.rev_find(": ") {
-    Some(i) => s.view(start_offset=i + 2).to_owned()
+    Some(i) => s[i + 2:].to_owned()
     None => s
   }
   if msg.has_suffix("\")") {
-    msg.view(end_offset=msg.length() - 2).to_owned()
+    msg[:msg.length() - 2].to_owned()
   } else {
     msg
   }
