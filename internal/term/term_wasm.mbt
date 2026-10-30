@@ -9,9 +9,9 @@ pub fn write_fd(_fd : Int32, text : String) -> Bool {
   let s = pending.to_string()
   match s.rev_find("\n") {
     Some(i) => {
-      println(s.view(end_offset=i).to_owned())
+      println(s[:i].to_owned())
       pending.reset()
-      pending.write_string(s.view(start_offset=i + 1).to_owned())
+      pending.write_string(s[i + 1:].to_owned())
     }
     None => ()
   }

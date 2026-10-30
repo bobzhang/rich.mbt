@@ -159,10 +159,7 @@ fn format_field(
           )
           if alternate && !r.contains(".") {
             match r.find(if conversion == 'E' { "E" } else { "e" }) {
-              Some(i) =>
-                r.view(end_offset=i).to_owned() +
-                "." +
-                r.view(start_offset=i).to_owned()
+              Some(i) => r[:i].to_owned() + "." + r[i:].to_owned()
               None => r
             }
           } else {
@@ -208,7 +205,7 @@ fn format_field(
         (_, F(d)) => @rich.py_float_repr(d)
       }
       let text = match precision {
-        Some(p) if p < text.length() => text.view(end_offset=p).to_owned()
+        Some(p) if p < text.length() => text[:p].to_owned()
         _ => text
       }
       match width {
@@ -254,7 +251,7 @@ pub fn Formatter::format_message(
     guard fmt.find_from(")", i + 2) is Some(close) else {
       raise @rich.ValueError("Invalid format '\{fmt}' for '%' style")
     }
-    let key = fmt.view(start_offset=i + 2, end_offset=close).to_owned()
+    let key = fmt[i + 2:close].to_owned()
     let mut j = close + 1
     let flags = StringBuilder()
     while j < n && fmt[j] is ('#' | '0' | '+' | ' ' | '-') {
@@ -318,7 +315,7 @@ pub fn Formatter::format(
 ///|
 /// Find `needle` in `self` at or after `start`.
 fn String::find_from(self : String, needle : String, start : Int32) -> Int32? {
-  match self.view(start_offset=start).find(needle) {
+  match self[start:].find(needle) {
     Some(i) => Some(start + i)
     None => None
   }
