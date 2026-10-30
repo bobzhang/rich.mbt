@@ -218,8 +218,8 @@ fn interpolate(
       rest = after.to_owned()
     } else if rest.strip_prefix("%(") is Some(after) &&
       after.find(")s") is Some(close) {
-      let name = @pystr.lower(after.view(end_offset=close).to_owned())
-      rest = after.view(start_offset=close + 2).to_owned()
+      let name = @pystr.lower(after[:close].to_owned())
+      rest = after[close + 2:].to_owned()
       match options.get(name) {
         Some(v) =>
           buf.write_string(

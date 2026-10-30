@@ -268,10 +268,10 @@ pub fn render_markup(
                   }
                   Json::array([
                     Json::string(handler_name),
-                    Json::array(params.map(v => v.to_json())),
+                    Json::array(params.map(v => ToJson::to_json(v))),
                   ])
                 } else {
-                  value.to_json()
+                  ToJson::to_json(value)
                 }
               }
               _ => Json::array([])

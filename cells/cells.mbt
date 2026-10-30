@@ -350,7 +350,7 @@ pub fn split_graphemes(
 
 ///|
 fn slice(text : StringView, start : Int32, end : Int32) -> String {
-  text.view(start_offset=start, end_offset=end).to_owned()
+  text[start:end].to_owned()
 }
 
 ///|

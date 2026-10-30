@@ -145,7 +145,7 @@ fn Text::render_into(
       let segment_text = if offset == 0 && next_offset == text_length {
         text
       } else {
-        text.view(start_offset=offset, end_offset=next_offset).to_owned()
+        raw_string_view(text, offset, next_offset).to_owned()
       }
       result.push(Segment::new(segment_text, style=active.current()))
     }
@@ -236,11 +236,11 @@ fn render_joined_lines(
       return if a == base && b == line_end {
         plain
       } else {
-        plain.view(start_offset=a - base, end_offset=b - base).to_owned()
+        raw_string_view(plain, a - base, b - base).to_owned()
       }
     }
     let buf = StringBuilder(size_hint=(b - a) * 2)
-    buf.write_view(plain.view(start_offset=a - base))
+    buf.write_view(raw_string_view(plain, a - base, plain.length()))
     let mut pos = line_end
     let mut index = cursor
     while pos < b {
@@ -252,7 +252,7 @@ fn render_joined_lines(
       }
       let next = lines[index].plain()
       let take = @cmp.minimum(b - pos, next.length())
-      buf.write_view(next.view(end_offset=take))
+      buf.write_view(raw_string_view(next, 0, take))
       pos += take
     }
     buf.to_string()

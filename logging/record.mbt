@@ -140,7 +140,7 @@ pub fn LogRecord::filename(self : LogRecord) -> String {
 pub fn LogRecord::module_(self : LogRecord) -> String {
   let filename = self.filename()
   match filename.rev_find(".") {
-    Some(i) => filename.view(end_offset=i).to_owned()
+    Some(i) => filename[:i].to_owned()
     None => filename
   }
 }
@@ -156,7 +156,7 @@ pub fn LogRecord::msecs(self : LogRecord) -> Int32 {
 /// Python `os.path.basename`.
 fn basename(path : String) -> String {
   match path.rev_find("/") {
-    Some(i) => path.view(start_offset=i + 1).to_owned()
+    Some(i) => path[i + 1:].to_owned()
     None => path
   }
 }

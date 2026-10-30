@@ -39,9 +39,7 @@ pub fn py_float_repr(d : Double) -> String {
     let mantissa = if nd == 1 {
       digits
     } else {
-      digits.view(end_offset=1).to_owned() +
-      "." +
-      digits.view(start_offset=1).to_owned()
+      digits[:1].to_owned() + "." + digits[1:].to_owned()
     }
     let exp_sign = if exp < 0 { "-" } else { "+" }
     let e = exp.abs()
@@ -52,10 +50,7 @@ pub fn py_float_repr(d : Double) -> String {
   } else if decpt >= nd {
     sign + digits + "0".repeat(decpt - nd) + ".0"
   } else {
-    sign +
-    digits.view(end_offset=decpt).to_owned() +
-    "." +
-    digits.view(start_offset=decpt).to_owned()
+    sign + digits[:decpt].to_owned() + "." + digits[decpt:].to_owned()
   }
 }
 
@@ -71,19 +66,15 @@ fn shortest_digits(d : Double) -> (Bool, String, Int32) {
   let (mantissa, exp) = match s.find("e") {
     Some(i) =>
       (
-        s.view(end_offset=i).to_owned(),
-        @string.parse_int(s.view(start_offset=i + 1).to_owned()) catch {
+        s[:i].to_owned(),
+        @string.parse_int(s[i + 1:].to_owned()) catch {
           _ => 0
         },
       )
     None => (s, 0)
   }
   let (int_part, frac_part) = match mantissa.find(".") {
-    Some(i) =>
-      (
-        mantissa.view(end_offset=i).to_owned(),
-        mantissa.view(start_offset=i + 1).to_owned(),
-      )
+    Some(i) => (mantissa[:i].to_owned(), mantissa[i + 1:].to_owned())
     None => (mantissa, "")
   }
   let all = int_part + frac_part
@@ -92,14 +83,14 @@ fn shortest_digits(d : Double) -> (Bool, String, Int32) {
   while lead < all.length() - 1 && all[lead] == '0' {
     lead += 1
   }
-  let mut digits = all.view(start_offset=lead).to_owned()
+  let mut digits = all[lead:].to_owned()
   let decpt = int_part.length() - lead + exp
   // strip trailing zeros
   let mut end = digits.length()
   while end > 1 && digits[end - 1] == '0' {
     end -= 1
   }
-  digits = digits.view(end_offset=end).to_owned()
+  digits = digits[:end].to_owned()
   (negative, digits, decpt)
 }
 
@@ -178,10 +169,8 @@ pub fn py_format_fixed(d : Double, precision : Int32) -> String {
   } else {
     digits
   }
-  let int_part = digits.view(end_offset=digits.length() - precision).to_owned()
-  let frac_part = digits
-    .view(start_offset=digits.length() - precision)
-    .to_owned()
+  let int_part = digits[:digits.length() - precision].to_owned()
+  let frac_part = digits[digits.length() - precision:].to_owned()
   let sign = if negative { "-" } else { "" }
   if precision == 0 {
     sign + int_part
@@ -252,9 +241,7 @@ pub fn py_format_exp(
   let (negative, digits, x) = round_significant(d, precision + 1)
   let sign = if negative { "-" } else { "" }
   let mantissa = if precision > 0 {
-    digits.view(end_offset=1).to_owned() +
-    "." +
-    digits.view(start_offset=1).to_owned()
+    digits[:1].to_owned() + "." + digits[1:].to_owned()
   } else {
     digits
   }
@@ -285,7 +272,7 @@ pub fn py_format_general(
     if end > 0 && s[end - 1] == '.' {
       end -= 1
     }
-    s.view(end_offset=end).to_owned()
+    s[:end].to_owned()
   }
 
   if d == 0.0 {
@@ -297,17 +284,15 @@ pub fn py_format_general(
   if x < -4 || x >= precision {
     let mantissa = strip(
       if digits.length() > 1 || alternate {
-        digits.view(end_offset=1).to_owned() +
-        "." +
-        digits.view(start_offset=1).to_owned()
+        digits[:1].to_owned() + "." + digits[1:].to_owned()
       } else {
         digits
       },
     )
     sign + mantissa + exp_suffix(x, upper)
   } else if x >= 0 {
-    let int_part = digits.view(end_offset=x + 1).to_owned()
-    let frac = digits.view(start_offset=x + 1).to_owned()
+    let int_part = digits[:x + 1].to_owned()
+    let frac = digits[x + 1:].to_owned()
     sign + strip(int_part + "." + frac)
   } else {
     sign + strip("0." + "0".repeat(-x - 1) + digits)
@@ -329,8 +314,7 @@ pub fn py_group_thousands(s : String) -> String {
     None => ("", s)
   }
   let (int_part, tail) = match rest.find(".") {
-    Some(i) =>
-      (rest.view(end_offset=i).to_owned(), rest.view(start_offset=i).to_owned())
+    Some(i) => (rest[:i].to_owned(), rest[i:].to_owned())
     None => (rest, "")
   }
   let buf = StringBuilder()

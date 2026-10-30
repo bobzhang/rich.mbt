@@ -137,11 +137,7 @@ fn parse(
       continue
     }
     let (long_opt, explicit_value) = match arg.find("=") {
-      Some(i) =>
-        (
-          arg.view(end_offset=i).to_owned(),
-          Some(arg.view(start_offset=i + 1).to_owned()),
-        )
+      Some(i) => (arg[:i].to_owned(), Some(arg[i + 1:].to_owned()))
       None => (arg, None)
     }
     match find_param(long_opt) {

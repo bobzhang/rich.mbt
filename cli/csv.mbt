@@ -152,7 +152,7 @@ fn guess_quote_and_delimiter(
 fn count_sub(s : String, sub : String) -> Int32 {
   let mut n = 0
   let mut i = 0
-  while s.view(start_offset=i).find(sub[:]) is Some(j) {
+  while s[i:].find(sub[:]) is Some(j) {
     n += 1
     i = i + j + sub.length()
   }
@@ -457,12 +457,12 @@ fn csv_read(
   let mut line_start = 0
   for i in 0..<text.length() {
     if text[i] == '\n' {
-      lines.push(text.view(start_offset=line_start, end_offset=i + 1))
+      lines.push(text[line_start:i + 1])
       line_start = i + 1
     }
   }
   if line_start < text.length() {
-    lines.push(text.view(start_offset=line_start))
+    lines.push(text[line_start:])
   }
   let mut index = 0
   for ;; {
@@ -679,7 +679,7 @@ fn take_chars(s : String, n : Int32) -> String {
     let c = s[i]
     if !(c >= 0xDC00 && c <= 0xDFFF) {
       if count == n {
-        return s.view(end_offset=i).to_owned()
+        return s[:i].to_owned()
       }
       count += 1
     }

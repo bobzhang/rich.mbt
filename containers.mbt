@@ -242,13 +242,7 @@ pub fn words(text : String) -> Array[(Int32, Int32, String)] {
   let out = []
   let mut position = 0
   while match_word(text, position) is Some(end) {
-    out.push(
-      (
-        position,
-        end,
-        text.view(start_offset=position, end_offset=end).to_owned(),
-      ),
-    )
+    out.push((position, end, text[position:end].to_owned()))
     position = end
   }
   out
@@ -269,14 +263,14 @@ pub fn divide_line(
   // the words of `words(text)`, as views (no substring per word)
   while match_word(text, position) is Some(end) {
     let mut start = position
-    let word = text.view(start_offset=position, end_offset=end)
+    let word = text[position:end]
     position = end
     let mut stripped_end = word.length()
     while stripped_end > 0 &&
           is_py_space_unit(word.unsafe_get(stripped_end - 1).to_int()) {
       stripped_end -= 1
     }
-    let word_length = @cells.cell_len(word.view(end_offset=stripped_end))
+    let word_length = @cells.cell_len(word[:stripped_end])
     let remaining_space = width - cell_offset
     if remaining_space >= word_length {
       cell_offset += @cells.cell_len(word)

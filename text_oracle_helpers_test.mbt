@@ -75,12 +75,10 @@ fn text_method(markup : String, op : String) -> String raise {
     "cell_len" => t.cell_len().to_string()
     _ if op.has_prefix("truncate") => {
       // truncate{width}_{overflow}
-      let rest = op.view(start_offset=8).to_owned()
+      let rest = op[8:].to_owned()
       guard rest.find("_") is Some(i) else { fail("bad method") }
-      let width = @string.parse_int(rest.view(end_offset=i))
-      let overflow = @rich.OverflowMethod::parse(
-        rest.view(start_offset=i + 1).to_owned(),
-      ).unwrap()
+      let width = @string.parse_int(rest[:i])
+      let overflow = @rich.OverflowMethod::parse(rest[i + 1:].to_owned()).unwrap()
       let tr = t.copy()
       tr.truncate(width, overflow~, pad=true)
       tr.repr()

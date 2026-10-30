@@ -75,7 +75,7 @@ fn substr(s : String, start : Int32, end? : Int32) -> String {
   if start >= end {
     return ""
   }
-  s.view(start_offset=start, end_offset=end).to_owned()
+  s[start:end].to_owned()
 }
 
 ///|

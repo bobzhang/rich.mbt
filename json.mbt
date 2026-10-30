@@ -41,7 +41,7 @@ fn JsonParser::ws(self : JsonParser) -> Unit {
 
 ///|
 fn JsonParser::starts(self : JsonParser, s : String) -> Bool {
-  self.src.view(start_offset=self.pos).has_prefix(s)
+  self.src[self.pos:].has_prefix(s)
 }
 
 ///|
@@ -521,5 +521,5 @@ pub impl Renderable for JSON with fn rich_console(self, _console, _options) {
 
 ///|
 pub impl Renderable for JSON with fn rich_measure(self, console, options) {
-  self.text.rich_measure(console, options)
+  Renderable::rich_measure(self.text, console, options)
 }

@@ -23,7 +23,7 @@ pub impl Show for Span with fn output(self, logger) {
 
 ///|
 pub impl Debug for Span with fn to_repr(self) {
-  @debug.Repr(self.to_string())
+  @debug.Repr(Show::to_string(self))
 }
 
 ///|
@@ -209,7 +209,7 @@ pub impl Show for Text with fn output(self, logger) {
 ///|
 /// Upstream `repr(text)`.
 pub fn Text::repr(self : Text) -> String {
-  "<text \{py_repr(self.plain())} [\{self.spans_.map(s => s.to_string()).join(", ")}] \{self.style.repr()}>"
+  "<text \{py_repr(self.plain())} [\{self.spans_.map(s => Show::to_string(s)).join(", ")}] \{self.style.repr()}>"
 }
 
 ///|
@@ -264,7 +264,7 @@ pub fn Text::at(self : Text, offset : Int32) -> Text {
     }
   }
   Text::new(
-    text=plain.view(start_offset=offset, end_offset=offset + 1).to_owned(),
+    text=raw_string_view(plain, offset, offset + 1).to_owned(),
     spans~,
     end="",
   )
@@ -331,9 +331,7 @@ pub fn Text::markup(self : Text) -> String {
   for item in markup_spans {
     let (offset, closing, style, _) = item
     if offset > position {
-      output.push(
-        escape(plain.view(start_offset=position, end_offset=offset).to_owned()),
-      )
+      output.push(escape(raw_string_view(plain, position, offset).to_owned()))
       position = offset
     }
     if style.to_bool() {
@@ -711,8 +709,7 @@ pub fn Text::highlight_regex(
     let start = m.start()
     let end = m.end()
     let match_style = match (style, style_fn) {
-      (_, Some(f)) =>
-        f(plain.view(start_offset=start, end_offset=end).to_owned())
+      (_, Some(f)) => f(raw_string_view(plain, start, end).to_owned())
       (Some(s), None) => if s.to_bool() { Some(s) } else { None }
       (None, None) => None
     }
@@ -791,7 +788,7 @@ fn py_rstrip(s : String) -> String {
   if end == s.length() {
     s
   } else {
-    s.view(end_offset=end).to_owned()
+    s[:end].to_owned()
   }
 }
 
@@ -885,7 +882,7 @@ pub impl Renderable for Text with fn rich_measure(self, _console, _options) {
   while i < n {
     let c = text.unsafe_get(i).to_int()
     if is_line_break_unit(c) {
-      let width = @cells.cell_len(text.view(start_offset=start, end_offset=i))
+      let width = @cells.cell_len(text[start:i])
       if width > max_text_width {
         max_text_width = width
       }
@@ -899,7 +896,7 @@ pub impl Renderable for Text with fn rich_measure(self, _console, _options) {
     }
   }
   if start < n {
-    let width = @cells.cell_len(text.view(start_offset=start, end_offset=n))
+    let width = @cells.cell_len(text[start:n])
     if width > max_text_width {
       max_text_width = width
     }
@@ -918,9 +915,7 @@ pub impl Renderable for Text with fn rich_measure(self, _console, _options) {
     }
     if i > word_start {
       has_words = true
-      let width = @cells.cell_len(
-        text.view(start_offset=word_start, end_offset=i),
-      )
+      let width = @cells.cell_len(text[word_start:i])
       if width > min_text_width {
         min_text_width = width
       }
@@ -1315,7 +1310,7 @@ fn find_all_str(text : String, sep : String) -> Array[(Int32, Int32)] {
   let out = []
   let mut pos = 0
   while pos <= text.length() {
-    match text.view(start_offset=pos).find(sep) {
+    match text[pos:].find(sep) {
       Some(i) => {
         let start = pos + i
         out.push((start, start + sep.length()))
@@ -1450,7 +1445,7 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int32]) -> Lines {
 }
 
 ///|
-/// Python `s[a:b]` (with clamping of out-of-range and negative indices).
+/// Python `raw_string_view(s, a, b)` (with clamping of out-of-range and negative indices).
 fn py_slice(s : String, a : Int32, b : Int32) -> String {
   let n = s.length()
   let a = if a < 0 { @cmp.maximum(0, n + a) } else { @cmp.minimum(a, n) }
@@ -1458,7 +1453,7 @@ fn py_slice(s : String, a : Int32, b : Int32) -> String {
   if a >= b {
     ""
   } else {
-    s.view(start_offset=a, end_offset=b).to_owned()
+    raw_string_view(s, a, b).to_owned()
   }
 }
 

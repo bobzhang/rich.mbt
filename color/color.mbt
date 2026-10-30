@@ -609,9 +609,9 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
     h.length() == 6 &&
     all_chars(h, c => c is ('0'..<='9' | 'a'..<='f')) {
     let triplet : ColorTriplet = {
-      red: hex_value(h.view(start_offset=0, end_offset=2)),
-      green: hex_value(h.view(start_offset=2, end_offset=4)),
-      blue: hex_value(h.view(start_offset=4, end_offset=6)),
+      red: hex_value(h[0:2]),
+      green: hex_value(h[2:4]),
+      blue: hex_value(h[4:6]),
     }
     return {
       name: color,
@@ -886,7 +886,7 @@ pub fn Color::downgrade(self : Color, system : ColorSystem) -> Color {
 pub fn parse_rgb_hex(hex_color : String) -> ColorTriplet {
   guard hex_color.length() == 6 else { abort("must be 6 characters") }
   fn component(start : Int32) -> Int32 {
-    let s = hex_color.view(start_offset=start, end_offset=start + 2).to_owned()
+    let s = hex_color[start:start + 2].to_owned()
     match py_int_base(s, 16) {
       Some(v) => v
       None => abort("invalid literal for int() with base 16: \{py_repr_str(s)}")

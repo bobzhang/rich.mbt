@@ -65,7 +65,7 @@ pub impl Renderable for String with fn rich_console(self, console, options) {
     highlight=options.highlight,
     markup=options.markup,
   )
-  text.rich_console(console, options)
+  Renderable::rich_console(text, console, options)
 }
 
 ///|
@@ -75,7 +75,7 @@ pub impl Renderable for String with fn rich_measure(self, console, options) {
     markup=options.markup,
     highlight=Some(false),
   )
-  text.rich_measure(console, options)
+  Renderable::rich_measure(text, console, options)
 }
 
 ///|

@@ -124,7 +124,7 @@ pub impl @rich.Renderable for Bar with fn rich_console(self, _console, options) 
   let body_rest = if prefix.length() >= body.length() {
     ""
   } else {
-    body.view(start_offset=prefix.length()).to_owned()
+    body[prefix.length():].to_owned()
   }
   [
     Seg(@rich.Segment::new(prefix + body_rest + suffix, style=self.style)),

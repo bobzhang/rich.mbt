@@ -27,15 +27,15 @@ pub impl ToJson for PyValue with fn to_json(self) {
     PyFloat(f) => Json::number(f)
     PyStr(s) | PyBytes(s) => Json::string(s)
     PyTuple(items) | PyList(items) | PySet(items) =>
-      Json::array(items.map(v => v.to_json()))
+      Json::array(items.map(v => ToJson::to_json(v)))
     PyDict(items) => {
       let m : Map[String, Json] = Map([])
       for kv in items {
         let key = match kv.0 {
           PyStr(s) => s
-          k => k.to_json().stringify()
+          k => ToJson::to_json(k).stringify()
         }
-        m[key] = kv.1.to_json()
+        m[key] = ToJson::to_json(kv.1)
       }
       Json::object(m)
     }
@@ -540,7 +540,7 @@ fn parse_number(s : String) -> PyValue raise LitError {
       _ => 2
     }
     let mut v = 0L
-    for c in lower.view(start_offset=2) {
+    for c in lower[2:] {
       let d = match c {
         '0'..<='9' => c.to_int() - '0'.to_int()
         'a'..<='f' => c.to_int() - 'a'.to_int() + 10
