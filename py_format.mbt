@@ -88,7 +88,7 @@ pub fn py_format(template : String, fields : Map[String, String]) -> String {
         i += 2
         continue
       }
-      match template.view(start_offset=i).find("}") {
+      match template[i:].find("}") {
         Some(j) => {
           let field = py_slice(template, i + 1, i + j)
           let (name_conv, spec) = match field.find(":") {

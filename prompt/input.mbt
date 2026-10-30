@@ -32,7 +32,7 @@ pub fn InputStream::readline(self : InputStream) -> String {
     }
   }
   self.pos = end
-  self.text.view(start_offset=start, end_offset=end).to_owned()
+  self.text[start:end].to_owned()
 }
 
 ///|

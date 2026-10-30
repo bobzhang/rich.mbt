@@ -6,15 +6,12 @@ fn replace_link_ids(s : String) -> String {
   let buf = StringBuilder()
   let mut rest = s
   while rest.find("id=") is Some(i) {
-    buf.write_string(rest.view(end_offset=i).to_owned())
-    let after = rest.view(start_offset=i + 3).to_owned()
+    buf.write_string(rest[:i].to_owned())
+    let after = rest[i + 3:].to_owned()
     match after.find(";") {
-      Some(j) if after
-        .view(end_offset=j)
-        .iter()
-        .all(c => c is ('0'..<='9' | '.' | '-')) => {
+      Some(j) if after[:j].iter().all(c => c is ('0'..<='9' | '.' | '-')) => {
         buf.write_string("id=0;")
-        rest = after.view(start_offset=j + 1).to_owned()
+        rest = after[j + 1:].to_owned()
       }
       _ => {
         buf.write_string("id=")

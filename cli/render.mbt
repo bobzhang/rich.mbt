@@ -60,7 +60,7 @@ priv enum Format {
 /// Python's `os.path.splitext(path)[1]`.
 fn splitext_ext(path : String) -> String {
   let base = match path.rev_find("/") {
-    Some(i) => path.view(start_offset=i + 1).to_owned()
+    Some(i) => path[i + 1:].to_owned()
     None => path
   }
   // leading dots of the base name do not start an extension
@@ -69,7 +69,7 @@ fn splitext_ext(path : String) -> String {
     start += 1
   }
   match base.rev_find(".") {
-    Some(i) if i >= start => base.view(start_offset=i).to_owned()
+    Some(i) if i >= start => base[i:].to_owned()
     _ => ""
   }
 }
@@ -83,11 +83,11 @@ fn is_url(path : String) -> Bool {
 /// The path part of a URL (`urlparse(url).path`).
 fn url_path(url : String) -> String {
   let rest = match url.find("://") {
-    Some(i) => url.view(start_offset=i + 3).to_owned()
+    Some(i) => url[i + 3:].to_owned()
     None => url
   }
   let path = match rest.find("/") {
-    Some(i) => rest.view(start_offset=i).to_owned()
+    Some(i) => rest[i:].to_owned()
     None => ""
   }
   let mut end = path.length()
@@ -96,7 +96,7 @@ fn url_path(url : String) -> String {
       end = i
     }
   }
-  path.view(end_offset=end).to_owned()
+  path[:end].to_owned()
 }
 
 ///|
@@ -379,7 +379,7 @@ fn Context::read_resource(
   }
   if lexer is None {
     let ext = match path.rev_find(".") {
-      Some(i) => path.view(start_offset=i + 1).to_owned().to_lower()
+      Some(i) => path[i + 1:].to_owned().to_lower()
       None => ""
     }
     lexer = match ext {
@@ -798,10 +798,8 @@ fn json_error(e : Error, data : String) -> String {
     _ => return e.to_string()
   }
   guard message.rev_find(": char ") is Some(i) else { return message }
-  let msg = message.view(end_offset=i).to_owned()
-  guard py_int(message.view(start_offset=i + 7).to_owned()) is Some(pos) else {
-    return message
-  }
+  let msg = message[:i].to_owned()
+  guard py_int(message[i + 7:].to_owned()) is Some(pos) else { return message }
   // `pos` is a UTF-16 offset; Python counts code points
   let mut lineno = 1
   let mut last_newline = -1

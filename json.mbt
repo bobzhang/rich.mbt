@@ -41,7 +41,7 @@ fn JsonParser::ws(self : JsonParser) -> Unit {
 
 ///|
 fn JsonParser::starts(self : JsonParser, s : String) -> Bool {
-  self.src.view(start_offset=self.pos).has_prefix(s)
+  self.src[self.pos:].has_prefix(s)
 }
 
 ///|

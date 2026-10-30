@@ -540,7 +540,7 @@ fn parse_number(s : String) -> PyValue raise LitError {
       _ => 2
     }
     let mut v = 0L
-    for c in lower.view(start_offset=2) {
+    for c in lower[2:] {
       let d = match c {
         '0'..<='9' => c.to_int() - '0'.to_int()
         'a'..<='f' => c.to_int() - 'a'.to_int() + 10

@@ -149,7 +149,7 @@ pub fn format_task(
       guard j < n else {
         raise ValueError("Single '{' encountered in format string")
       }
-      let inner = template.view(start_offset=i + 1, end_offset=j).to_owned()
+      let inner = template[i + 1:j].to_owned()
       buf.write_string(format_field(inner, task))
       i = j + 1
     } else if c == '}' {
@@ -183,19 +183,13 @@ fn format_field(inner : String, task : Task) -> String raise @rich.RichError {
     }
   }
   let (field, spec) = if colon >= 0 {
-    (
-      inner.view(end_offset=colon).to_owned(),
-      inner.view(start_offset=colon + 1).to_owned(),
-    )
+    (inner[:colon].to_owned(), inner[colon + 1:].to_owned())
   } else {
     (inner, "")
   }
   let (field, conversion) = if field.length() >= 2 &&
     field[field.length() - 2] == '!' {
-    (
-      field.view(end_offset=field.length() - 2).to_owned(),
-      Some(field[field.length() - 1]),
-    )
+    (field[:field.length() - 2].to_owned(), Some(field[field.length() - 1]))
   } else {
     (field, None)
   }
@@ -422,7 +416,7 @@ fn format_value(value : PyValue, spec : String) -> String raise @rich.RichError 
           )
       }
       let s = match spec.precision {
-        Some(p) if p < s.length() => s.view(end_offset=p).to_owned()
+        Some(p) if p < s.length() => s[:p].to_owned()
         _ => s
       }
       pad(s, "", spec, '<')
