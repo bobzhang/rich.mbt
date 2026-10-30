@@ -9,7 +9,7 @@ pub struct LogRender {
   time_format : String
   time_formatter : ((Double) -> Text)?
   omit_repeated_times : Bool
-  level_width : Int?
+  level_width : Int32?
   priv mut last_time : Text?
 }
 
@@ -17,13 +17,13 @@ pub struct LogRender {
 /// `time_format` is a C `strftime` format; `time_formatter` overrides it
 /// with a function from the time (seconds since the epoch) to a Text.
 pub fn LogRender::new(
-  show_time? : Bool = true,
-  show_level? : Bool = false,
-  show_path? : Bool = true,
-  time_format? : String = "[%x %X]",
+  show_time~ : Bool = true,
+  show_level~ : Bool = false,
+  show_path~ : Bool = true,
+  time_format~ : String = "[%x %X]",
   time_formatter? : (Double) -> Text,
-  omit_repeated_times? : Bool = true,
-  level_width? : Int? = Some(8),
+  omit_repeated_times~ : Bool = true,
+  level_width~ : Int32? = Some(8),
 ) -> LogRender {
   {
     show_time,
@@ -47,7 +47,7 @@ pub fn LogRender::render(
   time_format? : String,
   level? : &IntoText,
   path? : String,
-  line_no? : Int,
+  line_no? : Int32,
   link_path? : String,
 ) -> Table raise {
   let output = Table::grid(padding=[0, 1])

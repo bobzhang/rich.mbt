@@ -24,7 +24,7 @@ pub struct Theme {
 /// Style definitions are parsed (raising on syntax errors).
 pub fn Theme::new(
   styles? : Map[String, &IntoStyle],
-  inherit_styles? : Bool = true,
+  inherit_styles~ : Bool = true,
 ) -> Theme raise RichError {
   let m : Map[String, Style] = if inherit_styles {
     default_styles_map.copy()
@@ -59,7 +59,7 @@ pub fn Theme::config(self : Theme) -> String {
 /// with the upstream message.
 pub fn Theme::from_config(
   config : String,
-  inherit_styles? : Bool = true,
+  inherit_styles~ : Bool = true,
 ) -> Theme raise RichError {
   let parsed : Map[String, &IntoStyle] = Map([])
   for item in config_items(config, "styles") {
@@ -185,7 +185,7 @@ fn config_items(
 
 ///|
 /// Python `"%2d" % n`.
-fn pad2(n : Int) -> String {
+fn pad2(n : Int32) -> String {
   if n < 10 {
     " \{n}"
   } else {
@@ -201,7 +201,7 @@ fn interpolate(
   section : String,
   option : String,
   value : String,
-  depth : Int,
+  depth : Int32,
 ) -> String raise RichError {
   if depth > 10 {
     raise ValueError(
@@ -270,7 +270,7 @@ pub fn ThemeStack::get(self : ThemeStack, name : String) -> Style? {
 pub fn ThemeStack::push_theme(
   self : ThemeStack,
   theme : Theme,
-  inherit_styles? : Bool = true,
+  inherit_styles~ : Bool = true,
 ) -> Unit {
   let styles = if inherit_styles {
     let m = self.entries[self.entries.length() - 1].copy()

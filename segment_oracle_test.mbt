@@ -3,7 +3,15 @@
 ///|
 test "segment divide / split_cells oracle cases" {
   let cases : Array[
-    (Array[(String, String?)], Array[Int], Int, Int, String, String, String),
+    (
+      Array[(String, String?)],
+      Array[Int32],
+      Int32,
+      Int32,
+      String,
+      String,
+      String,
+    ),
   ] = [
     (
       [

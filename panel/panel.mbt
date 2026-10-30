@@ -13,28 +13,28 @@ pub(all) struct Panel {
   mut expand : Bool
   mut style : @rich.StyleType
   mut border_style : @rich.StyleType
-  mut width : Int?
-  mut height : Int?
-  mut padding : Array[Int]
+  mut width : Int32?
+  mut height : Int32?
+  mut padding : Array[Int32]
   mut highlight : Bool
 }
 
 ///|
 pub fn Panel::new(
   renderable : &@rich.Renderable,
-  box_? : @rich.Box = @rich.box_rounded,
+  box_~ : @rich.Box = @rich.box_rounded,
   title? : &@rich.IntoText,
-  title_align? : @rich.AlignMethod = Center,
+  title_align~ : @rich.AlignMethod = Center,
   subtitle? : &@rich.IntoText,
-  subtitle_align? : @rich.AlignMethod = Center,
+  subtitle_align~ : @rich.AlignMethod = Center,
   safe_box? : Bool,
-  expand? : Bool = true,
+  expand~ : Bool = true,
   style? : &@rich.IntoStyle,
   border_style? : &@rich.IntoStyle,
-  width? : Int,
-  height? : Int,
-  padding? : ArrayView[Int] = [0, 1],
-  highlight? : Bool = false,
+  width? : Int32,
+  height? : Int32,
+  padding~ : ArrayView[Int32] = [0, 1],
+  highlight~ : Bool = false,
 ) -> Panel {
   {
     renderable,
@@ -64,18 +64,18 @@ pub fn Panel::new(
 /// An alternative constructor that sets `expand=false`.
 pub fn Panel::fit(
   renderable : &@rich.Renderable,
-  box_? : @rich.Box = @rich.box_rounded,
+  box_~ : @rich.Box = @rich.box_rounded,
   title? : &@rich.IntoText,
-  title_align? : @rich.AlignMethod = Center,
+  title_align~ : @rich.AlignMethod = Center,
   subtitle? : &@rich.IntoText,
-  subtitle_align? : @rich.AlignMethod = Center,
+  subtitle_align~ : @rich.AlignMethod = Center,
   safe_box? : Bool,
   style? : &@rich.IntoStyle,
   border_style? : &@rich.IntoStyle,
-  width? : Int,
-  height? : Int,
-  padding? : ArrayView[Int] = [0, 1],
-  highlight? : Bool = false,
+  width? : Int32,
+  height? : Int32,
+  padding~ : ArrayView[Int32] = [0, 1],
+  highlight~ : Bool = false,
 ) -> Panel {
   Panel::new(
     renderable,
@@ -115,7 +115,7 @@ fn make_title(title : @rich.TextType?) -> @rich.Text? raise {
 }
 
 ///|
-fn floor_div(a : Int, b : Int) -> Int {
+fn floor_div(a : Int32, b : Int32) -> Int32 {
   let q = a / b
   if a % b != 0 && (a < 0) != (b < 0) {
     q - 1
@@ -150,7 +150,7 @@ pub impl @rich.Renderable for Panel with fn rich_console(self, console, options)
   let box_ = self.box_.substitute(options, safe=safe_box)
   fn align_text(
     text : @rich.Text,
-    width : Int,
+    width : Int32,
     align : @rich.AlignMethod,
     character : String,
     style : @rich.Style,

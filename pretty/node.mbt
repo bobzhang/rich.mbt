@@ -33,17 +33,17 @@ pub(all) struct Node {
 /// }
 /// ```
 pub fn Node::new(
-  key_repr? : String = "",
-  value_repr? : String = "",
-  open_brace? : String = "",
-  close_brace? : String = "",
-  empty? : String = "",
-  last? : Bool = false,
-  is_tuple? : Bool = false,
-  is_namedtuple? : Bool = false,
+  key_repr~ : String = "",
+  value_repr~ : String = "",
+  open_brace~ : String = "",
+  close_brace~ : String = "",
+  empty~ : String = "",
+  last~ : Bool = false,
+  is_tuple~ : Bool = false,
+  is_namedtuple~ : Bool = false,
   children? : Array[Node],
-  key_separator? : String = ": ",
-  separator? : String = ", ",
+  key_separator~ : String = ": ",
+  separator~ : String = ", ",
 ) -> Node {
   {
     key_repr,
@@ -111,8 +111,8 @@ fn Node::collect_tokens(self : Node, tokens : Array[String]) -> Unit {
 /// `max_length` cells.
 pub fn Node::check_length(
   self : Node,
-  start_length : Int,
-  max_length : Int,
+  start_length : Int32,
+  max_length : Int32,
 ) -> Bool {
   // Walk the tokens lazily, stopping at the first one that overflows (as
   // upstream's generator does), so long containers are not tokenized in
@@ -124,7 +124,11 @@ pub fn Node::check_length(
 ///|
 /// Add the widths of this node's tokens to `total`; `false` as soon as it
 /// exceeds `max_length`. Same token order as `collect_tokens`.
-fn Node::tokens_fit(self : Node, total : Ref[Int], max_length : Int) -> Bool {
+fn Node::tokens_fit(
+  self : Node,
+  total : Ref[Int32],
+  max_length : Int32,
+) -> Bool {
   fn add(token : String) -> Bool {
     total.val += @cells.cell_len(token)
     total.val <= max_length
@@ -176,9 +180,9 @@ pub impl Show for Node with fn output(self, logger) {
 /// `expand_all`).
 pub fn Node::render(
   self : Node,
-  max_width? : Int = 80,
-  indent_size? : Int = 4,
-  expand_all? : Bool = false,
+  max_width~ : Int32 = 80,
+  indent_size~ : Int32 = 4,
+  expand_all~ : Bool = false,
 ) -> String {
   let mut lines : Array[Line] = [
     { node: Some(self), text: "", suffix: "", whitespace: "", last: false, },
@@ -223,7 +227,7 @@ fn Line::expandable(self : Line) -> Bool {
 
 ///|
 /// Check this line fits within a given number of cells.
-fn Line::check_length(self : Line, max_length : Int) -> Bool {
+fn Line::check_length(self : Line, max_length : Int32) -> Bool {
   let start_length = self.whitespace.length() +
     @cells.cell_len(self.text) +
     @cells.cell_len(self.suffix)
@@ -232,7 +236,7 @@ fn Line::check_length(self : Line, max_length : Int) -> Bool {
 
 ///|
 /// Expand this line by adding children on their own line.
-fn Line::expand(self : Line, indent_size : Int) -> Array[Line] {
+fn Line::expand(self : Line, indent_size : Int32) -> Array[Line] {
   let node = self.node.unwrap()
   let whitespace = self.whitespace
   let children = node.children.unwrap()

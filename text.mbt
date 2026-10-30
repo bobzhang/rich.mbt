@@ -5,13 +5,13 @@
 ///|
 /// A marked up region in some text.
 pub(all) struct Span {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   style : StyleType
 } derive(Eq, Hash)
 
 ///|
-pub fn Span::new(start : Int, end : Int, style : &IntoStyle) -> Span {
+pub fn Span::new(start : Int32, end : Int32, style : &IntoStyle) -> Span {
   { start, end, style: style.into_style_type(), }
 }
 
@@ -34,7 +34,7 @@ pub fn Span::to_bool(self : Span) -> Bool {
 
 ///|
 /// Split a span in to 2 from a given offset.
-pub fn Span::split(self : Span, offset : Int) -> (Span, Span?) {
+pub fn Span::split(self : Span, offset : Int32) -> (Span, Span?) {
   if offset < self.start || offset >= self.end {
     return (self, None)
   }
@@ -49,13 +49,13 @@ pub fn Span::split(self : Span, offset : Int) -> (Span, Span?) {
 
 ///|
 /// Move start and end by a given offset.
-pub fn Span::move_(self : Span, offset : Int) -> Span {
+pub fn Span::move_(self : Span, offset : Int32) -> Span {
   { start: self.start + offset, end: self.end + offset, style: self.style, }
 }
 
 ///|
 /// Crop the span at the given offset.
-pub fn Span::right_crop(self : Span, offset : Int) -> Span {
+pub fn Span::right_crop(self : Span, offset : Int32) -> Span {
   if offset >= self.end {
     return self
   }
@@ -64,7 +64,7 @@ pub fn Span::right_crop(self : Span, offset : Int) -> Span {
 
 ///|
 /// Extend the span by the given number of cells.
-pub fn Span::extend_(self : Span, cells : Int) -> Span {
+pub fn Span::extend_(self : Span, cells : Int32) -> Span {
   if cells != 0 {
     { start: self.start, end: self.end + cells, style: self.style, }
   } else {
@@ -76,7 +76,7 @@ pub fn Span::extend_(self : Span, cells : Int) -> Span {
 /// Text with color / style.
 pub(all) struct Text {
   priv mut parts : Array[String]
-  priv mut length_ : Int
+  priv mut length_ : Int32
   priv mut spans_ : Array[Span]
   /// Base style for the text.
   mut style : StyleType
@@ -89,7 +89,7 @@ pub(all) struct Text {
   /// String to end the text with.
   mut end : String
   /// Number of spaces per tab, or `None` to use `console.tab_size`.
-  mut tab_size : Int?
+  mut tab_size : Int32?
 }
 
 ///|
@@ -138,13 +138,13 @@ pub fn escape_control_codes(text : String) -> String {
 ///|
 /// Create a new Text.
 pub fn Text::new(
-  text? : String = "",
+  text~ : String = "",
   style? : &IntoStyle,
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
   no_wrap? : Bool,
-  end? : String = "\n",
-  tab_size? : Int,
+  end~ : String = "\n",
+  tab_size? : Int32,
   spans? : Array[Span],
 ) -> Text {
   let sanitized = strip_control_codes(text)
@@ -166,7 +166,7 @@ pub fn Text::new(
 
 ///|
 /// Length of the text (in UTF-16 code units).
-pub fn Text::length(self : Text) -> Int {
+pub fn Text::length(self : Text) -> Int32 {
   self.length_
 }
 
@@ -254,7 +254,7 @@ pub fn Text::contains(self : Text, other : &IntoText) -> Bool {
 
 ///|
 /// The character at `offset` as a Text (upstream `text[offset]`).
-pub fn Text::at(self : Text, offset : Int) -> Text {
+pub fn Text::at(self : Text, offset : Int32) -> Text {
   let plain = self.plain()
   let offset = if offset < 0 { plain.length() + offset } else { offset }
   let spans = []
@@ -273,9 +273,9 @@ pub fn Text::at(self : Text, offset : Int) -> Text {
 ///|
 /// A slice of the text (upstream `text[start:stop]`, Python slice
 /// semantics for negative and out-of-range indices).
-pub fn Text::slice(self : Text, start? : Int, stop? : Int) -> Text {
+pub fn Text::slice(self : Text, start? : Int32, stop? : Int32) -> Text {
   let length = self.plain().length()
-  fn clamp(i : Int?, default : Int) -> Int {
+  fn clamp(i : Int32?, default : Int32) -> Int32 {
     match i {
       None => default
       Some(i) =>
@@ -295,7 +295,7 @@ pub fn Text::slice(self : Text, start? : Int, stop? : Int) -> Text {
 
 ///|
 /// The number of cells required to render this text.
-pub fn Text::cell_len(self : Text) -> Int {
+pub fn Text::cell_len(self : Text) -> Int32 {
   @cells.cell_len(self.plain())
 }
 
@@ -304,9 +304,9 @@ pub fn Text::cell_len(self : Text) -> Int {
 pub fn Text::markup(self : Text) -> String {
   let output = []
   let plain = self.plain()
-  let markup_spans : Array[(Int, Bool, StyleType, Int)] = []
+  let markup_spans : Array[(Int32, Bool, StyleType, Int32)] = []
   let mut order = 0
-  fn add(offset : Int, closing : Bool, style : StyleType) {
+  fn add(offset : Int32, closing : Bool, style : StyleType) {
     markup_spans.push((offset, closing, style, order))
     order += 1
   }
@@ -345,7 +345,7 @@ pub fn Text::markup(self : Text) -> String {
 
 ///|
 /// Stable sort (insertion sort for short arrays, merge sort otherwise).
-fn[T] stable_sort_by(xs : Array[T], cmp : (T, T) -> Int) -> Unit {
+fn[T] stable_sort_by(xs : Array[T], cmp : (T, T) -> Int32) -> Unit {
   let n = xs.length()
   if n < 2 {
     return
@@ -397,11 +397,11 @@ fn[T] stable_sort_by(xs : Array[T], cmp : (T, T) -> Int) -> Unit {
 pub fn Text::from_markup(
   text : String,
   style? : &IntoStyle,
-  emoji? : Bool = true,
+  emoji~ : Bool = true,
   emoji_variant? : EmojiVariant,
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
-  end? : String = "\n",
+  end~ : String = "\n",
 ) -> Text raise RichError {
   let rendered = render_markup(
     text,
@@ -423,8 +423,8 @@ pub fn Text::from_ansi(
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
   no_wrap? : Bool,
-  end? : String = "\n",
-  tab_size? : Int = 8,
+  end~ : String = "\n",
+  tab_size~ : Int32 = 8,
 ) -> Text {
   let joiner = Text::new(
     text="\n",
@@ -486,8 +486,8 @@ pub fn Text::assemble(
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
   no_wrap? : Bool,
-  end? : String = "\n",
-  tab_size? : Int = 8,
+  end~ : String = "\n",
+  tab_size~ : Int32 = 8,
   meta? : Map[String, Json],
 ) -> Text {
   let text = Text::new(
@@ -521,7 +521,7 @@ pub fn Text::set_spans(self : Text, spans : Array[Span]) -> Unit {
 
 ///|
 /// A new Text instance with copied metadata (but not the string or spans).
-pub fn Text::blank_copy(self : Text, plain? : String = "") -> Text {
+pub fn Text::blank_copy(self : Text, plain~ : String = "") -> Text {
   let plain = strip_control_codes(plain)
   {
     parts: [plain],
@@ -545,7 +545,11 @@ pub fn Text::copy(self : Text) -> Text {
 }
 
 ///|
-fn Text::normalize_range(self : Text, start : Int, end : Int?) -> (Int, Int)? {
+fn Text::normalize_range(
+  self : Text,
+  start : Int32,
+  end : Int32?,
+) -> (Int32, Int32)? {
   let length = self.length_
   let start = if start < 0 { length + start } else { start }
   let end = match end {
@@ -565,8 +569,8 @@ fn Text::normalize_range(self : Text, start : Int, end : Int?) -> (Int, Int)? {
 pub fn Text::stylize(
   self : Text,
   style : &IntoStyle,
-  start? : Int = 0,
-  end? : Int,
+  start~ : Int32 = 0,
+  end? : Int32,
 ) -> Unit {
   let style = style.into_style_type()
   if style.to_bool() {
@@ -581,8 +585,8 @@ pub fn Text::stylize(
 pub fn Text::stylize_before(
   self : Text,
   style : &IntoStyle,
-  start? : Int = 0,
-  end? : Int,
+  start~ : Int32 = 0,
+  end? : Int32,
 ) -> Unit {
   let style = style.into_style_type()
   if style.to_bool() {
@@ -597,8 +601,8 @@ pub fn Text::stylize_before(
 pub fn Text::apply_meta(
   self : Text,
   meta : Map[String, Json],
-  start? : Int = 0,
-  end? : Int,
+  start~ : Int32 = 0,
+  end? : Int32,
 ) -> Unit {
   let style = Style::from_meta(Some(meta))
   self.stylize(style, start~, end?)
@@ -629,7 +633,7 @@ pub fn Text::remove_suffix(self : Text, suffix : String) -> Unit {
 pub fn Text::get_style_at_offset(
   self : Text,
   console : Console,
-  offset : Int,
+  offset : Int32,
 ) -> Style raise {
   let offset = if offset < 0 { self.length_ + offset } else { offset }
   let mut style = console.get_style(self.style).copy_value()
@@ -644,7 +648,7 @@ pub fn Text::get_style_at_offset(
 ///|
 /// Extend the Text given number of spaces where the spaces have the same
 /// style as the last character.
-pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
+pub fn Text::extend_style(self : Text, spaces : Int32) -> Unit {
   if spaces <= 0 {
     return
   }
@@ -666,13 +670,15 @@ pub fn Text::extend_style(self : Text, spaces : Int) -> Unit {
 }
 
 ///|
-let regex_cache : @memo.Memo[(String, Int), @regex.Regex] = @memo.Memo::new(512)
+let regex_cache : @memo.Memo[(String, Int32), @regex.Regex] = @memo.Memo::new(
+  512,
+)
 
 ///|
 /// Compile a regular expression (Python `re` syntax), with caching.
 pub fn compile_regex(
   pattern : String,
-  flags? : Int = 0,
+  flags~ : Int32 = 0,
 ) -> @regex.Regex raise @regex.RegexError {
   let key = (pattern, flags)
   match regex_cache.get(key) {
@@ -695,8 +701,8 @@ pub fn Text::highlight_regex(
   re_highlight : @regex.Regex,
   style? : &IntoStyle,
   style_fn? : (String) -> StyleType?,
-  style_prefix? : String = "",
-) -> Int raise @regex.RegexError {
+  style_prefix~ : String = "",
+) -> Int32 raise @regex.RegexError {
   let mut count = 0
   let plain = self.plain()
   let names = re_highlight.group_names()
@@ -732,8 +738,8 @@ pub fn Text::highlight_pattern(
   self : Text,
   pattern : String,
   style? : &IntoStyle,
-  style_prefix? : String = "",
-) -> Int raise @regex.RegexError {
+  style_prefix~ : String = "",
+) -> Int32 raise @regex.RegexError {
   self.highlight_regex(compile_regex(pattern), style?, style_prefix~)
 }
 
@@ -743,7 +749,8 @@ pub fn regex_escape(s : String) -> String {
   let buf = StringBuilder()
   for c in s {
     let n = c.to_int()
-    let special = n < 128 && !(c is ('a'..='z' | 'A'..='Z' | '0'..='9' | '_'))
+    let special = n < 128 &&
+      !(c is ('a'..<='z' | 'A'..<='Z' | '0'..<='9' | '_'))
     if special {
       buf.write_char('\\')
     }
@@ -758,8 +765,8 @@ pub fn Text::highlight_words(
   self : Text,
   words : ArrayView[String],
   style : &IntoStyle,
-  case_sensitive? : Bool = true,
-) -> Int raise @regex.RegexError {
+  case_sensitive~ : Bool = true,
+) -> Int32 raise @regex.RegexError {
   let re_words = words.map(regex_escape).join("|")
   let style = style.into_style_type()
   let re = compile_regex(
@@ -796,7 +803,7 @@ pub fn Text::rstrip(self : Text) -> Unit {
 
 ///|
 /// Remove whitespace beyond a certain width at the end of the text.
-pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
+pub fn Text::rstrip_end(self : Text, size : Int32) -> Unit {
   // upstream compares the length in code points with `size` (in cells);
   // there are never more code points than UTF-16 code units
   if self.length_ <= size {
@@ -823,7 +830,7 @@ pub fn Text::rstrip_end(self : Text, size : Int) -> Unit {
 
 ///|
 /// Set new length of the text, clipping or padding as required.
-pub fn Text::set_length(self : Text, new_length : Int) -> Unit {
+pub fn Text::set_length(self : Text, new_length : Int32) -> Unit {
   let length = self.length_
   if length != new_length {
     if length < new_length {
@@ -942,7 +949,7 @@ fn py_splitlines(s : String) -> Array[String] {
 
 ///|
 /// Line boundaries of Python's `str.splitlines()` (all in the BMP).
-fn is_line_break_unit(c : Int) -> Bool {
+fn is_line_break_unit(c : Int32) -> Bool {
   c == 0x0a ||
   c == 0x0d ||
   c == 0x0b ||
@@ -958,7 +965,7 @@ fn is_line_break_unit(c : Int) -> Bool {
 ///|
 /// Call `f(start, end)` for each line of `s` as split by Python's
 /// `str.splitlines()`.
-fn for_each_splitline(s : String, f : (Int, Int) -> Unit) -> Unit {
+fn for_each_splitline(s : String, f : (Int32, Int32) -> Unit) -> Unit {
   // see also `rich_measure`, which inlines this loop
   let n = s.length()
   let mut start = 0
@@ -986,7 +993,7 @@ fn for_each_splitline(s : String, f : (Int, Int) -> Unit) -> Unit {
 pub fn Text::render(
   self : Text,
   console : Console,
-  end? : String = "",
+  end~ : String = "",
 ) -> Array[Segment] raise {
   let result = []
   self.render_into(console, end, result)
@@ -1037,7 +1044,7 @@ pub fn Text::join(self : Text, lines : ArrayView[Text]) -> Text {
 
 ///|
 /// Convert tabs to spaces.
-pub fn Text::expand_tabs(self : Text, tab_size? : Int) -> Unit {
+pub fn Text::expand_tabs(self : Text, tab_size? : Int32) -> Unit {
   if !self.plain().contains("\t") {
     return
   }
@@ -1084,9 +1091,9 @@ pub fn Text::expand_tabs(self : Text, tab_size? : Int) -> Unit {
 /// Truncate text if it is longer than a given width.
 pub fn Text::truncate(
   self : Text,
-  max_width : Int,
+  max_width : Int32,
   overflow? : OverflowMethod,
-  pad? : Bool = false,
+  pad~ : Bool = false,
 ) -> Unit {
   let overflow = overflow.unwrap_or(self.overflow.unwrap_or(Fold))
   if overflow != Ignore {
@@ -1133,7 +1140,7 @@ fn Text::trim_spans(self : Text) -> Unit {
 
 ///|
 /// Pad left and right with a given number of characters.
-pub fn Text::pad(self : Text, count : Int, character? : Char = ' ') -> Unit {
+pub fn Text::pad(self : Text, count : Int32, character~ : Char = ' ') -> Unit {
   if count != 0 {
     let pad_characters = py_char_repeat(character, count)
     self.set_plain(pad_characters + self.plain() + pad_characters)
@@ -1144,7 +1151,7 @@ pub fn Text::pad(self : Text, count : Int, character? : Char = ' ') -> Unit {
 
 ///|
 /// Python `character * count` (empty for negative counts).
-fn py_char_repeat(character : Char, count : Int) -> String {
+fn py_char_repeat(character : Char, count : Int32) -> String {
   if count <= 0 {
     ""
   } else {
@@ -1153,7 +1160,7 @@ fn py_char_repeat(character : Char, count : Int) -> String {
 }
 
 ///|
-fn char_utf16_len(c : Char) -> Int {
+fn char_utf16_len(c : Char) -> Int32 {
   if c.to_int() > 0xFFFF {
     2
   } else {
@@ -1166,8 +1173,8 @@ fn char_utf16_len(c : Char) -> Int {
 /// adds nothing but still moves the spans.
 pub fn Text::pad_left(
   self : Text,
-  count : Int,
-  character? : Char = ' ',
+  count : Int32,
+  character~ : Char = ' ',
 ) -> Unit {
   if count != 0 {
     self.set_plain(py_char_repeat(character, count) + self.plain())
@@ -1180,8 +1187,8 @@ pub fn Text::pad_left(
 /// Pad the right with a given character.
 pub fn Text::pad_right(
   self : Text,
-  count : Int,
-  character? : Char = ' ',
+  count : Int32,
+  character~ : Char = ' ',
 ) -> Unit {
   if count != 0 {
     self.set_plain(self.plain() + py_char_repeat(character, count))
@@ -1193,8 +1200,8 @@ pub fn Text::pad_right(
 pub fn Text::align(
   self : Text,
   align : AlignMethod,
-  width : Int,
-  character? : Char = ' ',
+  width : Int32,
+  character~ : Char = ' ',
 ) -> Unit {
   self.truncate(width)
   let excess_space = width - @cells.cell_len(self.plain())
@@ -1304,7 +1311,7 @@ pub fn Text::copy_styles(self : Text, text : Text) -> Unit {
 }
 
 ///|
-fn find_all_str(text : String, sep : String) -> Array[(Int, Int)] {
+fn find_all_str(text : String, sep : String) -> Array[(Int32, Int32)] {
   let out = []
   let mut pos = 0
   while pos <= text.length() {
@@ -1324,9 +1331,9 @@ fn find_all_str(text : String, sep : String) -> Array[(Int, Int)] {
 /// Split rich text in to lines, preserving styles.
 pub fn Text::split(
   self : Text,
-  separator? : String = "\n",
-  include_separator? : Bool = false,
-  allow_blank? : Bool = false,
+  separator~ : String = "\n",
+  include_separator~ : Bool = false,
+  allow_blank~ : Bool = false,
 ) -> Lines {
   guard separator != "" else { abort("separator must not be empty") }
   let text = self.plain()
@@ -1354,7 +1361,7 @@ pub fn Text::split(
 
 ///|
 /// Divide text into a number of lines at given offsets.
-pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
+pub fn Text::divide(self : Text, offsets : ArrayView[Int32]) -> Lines {
   if offsets.length() == 0 {
     return Lines::new([self.copy()])
   }
@@ -1362,7 +1369,7 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
   let text_length = text.length()
   // line `i` covers `bounds[i]..bounds[i + 1]` (upstream `line_ranges`)
   let line_count = offsets.length() + 1
-  let bounds : FixedArray[Int] = FixedArray::make(line_count + 1, 0)
+  let bounds : FixedArray[Int32] = FixedArray::make(line_count + 1, 0)
   for i, o in offsets {
     bounds[i + 1] = o
   }
@@ -1444,7 +1451,7 @@ pub fn Text::divide(self : Text, offsets : ArrayView[Int]) -> Lines {
 
 ///|
 /// Python `s[a:b]` (with clamping of out-of-range and negative indices).
-fn py_slice(s : String, a : Int, b : Int) -> String {
+fn py_slice(s : String, a : Int32, b : Int32) -> String {
   let n = s.length()
   let a = if a < 0 { @cmp.maximum(0, n + a) } else { @cmp.minimum(a, n) }
   let b = if b < 0 { @cmp.maximum(0, n + b) } else { @cmp.minimum(b, n) }
@@ -1457,7 +1464,7 @@ fn py_slice(s : String, a : Int, b : Int) -> String {
 
 ///|
 /// Remove a number of characters from the end of the text.
-pub fn Text::right_crop(self : Text, amount? : Int = 1) -> Unit {
+pub fn Text::right_crop(self : Text, amount~ : Int32 = 1) -> Unit {
   let plain = self.plain()
   let max_offset = plain.length() - amount
   let spans = []
@@ -1487,10 +1494,10 @@ pub fn Text::right_crop(self : Text, amount? : Int = 1) -> Unit {
 pub fn Text::wrap(
   self : Text,
   console : Console,
-  width : Int,
+  width : Int32,
   justify? : JustifyMethod,
   overflow? : OverflowMethod,
-  tab_size? : Int = 8,
+  tab_size~ : Int32 = 8,
   no_wrap? : Bool,
 ) -> Lines raise {
   let wrap_justify = justify.unwrap_or(self.justify.unwrap_or(Default))
@@ -1537,7 +1544,7 @@ pub fn Text::wrap(
 
 ///|
 /// Fit the text in to given width by chopping in to lines.
-pub fn Text::fit(self : Text, width : Int) -> Lines {
+pub fn Text::fit(self : Text, width : Int32) -> Lines {
   let lines = Lines::new([])
   for line in self.split().lines {
     line.set_length(width)
@@ -1547,7 +1554,7 @@ pub fn Text::fit(self : Text, width : Int) -> Lines {
 }
 
 ///|
-fn gcd(a : Int, b : Int) -> Int {
+fn gcd(a : Int32, b : Int32) -> Int32 {
   let mut a = if a < 0 { -a } else { a }
   let mut b = if b < 0 { -b } else { b }
   while b != 0 {
@@ -1560,8 +1567,8 @@ fn gcd(a : Int, b : Int) -> Int {
 
 ///|
 /// Auto-detect indentation of code.
-pub fn Text::detect_indentation(self : Text) -> Int {
-  let indentations : Map[Int, Unit] = Map([])
+pub fn Text::detect_indentation(self : Text) -> Int32 {
+  let indentations : Map[Int32, Unit] = Map([])
   for line in self.plain().split("\n") {
     let mut n = 0
     while n < line.length() && line[n] == ' ' {
@@ -1591,7 +1598,7 @@ pub fn Text::detect_indentation(self : Text) -> Int {
 
 ///|
 /// The UTF-16 offset of the `n`th code point of `s` (clamped to the end).
-fn utf16_offset_of_codepoint(s : String, n : Int) -> Int {
+fn utf16_offset_of_codepoint(s : String, n : Int32) -> Int32 {
   let mut offset = 0
   let mut count = 0
   while count < n && offset < s.length() {
@@ -1610,8 +1617,8 @@ fn utf16_offset_of_codepoint(s : String, n : Int) -> Int {
 /// Add indent guide lines to text.
 pub fn Text::with_indent_guides(
   self : Text,
-  indent_size? : Int,
-  character? : String = "│",
+  indent_size? : Int32,
+  character~ : String = "│",
   style? : &IntoStyle,
 ) -> Text {
   let style = match style {

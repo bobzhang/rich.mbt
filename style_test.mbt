@@ -101,7 +101,7 @@ test "eq" {
 
 ///|
 test "hash" {
-  let _ : Int = @rich.Style::new().hash()
+  let _ : Int32 = @rich.Style::new().hash()
 }
 
 ///|

@@ -6,7 +6,7 @@
 pub(all) struct Logger {
   name : String
   /// Records below this level are discarded.
-  mut level : Int
+  mut level : Int32
   handlers : Array[RichHandler]
   /// Clock for `LogRecord.created` (seconds since the epoch).
   mut get_time : () -> Double
@@ -15,10 +15,10 @@ pub(all) struct Logger {
 ///|
 /// Create a logger. `get_time` defaults to the wall clock.
 pub fn Logger::new(
-  name? : String = "root",
-  level? : Int = NOTSET,
-  handlers? : Array[RichHandler] = [],
-  get_time? : () -> Double = @term.time,
+  name~ : String = "root",
+  level~ : Int32 = NOTSET,
+  handlers~ : Array[RichHandler] = [],
+  get_time~ : () -> Double = @term.time,
 ) -> Logger {
   { name, level, handlers, get_time, }
 }
@@ -40,7 +40,7 @@ pub fn Logger::remove_handler(self : Logger, handler : RichHandler) -> Unit {
 
 ///|
 /// Is this logger enabled for `level`?
-pub fn Logger::is_enabled_for(self : Logger, level : Int) -> Bool {
+pub fn Logger::is_enabled_for(self : Logger, level : Int32) -> Bool {
   level >= self.level
 }
 
@@ -54,7 +54,7 @@ pub fn Logger::handle(self : Logger, record : LogRecord) -> Unit raise {
 
 ///|
 /// Split a `SourceLoc` (`path:line:col-line:col`) into `(path, line)`.
-fn parse_source_loc(loc : SourceLoc) -> (String, Int) {
+fn parse_source_loc(loc : SourceLoc) -> (String, Int32) {
   let s = loc.to_string()
   let parts = s.split(":").map(p => p.to_owned()).collect()
   if parts.length() >= 4 {
@@ -72,14 +72,14 @@ fn parse_source_loc(loc : SourceLoc) -> (String, Int) {
 #callsite(autofill(loc))
 pub fn Logger::log(
   self : Logger,
-  level : Int,
+  level : Int32,
   msg : String,
   exc_text? : String,
   stack_info? : String,
   traceback? : &@rich.Renderable,
   markup? : Bool,
   highlighter? : &@rich.Highlighter,
-  extra? : Map[String, String] = {},
+  extra~ : Map[String, String] = {},
   loc~ : SourceLoc,
 ) -> Unit raise {
   if !self.is_enabled_for(level) {

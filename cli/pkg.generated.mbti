@@ -48,8 +48,8 @@ pub(all) struct Options {
   mut ipynb : Bool
   mut syntax : Bool
   mut inspect : Bool
-  mut head : Int?
-  mut tail : Int?
+  mut head : Int32?
+  mut tail : Int32?
   mut emoji : Bool
   mut left : Bool
   mut right : Bool
@@ -60,8 +60,8 @@ pub(all) struct Options {
   mut text_full : Bool
   mut soft : Bool
   mut expand : Bool
-  mut width : Int
-  mut max_width : Int
+  mut width : Int32
+  mut max_width : Int32
   mut style : String
   mut rule_style : String
   mut rule_char : String
@@ -88,7 +88,7 @@ pub fn Options::input(Self) -> Input
 pub(all) struct Output {
   stdout : String
   stderr : String
-  exit_code : Int
+  exit_code : Int32
   exports : Array[Export]
   pager : String?
 } derive(@debug.Debug)

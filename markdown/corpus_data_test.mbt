@@ -2263,7 +2263,7 @@ let corpus_token_cases : Array[(String, String)] = [
 ///|
 /// Rendered output: (markdown, width, `Markdown` keyword arguments as
 /// `key=value` pairs separated by `;`, output).
-let render_cases : Array[(String, Int, String, String)] = [
+let render_cases : Array[(String, Int32, String, String)] = [
   (
     "# H1\n## H2\n### H3\n#### H4\n##### H5\n###### H6", 40, "", "                   \u{1b}[1;4mH1\u{1b}[0m                   \n\n\u{1b}[4;35mH2\u{1b}[0m                                      \n\n\u{1b}[1;35mH3\u{1b}[0m                                      \n\n\u{1b}[3;35mH4\u{1b}[0m                                      \n\n\u{1b}[3mH5\u{1b}[0m                                      \n\n\u{1b}[2mH6\u{1b}[0m                                      \n",
   ),

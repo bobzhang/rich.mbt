@@ -21,7 +21,7 @@ pub(all) struct Output {
   stderr : String
   /// The exit status (rich-cli exits with -1, i.e. 255, on errors and 2 on
   /// usage errors).
-  exit_code : Int
+  exit_code : Int32
   /// Files to write (`--export-html`, `--export-svg`), in order. Write them
   /// after printing `stdout`.
   exports : Array[Export]
@@ -168,7 +168,7 @@ pub fn Options::input(self : Options) -> Input {
 ///|
 /// `sys.exit(code)`.
 priv suberror Exit {
-  Exit(Int)
+  Exit(Int32)
 }
 
 ///|
@@ -235,7 +235,7 @@ pub fn error_text(
   message : String,
   error? : String,
   environ? : Map[String, String],
-  isatty? : Bool = false,
+  isatty~ : Bool = false,
 ) -> String {
   let file = @rich.StringIO::new(isatty~)
   write_error(make_error_console(file, environ), message, error)
@@ -251,12 +251,12 @@ pub fn execute(
   command : Command,
   input? : Result[String, String],
   environ? : Map[String, String],
-  stdout_isatty? : Bool = false,
-  stderr_isatty? : Bool = false,
+  stdout_isatty~ : Bool = false,
+  stderr_isatty~ : Bool = false,
 ) -> Output {
   let out = @rich.StringIO::new(isatty=stdout_isatty)
   let err = @rich.StringIO::new(isatty=stderr_isatty)
-  fn output(code : Int, exports : Array[Export], pager : String?) {
+  fn output(code : Int32, exports : Array[Export], pager : String?) {
     {
       stdout: out.getvalue(),
       stderr: err.getvalue(),
@@ -308,11 +308,11 @@ pub fn execute(
 /// contents) and standard input from `stdin`.
 pub fn run(
   args : ArrayView[String],
-  files? : Map[String, String] = Map([]),
-  stdin? : String = "",
+  files~ : Map[String, String] = Map([]),
+  stdin~ : String = "",
   environ? : Map[String, String],
-  stdout_isatty? : Bool = false,
-  stderr_isatty? : Bool = false,
+  stdout_isatty~ : Bool = false,
+  stderr_isatty~ : Bool = false,
 ) -> Output {
   let command = parse_args(args, environ?)
   let input = match command {
@@ -405,7 +405,7 @@ fn Context::read_resource(
 /// Force a renderable to a given width (`ForceWidth`).
 priv struct ForceWidth {
   renderable : &@rich.Renderable
-  width : Int
+  width : Int32
 }
 
 ///|
@@ -431,8 +431,8 @@ impl @rich.Renderable for ForceWidth with fn rich_measure(
 /// `_line_range`.
 fn Context::line_range(
   self : Context,
-  num_lines : Int,
-) -> (Int?, Int?)? raise Exit {
+  num_lines : Int32,
+) -> (Int32?, Int32?)? raise Exit {
   let { head, tail, .. } = self.options
   if head is Some(_) && tail is Some(_) {
     self.on_error("cannot specify both head and tail")
@@ -446,7 +446,7 @@ fn Context::line_range(
 
 ///|
 /// Python's `len(text.splitlines())`.
-fn count_lines(text : String) -> Int {
+fn count_lines(text : String) -> Int32 {
   let mut n = 0
   let mut at_line_start = true
   let len = text.length()
@@ -512,7 +512,7 @@ fn make_markdown(
 fn Context::main(
   self : Context,
   input : Result[String, String]?,
-) -> Int raise Exit {
+) -> Int32 raise Exit {
   let opts = self.options
   if opts.version {
     self.out.write("\{VERSION}\n") catch {
@@ -534,7 +534,7 @@ fn Context::main(
   if opts.width > 0 {
     expand = true
   }
-  let print_padding : Array[Int] = []
+  let print_padding : Array[Int32] = []
   if opts.padding != "" {
     for pad in opts.padding.split(",") {
       match py_int(pad.to_owned()) {

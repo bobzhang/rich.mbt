@@ -47,7 +47,7 @@ fn json_join(
 fn json_truthy(value : @rich.JsonValue?) -> Bool {
   match value {
     None | Some(JNull) | Some(JBool(false)) => false
-    Some(JInt(s)) => s.to_array().any(c => c is ('1'..='9'))
+    Some(JInt(s)) => s.to_array().any(c => c is ('1'..<='9'))
     Some(JFloat(d)) => d != 0.0
     Some(JString(s)) => s != ""
     Some(JArray(a)) => a.length() > 0

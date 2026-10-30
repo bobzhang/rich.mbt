@@ -17,20 +17,20 @@ priv struct MdUrl {
 
 ///|
 fn is_ascii_alnum(c : Char) -> Bool {
-  c is ('a'..='z' | 'A'..='Z' | '0'..='9')
+  c is ('a'..<='z' | 'A'..<='Z' | '0'..<='9')
 }
 
 ///|
 fn is_hex_digit(c : Char) -> Bool {
-  c is ('a'..='f' | 'A'..='F' | '0'..='9')
+  c is ('a'..<='f' | 'A'..<='F' | '0'..<='9')
 }
 
 ///|
-fn hex_value(c : Char) -> Int {
+fn hex_value(c : Char) -> Int32 {
   match c {
-    '0'..='9' => c.to_int() - '0'.to_int()
-    'a'..='f' => c.to_int() - 'a'.to_int() + 10
-    'A'..='F' => c.to_int() - 'A'.to_int() + 10
+    '0'..<='9' => c.to_int() - '0'.to_int()
+    'a'..<='f' => c.to_int() - 'a'.to_int() + 10
+    'A'..<='F' => c.to_int() - 'A'.to_int() + 10
     _ => 0
   }
 }
@@ -45,7 +45,7 @@ fn py_strip(s : String) -> String {
 let py_whitespace : String = " \t\n\r\u{0b}\u{0c}\u{1c}\u{1d}\u{1e}\u{1f}\u{85}\u{a0}\u{1680}\u{2000}\u{2001}\u{2002}\u{2003}\u{2004}\u{2005}\u{2006}\u{2007}\u{2008}\u{2009}\u{200a}\u{2028}\u{2029}\u{202f}\u{205f}\u{3000}"
 
 ///|
-fn find_from(s : String, needle : Char, start : Int) -> Int {
+fn find_from(s : String, needle : Char, start : Int32) -> Int32 {
   for i in start..<s.length() {
     if s[i] == needle.to_int().to_uint16() {
       return i
@@ -55,7 +55,7 @@ fn find_from(s : String, needle : Char, start : Int) -> Int {
 }
 
 ///|
-fn rfind_before(s : String, needle : Char, end : Int) -> Int {
+fn rfind_before(s : String, needle : Char, end : Int32) -> Int32 {
   let mut i = @cmp.minimum(end, s.length()) - 1
   while i >= 0 {
     if s[i] == needle.to_int().to_uint16() {
@@ -67,7 +67,7 @@ fn rfind_before(s : String, needle : Char, end : Int) -> Int {
 }
 
 ///|
-fn substr(s : String, start : Int, end? : Int) -> String {
+fn substr(s : String, start : Int32, end? : Int32) -> String {
   let end = match end {
     Some(e) => e
     None => s.length()
@@ -80,7 +80,7 @@ fn substr(s : String, start : Int, end? : Int) -> String {
 
 ///|
 fn is_hostname_part_char(c : Char) -> Bool {
-  c is ('+' | 'a'..='z' | '0'..='9' | 'A'..='Z' | '_' | '-')
+  c is ('+' | 'a'..<='z' | '0'..<='9' | 'A'..<='Z' | '_' | '-')
 }
 
 ///|
@@ -140,7 +140,7 @@ fn MdUrl::parse(url : String) -> MdUrl {
   let mut i = 0
   while i < rest.length() {
     let c = rest[i]
-    if c is ('a'..='z' | 'A'..='Z' | '0'..='9' | '.' | '+' | '-') {
+    if c is ('a'..<='z' | 'A'..<='Z' | '0'..<='9' | '.' | '+' | '-') {
       i += 1
     } else {
       break
@@ -259,7 +259,7 @@ fn MdUrl::parse_host(self : MdUrl, host : String) -> Unit {
   // PORT_PATTERN = :[0-9]*$
   let mut host = host
   let mut i = host.length()
-  while i > 0 && host[i - 1] is ('0'..='9') {
+  while i > 0 && host[i - 1] is ('0'..<='9') {
     i -= 1
   }
   if i > 0 && host[i - 1] == ':' {
@@ -303,7 +303,7 @@ fn MdUrl::format(self : MdUrl) -> String {
 let encode_default_chars : String = ";/?:@&=+$,-_.!~*'()#"
 
 ///|
-fn write_pct(sb : StringBuilder, b : Int) -> Unit {
+fn write_pct(sb : StringBuilder, b : Int32) -> Unit {
   let digits = "0123456789ABCDEF"
   sb.write_char('%')
   sb.write_char(digits.get_char(b >> 4).unwrap())
@@ -311,7 +311,7 @@ fn write_pct(sb : StringBuilder, b : Int) -> Unit {
 }
 
 ///|
-fn write_utf8_pct(sb : StringBuilder, c : Int) -> Unit {
+fn write_utf8_pct(sb : StringBuilder, c : Int32) -> Unit {
   if c < 0x80 {
     write_pct(sb, c)
   } else if c < 0x800 {
@@ -381,7 +381,7 @@ fn mdurl_decode(s : String, exclude : String) -> String {
   let sb = StringBuilder()
   let l = s.length()
   let mut i = 0
-  fn is_pct(j : Int) -> Bool {
+  fn is_pct(j : Int32) -> Bool {
     j + 2 < l &&
     s[j] == '%' &&
     is_hex_digit(s[j + 1].to_int().unsafe_to_char()) &&
@@ -395,7 +395,7 @@ fn mdurl_decode(s : String, exclude : String) -> String {
       continue
     }
     // collect the run of %XX
-    let bytes : Array[Int] = []
+    let bytes : Array[Int32] = []
     let mut j = i
     while is_pct(j) {
       bytes.push(
@@ -476,7 +476,7 @@ fn mdurl_decode(s : String, exclude : String) -> String {
 // --- punycode (RFC 3492), as Python's "punycode" codec ---
 
 ///|
-fn punycode_digit(d : Int) -> Char {
+fn punycode_digit(d : Int32) -> Char {
   if d < 26 {
     (d + 'a'.to_int()).unsafe_to_char()
   } else {
@@ -485,7 +485,7 @@ fn punycode_digit(d : Int) -> Char {
 }
 
 ///|
-fn punycode_adapt(delta : Int, numpoints : Int, first : Bool) -> Int {
+fn punycode_adapt(delta : Int32, numpoints : Int32, first : Bool) -> Int32 {
   let mut delta = if first { delta / 700 } else { delta / 2 }
   delta += delta / numpoints
   let mut k = 0
@@ -498,7 +498,7 @@ fn punycode_adapt(delta : Int, numpoints : Int, first : Bool) -> Int {
 
 ///|
 fn punycode_encode(s : String) -> String {
-  let cps : Array[Int] = []
+  let cps : Array[Int32] = []
   for c in s {
     cps.push(c.to_int())
   }
@@ -562,7 +562,7 @@ fn punycode_encode(s : String) -> String {
 
 ///|
 fn punycode_decode(s : String) -> String? {
-  let output : Array[Int] = []
+  let output : Array[Int32] = []
   let basic_end = match s.rev_find("-") {
     Some(i) => i
     None => 0

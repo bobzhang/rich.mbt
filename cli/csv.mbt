@@ -31,14 +31,14 @@ priv suberror CsvError {
 }
 
 ///|
-fn compile_regex(pattern : String, flags? : Int = 0) -> @regex.Regex {
+fn compile_regex(pattern : String, flags~ : Int32 = 0) -> @regex.Regex {
   @regex.compile(pattern, flags~) catch {
     _ => abort("bad regex \{pattern}")
   }
 }
 
 ///|
-let budget_steps : Int = 50_000_000
+let budget_steps : Int32 = 50_000_000
 
 ///|
 let quote_regexes : Array[@regex.Regex] = [
@@ -71,8 +71,8 @@ fn re_escape(s : String) -> String {
 
 ///|
 /// The first key with the largest count (Python's `max(d, key=d.get)`).
-fn max_key(counts : Map[Char, Int]) -> Char? {
-  let mut best : (Char, Int)? = None
+fn max_key(counts : Map[Char, Int32]) -> Char? {
+  let mut best : (Char, Int32)? = None
   for k, v in counts {
     match best {
       Some((_, n)) if n >= v => ()
@@ -103,8 +103,8 @@ fn guess_quote_and_delimiter(
   if matches.is_empty() {
     return (None, false, None, false)
   }
-  let quotes : Map[Char, Int] = Map([])
-  let delims : Map[Char, Int] = Map([])
+  let quotes : Map[Char, Int32] = Map([])
+  let delims : Map[Char, Int32] = Map([])
   let mut spaces = 0
   let has_delim = regex.group_index("delim") is Some(_)
   for m in matches {
@@ -149,7 +149,7 @@ fn guess_quote_and_delimiter(
 
 ///|
 /// Non-overlapping occurrences of `sub` in `s` (`str.count`).
-fn count_sub(s : String, sub : String) -> Int {
+fn count_sub(s : String, sub : String) -> Int32 {
   let mut n = 0
   let mut i = 0
   while s.view(start_offset=i).find(sub[:]) is Some(j) {
@@ -170,9 +170,9 @@ fn guess_delimiter(data : String, delimiters : String?) -> (Char?, Bool) {
   let chunk_length = @cmp.minimum(10, lines.length())
   let mut iteration = 0
   // char -> (frequency -> count), both in insertion order
-  let char_frequency : Map[Char, Map[Int, Int]] = Map([])
-  let modes : Map[Char, (Int, Int)] = Map([])
-  let delims : Map[Char, (Int, Int)] = Map([])
+  let char_frequency : Map[Char, Map[Int32, Int32]] = Map([])
+  let modes : Map[Char, (Int32, Int32)] = Map([])
+  let delims : Map[Char, (Int32, Int32)] = Map([])
   let mut start = 0
   let mut end = chunk_length
   fn skip_space(d : Char) -> Bool {
@@ -182,7 +182,7 @@ fn guess_delimiter(data : String, delimiters : String?) -> (Char?, Bool) {
   while start < lines.length() {
     iteration += 1
     for i in start..<@cmp.minimum(end, lines.length()) {
-      let counts : Map[Char, Int] = Map([])
+      let counts : Map[Char, Int32] = Map([])
       for c in lines[i] {
         counts[c] = counts.get(c).unwrap_or(0) + 1
       }
@@ -192,7 +192,7 @@ fn guess_delimiter(data : String, delimiters : String?) -> (Char?, Bool) {
         let meta = match char_frequency.get(c) {
           Some(m) => m
           None => {
-            let m : Map[Int, Int] = Map([])
+            let m : Map[Int32, Int32] = Map([])
             char_frequency[c] = m
             m
           }
@@ -296,7 +296,7 @@ fn sniff(sample : String, delimiters? : String) -> Dialect raise CsvError {
 priv enum ColumnType {
   Unknown
   Complex
-  Length(Int)
+  Length(Int32)
 } derive(Eq)
 
 ///|
@@ -305,7 +305,7 @@ fn has_header(sample : String) -> Bool raise CsvError {
   let rows = csv_read(sample, sniff(sample))
   guard rows.length() > 0 else { raise CsvError("empty sample") }
   let header = rows[0]
-  let column_types : Map[Int, ColumnType] = Map([])
+  let column_types : Map[Int32, ColumnType] = Map([])
   for i in 0..<header.length() {
     column_types[i] = Unknown
   }
@@ -522,7 +522,7 @@ fn py_is_complex(text : String) -> Bool {
   }
   let s = chars[lo:hi]
   let n = s.length()
-  fn is_j(i : Int) -> Bool {
+  fn is_j(i : Int32) -> Bool {
     i < n && (s[i] == 'j' || s[i] == 'J')
   }
 
@@ -562,11 +562,11 @@ fn is_py_space(c : Char) -> Bool {
   | '\r'
   | '\u{0b}'
   | '\u{0c}'
-  | '\u{1c}'..='\u{1f}'
+  | '\u{1c}'..<='\u{1f}'
   | '\u{85}'
   | '\u{a0}'
   | '\u{1680}'
-  | '\u{2000}'..='\u{200a}'
+  | '\u{2000}'..<='\u{200a}'
   | '\u{2028}'
   | '\u{2029}'
   | '\u{202f}'
@@ -577,7 +577,7 @@ fn is_py_space(c : Char) -> Bool {
 ///|
 /// Parse a Python float literal (with sign, underscores between digits,
 /// `inf`/`infinity`/`nan`) at `start`; the end offset, if any.
-fn parse_py_float(s : ArrayView[Char], start : Int) -> Int? {
+fn parse_py_float(s : ArrayView[Char], start : Int32) -> Int32? {
   let n = s.length()
   let mut i = start
   if i < n && (s[i] == '+' || s[i] == '-') {
@@ -605,16 +605,16 @@ fn parse_py_float(s : ArrayView[Char], start : Int) -> Int? {
       }
     }
   }
-  fn digits(p : Int) -> Int {
+  fn digits(p : Int32) -> Int32 {
     // digit (_? digit)*; returns the end (p if none)
-    if !(p < n && s[p] is ('0'..='9')) {
+    if !(p < n && s[p] is ('0'..<='9')) {
       return p
     }
     let mut q = p + 1
     while q < n {
-      if s[q] is ('0'..='9') {
+      if s[q] is ('0'..<='9') {
         q += 1
-      } else if s[q] == '_' && q + 1 < n && s[q + 1] is ('0'..='9') {
+      } else if s[q] == '_' && q + 1 < n && s[q + 1] is ('0'..<='9') {
         q += 2
       } else {
         break
@@ -673,7 +673,7 @@ fn sniff_csv(
 
 ///|
 /// The first `n` code points of `s` (Python's `s[:n]`).
-fn take_chars(s : String, n : Int) -> String {
+fn take_chars(s : String, n : Int32) -> String {
   let mut count = 0
   for i in 0..<s.length() {
     let c = s[i]

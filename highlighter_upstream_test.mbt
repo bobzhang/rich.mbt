@@ -4,7 +4,7 @@
 
 ///|
 test "highlight_regex" {
-  let cases : Array[(String, Array[(Int, Int, String)])] = [
+  let cases : Array[(String, Array[(Int32, Int32, String)])] = [
     ("", []),
     (" ", []),
     (
@@ -147,7 +147,7 @@ test "highlight_regex" {
 
 ///|
 test "highlight_iso8601_regex" {
-  let cases : Array[(String, Array[(Int, Int, String)])] = [
+  let cases : Array[(String, Array[(Int32, Int32, String)])] = [
     ("2008-08", [(0, 4, "iso8601.year"), (5, 7, "iso8601.month")]),
     (
       "2008-08-30",

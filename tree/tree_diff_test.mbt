@@ -5,7 +5,7 @@
 ///|
 fn render(
   renderable : &@rich.Renderable,
-  width? : Int = 40,
+  width~ : Int32 = 40,
   justify? : @rich.JustifyMethod,
 ) -> String raise {
   let file = @rich.StringIO::new()

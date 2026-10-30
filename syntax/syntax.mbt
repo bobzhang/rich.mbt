@@ -2,7 +2,7 @@
 
 ///|
 /// Padding between the line numbers and the code.
-const NUMBERS_COLUMN_DEFAULT_PADDING : Int = 2
+const NUMBERS_COLUMN_DEFAULT_PADDING : Int32 = 2
 
 ///|
 /// A lexer given by name (looked up in `bobzhang/pygments/lexers`) or a
@@ -36,7 +36,7 @@ pub impl IntoLexer for LexerSpec with fn into_lexer_spec(self) {
 ///|
 /// A position in the code: (line number starting from 1, column index
 /// starting from 0). Columns are UTF-16 offsets.
-pub type SyntaxPosition = (Int, Int)
+pub type SyntaxPosition = (Int32, Int32)
 
 ///|
 /// A range to highlight in a Syntax object (upstream `_SyntaxHighlightRange`).
@@ -59,15 +59,15 @@ pub(all) struct Syntax {
   /// Enable rendering of line numbers.
   mut line_numbers : Bool
   /// Starting number for line numbers.
-  mut start_line : Int
+  mut start_line : Int32
   /// Start and end line to render (1-based, `None` for open ends).
-  mut line_range : (Int?, Int?)?
+  mut line_range : (Int32?, Int32?)?
   /// Line numbers to highlight.
-  mut highlight_lines : Array[Int]
+  mut highlight_lines : Array[Int32]
   /// Width of code to render (not including line numbers).
-  mut code_width : Int?
+  mut code_width : Int32?
   /// Size of tabs.
-  mut tab_size : Int
+  mut tab_size : Int32
   /// Enable word wrapping.
   mut word_wrap : Bool
   /// Background color override.
@@ -77,12 +77,12 @@ pub(all) struct Syntax {
   /// Show indent guides.
   mut indent_guides : Bool
   /// Padding (top, right, bottom, left).
-  mut padding : (Int, Int, Int, Int)
+  mut padding : (Int32, Int32, Int32, Int32)
   /// The theme (upstream `_theme`).
   mut theme : &SyntaxTheme
   /// Ranges added with `stylize_range`.
   stylized_ranges : Array[SyntaxHighlightRange]
-  priv mut lexer_cache : (String, Int, @lexer.Lexer?)?
+  priv mut lexer_cache : (String, Int32, @lexer.Lexer?)?
 }
 
 ///|
@@ -107,18 +107,18 @@ fn background_style_for(background_color : String?) -> @rich.Style raise {
 pub fn Syntax::new(
   code : String,
   lexer : &IntoLexer,
-  theme? : &IntoSyntaxTheme = DEFAULT_THEME,
-  dedent? : Bool = false,
-  line_numbers? : Bool = false,
-  start_line? : Int = 1,
-  line_range? : (Int?, Int?),
-  highlight_lines? : ArrayView[Int] = [],
-  code_width? : Int,
-  tab_size? : Int = 4,
-  word_wrap? : Bool = false,
+  theme~ : &IntoSyntaxTheme = DEFAULT_THEME,
+  dedent~ : Bool = false,
+  line_numbers~ : Bool = false,
+  start_line~ : Int32 = 1,
+  line_range? : (Int32?, Int32?),
+  highlight_lines~ : ArrayView[Int32] = [],
+  code_width? : Int32,
+  tab_size~ : Int32 = 4,
+  word_wrap~ : Bool = false,
   background_color? : String,
-  indent_guides? : Bool = false,
-  padding? : ArrayView[Int] = [0],
+  indent_guides~ : Bool = false,
+  padding~ : ArrayView[Int32] = [0],
 ) -> Syntax raise {
   {
     code,
@@ -148,18 +148,18 @@ pub fn Syntax::new(
 pub fn Syntax::from_path(
   path : String,
   lexer? : &IntoLexer,
-  theme? : &IntoSyntaxTheme = DEFAULT_THEME,
-  dedent? : Bool = false,
-  line_numbers? : Bool = false,
-  line_range? : (Int?, Int?),
-  start_line? : Int = 1,
-  highlight_lines? : ArrayView[Int] = [],
-  code_width? : Int,
-  tab_size? : Int = 4,
-  word_wrap? : Bool = false,
+  theme~ : &IntoSyntaxTheme = DEFAULT_THEME,
+  dedent~ : Bool = false,
+  line_numbers~ : Bool = false,
+  line_range? : (Int32?, Int32?),
+  start_line~ : Int32 = 1,
+  highlight_lines~ : ArrayView[Int32] = [],
+  code_width? : Int32,
+  tab_size~ : Int32 = 4,
+  word_wrap~ : Bool = false,
   background_color? : String,
-  indent_guides? : Bool = false,
-  padding? : ArrayView[Int] = [0],
+  indent_guides~ : Bool = false,
+  padding~ : ArrayView[Int32] = [0],
 ) -> Syntax raise {
   let code = match @fs.read_file(path) {
     Some(code) => code
@@ -225,13 +225,13 @@ pub fn Syntax::guess_lexer(path : String, code? : String) -> String {
 /// Set the padding (1, 2 or 4 values, CSS style).
 pub fn Syntax::set_padding(
   self : Syntax,
-  padding : ArrayView[Int],
+  padding : ArrayView[Int32],
 ) -> Unit raise {
   self.padding = @rich.unpack_padding(padding)
 }
 
 ///|
-fn lexer_options(tab_size : Int) -> Map[String, String] {
+fn lexer_options(tab_size : Int32) -> Map[String, String] {
   { "stripnl": "False", "ensurenl": "True", "tabsize": tab_size.to_string() }
 }
 
@@ -287,7 +287,7 @@ fn Syntax::get_token_color(
 pub fn Syntax::highlight(
   self : Syntax,
   code : String,
-  line_range? : (Int?, Int?),
+  line_range? : (Int32?, Int32?),
 ) -> @rich.Text raise {
   let base_style = self.get_base_style()
   let justify : @rich.JustifyMethod = if base_style.transparent_background() {
@@ -386,7 +386,7 @@ pub fn Syntax::stylize_range(
   style : &@rich.IntoStyle,
   start : SyntaxPosition,
   end : SyntaxPosition,
-  style_before? : Bool = false,
+  style_before~ : Bool = false,
 ) -> Unit {
   self.stylized_ranges.push({
     style: style.into_style_type(),
@@ -400,7 +400,7 @@ pub fn Syntax::stylize_range(
 /// Color of the line numbers (`blend` towards the text color).
 pub fn Syntax::get_line_numbers_color(
   self : Syntax,
-  blend? : Double = 0.3,
+  blend~ : Double = 0.3,
 ) -> @color.Color {
   let background_style = self.theme.get_background_style() +
     self.background_style
@@ -423,7 +423,7 @@ pub fn Syntax::get_line_numbers_color(
 
 ///|
 /// The number of characters used to render the numbers column.
-pub fn Syntax::numbers_column_width(self : Syntax) -> Int {
+pub fn Syntax::numbers_column_width(self : Syntax) -> Int32 {
   if self.line_numbers {
     let newlines = self.code.iter().filter(c => c == '\n').count()
     (self.start_line + newlines).to_string().length() +
@@ -538,9 +538,9 @@ pub impl @rich.Renderable for Syntax with fn rich_console(
 
 ///|
 /// Python slice bounds for `xs[start:end]`.
-fn[T] py_slice(xs : Array[T], start : Int, end : Int?) -> Array[T] {
+fn[T] py_slice(xs : Array[T], start : Int32, end : Int32?) -> Array[T] {
   let n = xs.length()
-  let norm = (i : Int) => {
+  let norm = (i : Int32) => {
     if i < 0 {
       @cmp.maximum(0, i + n)
     } else {
@@ -717,7 +717,7 @@ fn Syntax::get_syntax(
 
 ///|
 /// Python `str.rjust`.
-fn rjust(s : String, width : Int) -> String {
+fn rjust(s : String, width : Int32) -> String {
   let n = s.length()
   if n >= width {
     s
@@ -775,16 +775,16 @@ fn Syntax::process_code(self : Syntax, code : String) -> (Bool, String) {
 /// The index in the code string for a position, or `None` if the line
 /// number is out of range (columns out of range are clamped).
 fn get_code_index_for_syntax_position(
-  newlines_offsets : Array[Int],
+  newlines_offsets : Array[Int32],
   position : SyntaxPosition,
-) -> Int? {
+) -> Int32? {
   let lines_count = newlines_offsets.length()
   let (line_number, column_index) = position
   if line_number > lines_count || newlines_offsets.length() < line_number + 1 {
     return None
   }
   // Python indexing (negative indexes count from the end)
-  let at = (i : Int) => {
+  let at = (i : Int32) => {
     if i < 0 {
       newlines_offsets[i + lines_count]
     } else {

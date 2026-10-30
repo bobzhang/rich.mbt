@@ -313,7 +313,7 @@ test "divide_edge_2" {
 
 ///|
 test "split_cells_emoji" {
-  let cases : Array[(String, Int, String, String)] = [
+  let cases : Array[(String, Int32, String, String)] = [
     ("XX", 4, "XX", ""),
     ("X", 1, "X", ""),
     ("💩", 1, " ", " "),

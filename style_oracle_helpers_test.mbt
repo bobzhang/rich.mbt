@@ -12,7 +12,7 @@ fn replace_link_ids(s : String) -> String {
       Some(j) if after
         .view(end_offset=j)
         .iter()
-        .all(c => c is ('0'..='9' | '.' | '-')) => {
+        .all(c => c is ('0'..<='9' | '.' | '-')) => {
         buf.write_string("id=0;")
         rest = after.view(start_offset=j + 1).to_owned()
       }

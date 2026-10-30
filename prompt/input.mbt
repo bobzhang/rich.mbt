@@ -6,7 +6,7 @@
 /// `io.StringIO` in tests). Lines are consumed by `readline`.
 pub struct InputStream {
   priv text : String
-  priv mut pos : Int
+  priv mut pos : Int32
 }
 
 ///|

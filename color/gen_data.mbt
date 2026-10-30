@@ -431,7 +431,7 @@ pub let svg_export_theme : TerminalTheme = TerminalTheme::new(
 )
 
 ///|
-let ansi_color_names : Map[String, Int] = {
+let ansi_color_names : Map[String, Int32] = {
   "black": 0,
   "red": 1,
   "green": 2,
@@ -672,6 +672,6 @@ let ansi_color_names : Map[String, Int] = {
 ///|
 /// All named colors (as accepted by `Color::parse`) and their numbers, in
 /// upstream order.
-pub fn ansi_color_name_list() -> Array[(String, Int)] {
+pub fn ansi_color_name_list() -> Array[(String, Int32)] {
   ansi_color_names.to_array()
 }

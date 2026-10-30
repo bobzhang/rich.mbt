@@ -51,8 +51,8 @@ pub struct Box {
 /// Create a box from 8 lines of 4 characters.
 pub fn Box::new(
   box_ : String,
-  ascii? : Bool = false,
-  name? : String = "",
+  ascii~ : Bool = false,
+  name~ : String = "",
 ) -> Box raise RichError {
   let lines = py_splitlines(box_)
   guard lines.length() == 8 else { raise ValueError("box must have 8 lines") }
@@ -99,7 +99,7 @@ pub fn Box::new(
 }
 
 ///|
-fn builtin_box(name : String, box_ : String, ascii? : Bool = false) -> Box {
+fn builtin_box(name : String, box_ : String, ascii~ : Bool = false) -> Box {
   Box::new(box_, ascii~, name~) catch {
     _ => abort("bad box")
   }
@@ -122,7 +122,7 @@ pub fn Box::repr(_self : Box) -> String {
 pub fn Box::substitute(
   self : Box,
   options : ConsoleOptions,
-  safe? : Bool = true,
+  safe~ : Bool = true,
 ) -> Box {
   let mut box_ = self
   if options.legacy_windows && safe {
@@ -158,7 +158,7 @@ pub fn Box::get_plain_headed_box(self : Box) -> Box {
 
 ///|
 /// Get the top of a simple box.
-pub fn Box::get_top(self : Box, widths : ArrayView[Int]) -> String {
+pub fn Box::get_top(self : Box, widths : ArrayView[Int32]) -> String {
   let parts = StringBuilder()
   parts.write_string(self.top_left)
   for i, width in widths {
@@ -184,9 +184,9 @@ pub(all) enum RowLevel {
 /// Get the top of a simple box.
 pub fn Box::get_row(
   self : Box,
-  widths : ArrayView[Int],
-  level? : RowLevel = Row,
-  edge? : Bool = true,
+  widths : ArrayView[Int32],
+  level~ : RowLevel = Row,
+  edge~ : Bool = true,
 ) -> String {
   let (left, horizontal, cross, right) = match level {
     Head =>
@@ -224,7 +224,7 @@ pub fn Box::get_row(
 
 ///|
 /// Get the bottom of a simple box.
-pub fn Box::get_bottom(self : Box, widths : ArrayView[Int]) -> String {
+pub fn Box::get_bottom(self : Box, widths : ArrayView[Int32]) -> String {
   let parts = StringBuilder()
   parts.write_string(self.bottom_left)
   for i, width in widths {

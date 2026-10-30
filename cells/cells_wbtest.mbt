@@ -1,6 +1,6 @@
 ///|
 /// Upstream `_SINGLE_CELL_UNICODE_RANGES` (rich/cells.py).
-let single_cell_ranges : FixedArray[(Int, Int)] = [
+let single_cell_ranges : FixedArray[(Int32, Int32)] = [
   (0x20, 0x7E),
   (0xA0, 0xAC),
   (0xAE, 0x002FF),

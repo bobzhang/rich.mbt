@@ -6,27 +6,27 @@ import {
 }
 
 // Values
-pub const CRITICAL : Int = 50
+pub const CRITICAL : Int32 = 50
 
-pub const DEBUG : Int = 10
+pub const DEBUG : Int32 = 10
 
-pub const ERROR : Int = 40
+pub const ERROR : Int32 = 40
 
-pub const FATAL : Int = 50
+pub const FATAL : Int32 = 50
 
-pub const INFO : Int = 20
+pub const INFO : Int32 = 20
 
-pub const NOTSET : Int = 0
+pub const NOTSET : Int32 = 0
 
-pub const WARN : Int = 30
+pub const WARN : Int32 = 30
 
-pub const WARNING : Int = 30
+pub const WARNING : Int32 = 30
 
 pub let default_keywords : Array[String]
 
-pub fn get_level_name(Int) -> String
+pub fn get_level_name(Int32) -> String
 
-pub fn level_from_name(String) -> Int?
+pub fn level_from_name(String) -> Int32?
 
 // Errors
 
@@ -44,10 +44,10 @@ pub fn Formatter::uses_time(Self) -> Bool
 pub(all) struct LogRecord {
   name : String
   msg : String
-  levelno : Int
+  levelno : Int32
   levelname : String
   pathname : String
-  lineno : Int
+  lineno : Int32
   func_name : String
   created : Double
   exc_text : String?
@@ -60,12 +60,12 @@ pub(all) struct LogRecord {
 pub fn LogRecord::filename(Self) -> String
 pub fn LogRecord::get_message(Self) -> String
 pub fn LogRecord::module_(Self) -> String
-pub fn LogRecord::msecs(Self) -> Int
-pub fn LogRecord::new(name? : String, Int, String, pathname? : String, lineno? : Int, func_name? : String, created? : Double, exc_text? : String, stack_info? : String, traceback? : &@rich.Renderable, markup? : Bool, highlighter? : &@rich.Highlighter, extra? : Map[String, String]) -> Self
+pub fn LogRecord::msecs(Self) -> Int32
+pub fn LogRecord::new(name? : String, Int32, String, pathname? : String, lineno? : Int32, func_name? : String, created? : Double, exc_text? : String, stack_info? : String, traceback? : &@rich.Renderable, markup? : Bool, highlighter? : &@rich.Highlighter, extra? : Map[String, String]) -> Self
 
 pub(all) struct Logger {
   name : String
-  mut level : Int
+  mut level : Int32
   handlers : Array[RichHandler]
   mut get_time : () -> Double
 }
@@ -81,16 +81,16 @@ pub fn Logger::exception(Self, String, exc_text? : String, traceback? : &@rich.R
 pub fn Logger::handle(Self, LogRecord) -> Unit raise
 #callsite(autofill(loc))
 pub fn Logger::info(Self, String, markup? : Bool, highlighter? : &@rich.Highlighter, loc~ : SourceLoc) -> Unit raise
-pub fn Logger::is_enabled_for(Self, Int) -> Bool
+pub fn Logger::is_enabled_for(Self, Int32) -> Bool
 #callsite(autofill(loc))
-pub fn Logger::log(Self, Int, String, exc_text? : String, stack_info? : String, traceback? : &@rich.Renderable, markup? : Bool, highlighter? : &@rich.Highlighter, extra? : Map[String, String], loc~ : SourceLoc) -> Unit raise
-pub fn Logger::new(name? : String, level? : Int, handlers? : Array[RichHandler], get_time? : () -> Double) -> Self
+pub fn Logger::log(Self, Int32, String, exc_text? : String, stack_info? : String, traceback? : &@rich.Renderable, markup? : Bool, highlighter? : &@rich.Highlighter, extra? : Map[String, String], loc~ : SourceLoc) -> Unit raise
+pub fn Logger::new(name? : String, level? : Int32, handlers? : Array[RichHandler], get_time? : () -> Double) -> Self
 pub fn Logger::remove_handler(Self, RichHandler) -> Unit
 #callsite(autofill(loc))
 pub fn Logger::warning(Self, String, markup? : Bool, highlighter? : &@rich.Highlighter, loc~ : SourceLoc) -> Unit raise
 
 pub(all) struct RichHandler {
-  mut level : Int
+  mut level : Int32
   mut console : @rich.Console
   mut highlighter : &@rich.Highlighter
   mut enable_link_path : Bool
@@ -104,7 +104,7 @@ pub fn RichHandler::emit(Self, LogRecord) -> Unit raise
 pub fn RichHandler::format(Self, LogRecord) -> String raise @rich.RichError
 pub fn RichHandler::get_level_text(Self, LogRecord) -> @rich.Text
 pub fn RichHandler::handle(Self, LogRecord) -> Unit raise
-pub fn RichHandler::new(level? : Int, console? : @rich.Console, show_time? : Bool, omit_repeated_times? : Bool, show_level? : Bool, show_path? : Bool, enable_link_path? : Bool, highlighter? : &@rich.Highlighter, markup? : Bool, rich_tracebacks? : Bool, log_time_format? : String, log_time_formatter? : (Double) -> @rich.Text, keywords? : Array[String], formatter? : Formatter) -> Self
+pub fn RichHandler::new(level? : Int32, console? : @rich.Console, show_time? : Bool, omit_repeated_times? : Bool, show_level? : Bool, show_path? : Bool, enable_link_path? : Bool, highlighter? : &@rich.Highlighter, markup? : Bool, rich_tracebacks? : Bool, log_time_format? : String, log_time_formatter? : (Double) -> @rich.Text, keywords? : Array[String], formatter? : Formatter) -> Self
 pub fn RichHandler::render(Self, record~ : LogRecord, traceback? : &@rich.Renderable, message_renderable~ : &@rich.Renderable) -> @rich.Table raise
 pub fn RichHandler::render_message(Self, LogRecord, String) -> @rich.Text raise
 pub fn RichHandler::set_formatter(Self, Formatter?) -> Unit

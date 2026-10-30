@@ -142,20 +142,20 @@ pub impl IntoSplitter for ColumnSplitter with fn into_splitter(self) {
 }
 
 ///|
-let layout_counter : Ref[Int] = { val: 0, }
+let layout_counter : Ref[Int32] = { val: 0, }
 
 ///|
 /// A renderable to divide a fixed height in to rows or columns.
 pub(all) struct Layout {
-  priv id : Int
+  priv id : Int32
   /// The content, or `None` for the placeholder.
   priv mut renderable_ : &@rich.Renderable?
   /// Optional fixed size of layout.
-  mut size : Int?
+  mut size : Int32?
   /// Minimum size of layout.
-  mut minimum_size : Int
+  mut minimum_size : Int32
   /// Ratio for flexible layout.
-  mut ratio : Int
+  mut ratio : Int32
   /// Optional identifier for the layout.
   mut name : String?
   /// Visibility of layout.
@@ -192,10 +192,10 @@ fn is_truthy(renderable : &@rich.Renderable) -> Bool {
 pub fn Layout::new(
   renderable? : &@rich.Renderable,
   name? : String,
-  size? : Int,
-  minimum_size? : Int = 1,
-  ratio? : Int = 1,
-  visible? : Bool = true,
+  size? : Int32,
+  minimum_size~ : Int32 = 1,
+  ratio~ : Int32 = 1,
+  visible~ : Bool = true,
 ) -> Layout {
   layout_counter.val += 1
   {
@@ -310,7 +310,7 @@ pub impl IntoLayout for @panel.Panel with fn into_layout(self) {
 pub fn Layout::split(
   self : Layout,
   layouts : ArrayView[&IntoLayout],
-  splitter? : &IntoSplitter = "column",
+  splitter~ : &IntoSplitter = "column",
 ) -> Unit raise LayoutError {
   let layouts = layouts.map(l => l.into_layout())
   self.splitter = splitter.into_splitter()
@@ -386,7 +386,7 @@ pub fn Layout::refresh_screen(
 }
 
 ///|
-fn compare_region(a : @rich.Region, b : @rich.Region) -> Int {
+fn compare_region(a : @rich.Region, b : @rich.Region) -> Int32 {
   let c = a.x.compare(b.x)
   if c != 0 {
     return c
@@ -406,8 +406,8 @@ fn compare_region(a : @rich.Region, b : @rich.Region) -> Int {
 /// Create a map of layouts on to regions, ordered by region.
 fn Layout::make_region_map(
   self : Layout,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> Map[Layout, @rich.Region] {
   let stack : Array[(Layout, @rich.Region)] = [
     (self, { x: 0, y: 0, width, height, }),
@@ -442,7 +442,7 @@ fn Layout::make_region_map(
 }
 
 ///|
-fn height_or(height : Int?, default : Int) -> Int {
+fn height_or(height : Int32?, default : Int32) -> Int32 {
   match height {
     Some(h) if h != 0 => h
     _ => default
@@ -552,8 +552,8 @@ pub impl Show for Layout with fn output(self, logger) {
 /// it fits, otherwise one field per line.
 pub fn Layout::pretty_repr(
   self : Layout,
-  max_width? : Int = 80,
-  indent_size? : Int = 4,
+  max_width~ : Int32 = 80,
+  indent_size~ : Int32 = 4,
 ) -> String {
   let one_line = self.repr()
   let fields = self.repr_fields()

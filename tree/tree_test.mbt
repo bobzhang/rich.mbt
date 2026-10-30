@@ -3,10 +3,10 @@
 ///|
 fn capture(
   tree : @tree.Tree,
-  width? : Int = 20,
+  width~ : Int32 = 20,
   color_system? : String?,
   force_terminal? : Bool,
-  legacy_windows? : Bool = false,
+  legacy_windows~ : Bool = false,
   file? : &@rich.ConsoleFile,
 ) -> String raise {
   let console = @rich.Console::new(
@@ -73,7 +73,7 @@ test "render ascii" {
 }
 
 ///|
-fn styled_tree(hide_root? : Bool = false) -> @tree.Tree {
+fn styled_tree(hide_root~ : Bool = false) -> @tree.Tree {
   let tree = @tree.Tree::new("foo", hide_root~)
   ignore(tree.add("bar", style="italic"))
   let baz_tree = tree.add("baz", guide_style="bold red", style="on blue")

@@ -227,7 +227,7 @@ fn parse(
 ///|
 /// Python's `int(text)` for decimal text: surrounding whitespace, a sign
 /// and single underscores between digits are allowed.
-fn py_int(text : String) -> Int? {
+fn py_int(text : String) -> Int32? {
   let s = text.trim(chars=" \t\n\r\u{0b}\u{0c}").to_owned()
   let chars = s.to_array()
   let mut i = 0

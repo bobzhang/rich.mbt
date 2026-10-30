@@ -6,7 +6,7 @@ import {
 }
 
 // Values
-pub let pulse_size : Int
+pub let pulse_size : Int32
 
 // Errors
 
@@ -14,7 +14,7 @@ pub let pulse_size : Int
 pub(all) struct ProgressBar {
   mut total : Double?
   mut completed : Double
-  mut width : Int?
+  mut width : Int32?
   mut pulse : Bool
   mut style : @rich.StyleType
   mut complete_style : @rich.StyleType
@@ -23,7 +23,7 @@ pub(all) struct ProgressBar {
   mut animation_time : Double?
 }
 pub fn ProgressBar::get_pulse_segments(Self, @rich.Style, @rich.Style, String?, Bool, ascii? : Bool) -> Array[@rich.Segment]
-pub fn ProgressBar::new(total? : Double?, completed? : Double, width? : Int, pulse? : Bool, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, animation_time? : Double) -> Self
+pub fn ProgressBar::new(total? : Double?, completed? : Double, width? : Int32, pulse? : Bool, style? : &@rich.IntoStyle, complete_style? : &@rich.IntoStyle, finished_style? : &@rich.IntoStyle, pulse_style? : &@rich.IntoStyle, animation_time? : Double) -> Self
 pub fn ProgressBar::percentage_completed(Self) -> Double?
 pub fn ProgressBar::repr(Self) -> String
 pub fn ProgressBar::update(Self, Double, total? : Double) -> Unit

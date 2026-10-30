@@ -45,11 +45,11 @@ let oracle_cases : Array[
     String,
     Array[String],
     String,
-    Int,
+    Int32,
     Bool,
     String,
     String,
-    Int,
+    Int32,
     Array[(String, String)],
   ),
 ] = [

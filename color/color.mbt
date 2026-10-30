@@ -12,7 +12,7 @@ pub(all) enum ColorSystem {
 
 ///|
 /// Upstream `int(ColorSystem.X)`.
-pub fn ColorSystem::to_int(self : ColorSystem) -> Int {
+pub fn ColorSystem::to_int(self : ColorSystem) -> Int32 {
   match self {
     Standard => 1
     EightBit => 2
@@ -45,7 +45,7 @@ pub(all) enum ColorType {
 } derive(Eq, Hash, Compare, Debug)
 
 ///|
-pub fn ColorType::to_int(self : ColorType) -> Int {
+pub fn ColorType::to_int(self : ColorType) -> Int32 {
   match self {
     Default => 0
     Standard => 1
@@ -75,28 +75,32 @@ pub impl Show for ColorType with fn output(self, logger) {
 ///|
 /// The red, green, and blue components of a color (0–255 each).
 pub(all) struct ColorTriplet {
-  red : Int
-  green : Int
-  blue : Int
+  red : Int32
+  green : Int32
+  blue : Int32
 } derive(Eq, Hash, Compare, Debug)
 
 ///|
-pub fn ColorTriplet::new(red : Int, green : Int, blue : Int) -> ColorTriplet {
+pub fn ColorTriplet::new(
+  red : Int32,
+  green : Int32,
+  blue : Int32,
+) -> ColorTriplet {
   { red, green, blue, }
 }
 
 ///|
-fn hex_digit(d : Int) -> Char {
+fn hex_digit(d : Int32) -> Char {
   if d < 10 {
-    Int::unsafe_to_char('0'.to_int() + d)
+    Int32::unsafe_to_char('0'.to_int() + d)
   } else {
-    Int::unsafe_to_char('a'.to_int() + d - 10)
+    Int32::unsafe_to_char('a'.to_int() + d - 10)
   }
 }
 
 ///|
 /// Python's `f"{n:02x}"`.
-fn hex2(n : Int) -> String {
+fn hex2(n : Int32) -> String {
   let buf = StringBuilder()
   let mut v = if n < 0 { -n } else { n }
   let chars = []
@@ -162,34 +166,34 @@ pub impl Show for ColorTriplet with fn output(self, logger) {
 ///|
 /// A palette of available colors.
 pub struct Palette {
-  priv colors : Array[(Int, Int, Int)]
-  priv cache : Map[(Int, Int, Int), Int]
+  priv colors : Array[(Int32, Int32, Int32)]
+  priv cache : Map[(Int32, Int32, Int32), Int32]
 }
 
 ///|
-pub fn Palette::new(colors : Array[(Int, Int, Int)]) -> Palette {
+pub fn Palette::new(colors : Array[(Int32, Int32, Int32)]) -> Palette {
   { colors, cache: Map([]), }
 }
 
 ///|
-pub fn Palette::length(self : Palette) -> Int {
+pub fn Palette::length(self : Palette) -> Int32 {
   self.colors.length()
 }
 
 ///|
-pub fn Palette::at(self : Palette, number : Int) -> ColorTriplet {
+pub fn Palette::at(self : Palette, number : Int32) -> ColorTriplet {
   let (r, g, b) = self.colors[number]
   { red: r, green: g, blue: b, }
 }
 
 ///|
-pub fn Palette::colors(self : Palette) -> Array[(Int, Int, Int)] {
+pub fn Palette::colors(self : Palette) -> Array[(Int32, Int32, Int32)] {
   self.colors.copy()
 }
 
 ///|
 /// Find a color from a palette that most closely matches a given color.
-pub fn Palette::match_color(self : Palette, color : ColorTriplet) -> Int {
+pub fn Palette::match_color(self : Palette, color : ColorTriplet) -> Int32 {
   let key = (color.red, color.green, color.blue)
   if self.cache.get(key) is Some(index) {
     return index
@@ -219,7 +223,7 @@ pub fn Palette::match_color(self : Palette, color : ColorTriplet) -> Int {
 }
 
 ///|
-fn floor_div(a : Int, b : Int) -> Int {
+fn floor_div(a : Int32, b : Int32) -> Int32 {
   let q = a / b
   if a % b != 0 && (a < 0) != (b < 0) {
     q - 1
@@ -240,10 +244,10 @@ pub struct TerminalTheme {
 /// `normal` holds 8 normal intensity colors; `bright` the 8 bright ones (or
 /// `normal` again when omitted).
 pub fn TerminalTheme::new(
-  background : (Int, Int, Int),
-  foreground : (Int, Int, Int),
-  normal : Array[(Int, Int, Int)],
-  bright? : Array[(Int, Int, Int)],
+  background : (Int32, Int32, Int32),
+  foreground : (Int32, Int32, Int32),
+  normal : Array[(Int32, Int32, Int32)],
+  bright? : Array[(Int32, Int32, Int32)],
 ) -> TerminalTheme {
   let colors = normal.copy()
   match bright {
@@ -286,7 +290,7 @@ pub(all) struct Color {
   /// The type of the color.
   type_ : ColorType
   /// The color number, if a standard color.
-  number : Int?
+  number : Int32?
   /// A triplet of color components, if an RGB color.
   triplet : ColorTriplet?
 } derive(Eq, Hash, Debug)
@@ -295,7 +299,7 @@ pub(all) struct Color {
 pub fn Color::new(
   name : String,
   type_ : ColorType,
-  number? : Int,
+  number? : Int32,
   triplet? : ColorTriplet,
 ) -> Color {
   { name, type_, number, triplet, }
@@ -372,7 +376,7 @@ pub fn Color::is_default(self : Color) -> Bool {
 pub fn Color::get_truecolor(
   self : Color,
   theme? : TerminalTheme,
-  foreground? : Bool = true,
+  foreground~ : Bool = true,
 ) -> ColorTriplet {
   let theme = theme.unwrap_or(default_terminal_theme)
   match self.type_ {
@@ -391,7 +395,7 @@ pub fn Color::get_truecolor(
 
 ///|
 /// Create a Color from its 8-bit ANSI number.
-pub fn Color::from_ansi(number : Int) -> Color {
+pub fn Color::from_ansi(number : Int32) -> Color {
   {
     name: "color(\{number})",
     type_: if number < 16 {
@@ -468,7 +472,7 @@ fn py_strip(s : String) -> String {
 
 ///|
 /// The zero of each run of ten Unicode decimal digits (category Nd).
-let decimal_zeros : FixedArray[Int] = [
+let decimal_zeros : FixedArray[Int32] = [
   0x30, 0x660, 0x6F0, 0x7C0, 0x966, 0x9E6, 0xA66, 0xAE6, 0xB66, 0xBE6, 0xC66, 0xCE6,
   0xD66, 0xDE6, 0xE50, 0xED0, 0xF20, 0x1040, 0x1090, 0x17E0, 0x1810, 0x1946, 0x19D0,
   0x1A80, 0x1A90, 0x1B50, 0x1BB0, 0x1C40, 0x1C50, 0xA620, 0xA8D0, 0xA900, 0xA9D0,
@@ -482,7 +486,7 @@ let decimal_zeros : FixedArray[Int] = [
 ///|
 /// The value of a Unicode decimal digit (what Python's `\d` matches and
 /// `int()` accepts), or `None`.
-fn decimal_value(c : Char) -> Int? {
+fn decimal_value(c : Char) -> Int32? {
   let n = c.to_int()
   for zero in decimal_zeros {
     if n >= zero && n < zero + 10 {
@@ -495,7 +499,7 @@ fn decimal_value(c : Char) -> Int? {
 ///|
 /// Python `int(s, base)` for bases 10 and 16: surrounding whitespace, an
 /// optional sign and single underscores between digits are allowed.
-fn py_int_base(s : String, base : Int) -> Int? {
+fn py_int_base(s : String, base : Int32) -> Int32? {
   let chars = py_strip(s).to_array()
   let mut i = 0
   let mut negative = false
@@ -516,8 +520,8 @@ fn py_int_base(s : String, base : Int) -> Int? {
         i += 1
         continue
       }
-      'a'..='f' if base == 16 => c.to_int() - 'a'.to_int() + 10
-      'A'..='F' if base == 16 => c.to_int() - 'A'.to_int() + 10
+      'a'..<='f' if base == 16 => c.to_int() - 'a'.to_int() + 10
+      'A'..<='F' if base == 16 => c.to_int() - 'A'.to_int() + 10
       _ =>
         match decimal_value(c) {
           Some(d) => d
@@ -546,18 +550,18 @@ fn all_chars(s : StringView, pred : (Char) -> Bool) -> Bool {
 
 ///|
 /// Python `int(s)` for decimal strings (surrounding whitespace allowed).
-fn py_int(s : String) -> Int? {
+fn py_int(s : String) -> Int32? {
   py_int_base(s, 10)
 }
 
 ///|
-fn hex_value(s : StringView) -> Int {
+fn hex_value(s : StringView) -> Int32 {
   let mut v = 0
   for c in s {
     let d = match c {
-      '0'..='9' => c.to_int() - '0'.to_int()
-      'a'..='f' => c.to_int() - 'a'.to_int() + 10
-      'A'..='F' => c.to_int() - 'A'.to_int() + 10
+      '0'..<='9' => c.to_int() - '0'.to_int()
+      'a'..<='f' => c.to_int() - 'a'.to_int() + 10
+      'A'..<='F' => c.to_int() - 'A'.to_int() + 10
       _ => 0
     }
     v = v * 16 + d
@@ -603,7 +607,7 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
   }
   if body.strip_prefix("#") is Some(h) &&
     h.length() == 6 &&
-    all_chars(h, c => c is ('0'..='9' | 'a'..='f')) {
+    all_chars(h, c => c is ('0'..<='9' | 'a'..<='f')) {
     let triplet : ColorTriplet = {
       red: hex_value(h.view(start_offset=0, end_offset=2)),
       green: hex_value(h.view(start_offset=2, end_offset=4)),
@@ -620,7 +624,7 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
     rest.strip_suffix(")") is Some(inner) {
     if inner.length() >= 1 &&
       inner.length() <= 3 &&
-      all_chars(inner, c => c is ('0'..='9')) {
+      all_chars(inner, c => c is ('0'..<='9')) {
       let number = hex_free_int(inner)
       if number > 255 {
         raise ColorParseError(
@@ -643,7 +647,7 @@ fn parse_color(original_color : String) -> Color raise ColorParseError {
     rest.strip_suffix(")") is Some(inner) {
     if inner.length() >= 1 &&
       all_chars(inner, c => {
-        c is ('0'..='9' | ',') || is_unicode_digit(c) || is_py_space(c)
+        c is ('0'..<='9' | ',') || is_unicode_digit(c) || is_py_space(c)
       }) {
       let components = inner
         .to_owned()
@@ -692,7 +696,7 @@ fn is_unicode_digit(c : Char) -> Bool {
 }
 
 ///|
-fn hex_free_int(s : StringView) -> Int {
+fn hex_free_int(s : StringView) -> Int32 {
   let mut v = 0
   for c in s {
     v = v * 10 + (c.to_int() - '0'.to_int())
@@ -704,7 +708,7 @@ fn hex_free_int(s : StringView) -> Int {
 /// Get the ANSI escape codes for this color.
 pub fn Color::get_ansi_codes(
   self : Color,
-  foreground? : Bool = true,
+  foreground~ : Bool = true,
 ) -> Array[String] {
   match self.type_ {
     Default => [if foreground { "39" } else { "49" }]
@@ -742,7 +746,7 @@ pub fn Color::get_ansi_codes(
 
 ///|
 /// Python's `round()` (round half to even) for a non-negative double.
-pub fn py_round(x : Double) -> Int {
+pub fn py_round(x : Double) -> Int32 {
   let f = x.floor()
   let diff = x - f
   if diff > 0.5 {
@@ -815,7 +819,7 @@ pub fn Color::downgrade(self : Color, system : ColorSystem) -> Color {
           triplet: None,
         }
       }
-      fn six(v : Int) -> Double {
+      fn six(v : Int32) -> Double {
         if v < 95 {
           v.to_double() / 95.0
         } else {
@@ -881,7 +885,7 @@ pub fn Color::downgrade(self : Color, system : ColorSystem) -> Color {
 /// Aborts on invalid hex digits (upstream raises `ValueError`).
 pub fn parse_rgb_hex(hex_color : String) -> ColorTriplet {
   guard hex_color.length() == 6 else { abort("must be 6 characters") }
-  fn component(start : Int) -> Int {
+  fn component(start : Int32) -> Int32 {
     let s = hex_color.view(start_offset=start, end_offset=start + 2).to_owned()
     match py_int_base(s, 16) {
       Some(v) => v
@@ -897,9 +901,9 @@ pub fn parse_rgb_hex(hex_color : String) -> ColorTriplet {
 pub fn blend_rgb(
   color1 : ColorTriplet,
   color2 : ColorTriplet,
-  cross_fade? : Double = 0.5,
+  cross_fade~ : Double = 0.5,
 ) -> ColorTriplet {
-  fn mix(a : Int, b : Int) -> Int {
+  fn mix(a : Int32, b : Int32) -> Int32 {
     (a.to_double() + (b - a).to_double() * cross_fade).to_int()
   }
 
@@ -913,6 +917,6 @@ pub fn blend_rgb(
 ///|
 /// The value of a Unicode decimal digit (category Nd), as accepted by
 /// Python's `int()`, e.g. `'٣'` → `Some(3)`.
-pub fn unicode_decimal_value(c : Char) -> Int? {
+pub fn unicode_decimal_value(c : Char) -> Int32? {
   decimal_value(c)
 }

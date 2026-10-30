@@ -2,7 +2,7 @@
 
 ///|
 test "repr highlighter oracle" {
-  let cases : Array[(String, Array[(Int, Int, String)])] = [
+  let cases : Array[(String, Array[(Int32, Int32, String)])] = [
     ("1", [(0, 1, "repr.number")]),
     ("-1", [(0, 2, "repr.number")]),
     ("1.5", [(0, 3, "repr.number")]),
@@ -482,7 +482,7 @@ test "repr highlighter oracle" {
 
 ///|
 test "json highlighter oracle" {
-  let cases : Array[(String, Array[(Int, Int, String)])] = [
+  let cases : Array[(String, Array[(Int32, Int32, String)])] = [
     (
       "{\n  \"name\": \"apple\",\n  \"count\": 1\n}",
       [
@@ -602,7 +602,7 @@ test "json highlighter oracle" {
 
 ///|
 test "iso8601 highlighter oracle" {
-  let cases : Array[(String, Array[(Int, Int, String)])] = [
+  let cases : Array[(String, Array[(Int32, Int32, String)])] = [
     (
       "2008",
       [(0, 4, "iso8601.time"), (0, 2, "iso8601.hour"), (2, 4, "iso8601.minute")],

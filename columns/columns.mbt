@@ -6,9 +6,9 @@ pub(all) struct Columns {
   /// The renderables (strings are rendered with `Console::render_str`).
   renderables : Array[&@rich.Renderable]
   /// The desired width of the columns, or `None` to auto detect.
-  mut width : Int?
+  mut width : Int32?
   /// Padding around cells (1, 2 or 4 values).
-  mut padding : Array[Int]
+  mut padding : Array[Int32]
   /// Expand columns to full width.
   mut expand : Bool
   /// Arrange in to equal sized columns.
@@ -27,12 +27,12 @@ pub(all) struct Columns {
 /// Create columns from any number of renderables (including strings).
 pub fn Columns::new(
   renderables : ArrayView[&@rich.Renderable],
-  padding? : ArrayView[Int] = [0, 1],
-  width? : Int,
-  expand? : Bool = false,
-  equal? : Bool = false,
-  column_first? : Bool = false,
-  right_to_left? : Bool = false,
+  padding~ : ArrayView[Int32] = [0, 1],
+  width? : Int32,
+  expand~ : Bool = false,
+  equal~ : Bool = false,
+  column_first~ : Bool = false,
+  right_to_left~ : Bool = false,
   align? : @rich.AlignMethod,
   title? : &@rich.IntoText,
 ) -> Columns {
@@ -77,7 +77,7 @@ pub impl @rich.Renderable for Columns with fn rich_console(
   let (_, right, _, left) = @rich.unpack_padding(self.padding)
   let width_padding = @cmp.maximum(left, right)
   let max_width = options.max_width
-  let widths : Map[Int, Int] = Map([])
+  let widths : Map[Int32, Int32] = Map([])
   let mut column_count = renderables.length()
   let renderable_widths = renderables.map(r => {
     @rich.Measurement::get(console, options, r).maximum
@@ -89,9 +89,11 @@ pub impl @rich.Renderable for Columns with fn rich_console(
     }
     renderable_widths.fill(widest)
   }
-  fn iter_renderables(column_count : Int) -> Array[(Int, &@rich.Renderable?)] {
+  fn iter_renderables(
+    column_count : Int32,
+  ) -> Array[(Int32, &@rich.Renderable?)] {
     let item_count = renderables.length()
-    let out : Array[(Int, &@rich.Renderable?)] = []
+    let out : Array[(Int32, &@rich.Renderable?)] = []
     if self.column_first {
       let column_lengths = Array::make(column_count, item_count / column_count)
       for col_no in 0..<(item_count % column_count) {

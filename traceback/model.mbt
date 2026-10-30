@@ -9,7 +9,7 @@ pub(all) struct Frame {
   /// File name of the source.
   filename : String
   /// Line number (1-based).
-  lineno : Int
+  lineno : Int32
   /// Function name.
   name : String
   /// Source line.
@@ -19,17 +19,17 @@ pub(all) struct Frame {
   locals : Map[String, @pretty.Node]?
   /// Position of the last instruction: ((start line, start column),
   /// (end line, end column)); columns are UTF-16 offsets.
-  last_instruction : ((Int, Int), (Int, Int))?
+  last_instruction : ((Int32, Int32), (Int32, Int32))?
 }
 
 ///|
 pub fn Frame::new(
   filename : String,
-  lineno : Int,
+  lineno : Int32,
   name : String,
-  line? : String = "",
+  line~ : String = "",
   locals? : Map[String, @pretty.Node],
-  last_instruction? : ((Int, Int), (Int, Int)),
+  last_instruction? : ((Int32, Int32), (Int32, Int32)),
 ) -> Frame {
   { filename, lineno, name, line, locals, last_instruction, }
 }
@@ -37,22 +37,22 @@ pub fn Frame::new(
 ///|
 /// Information about a syntax error (upstream `_SyntaxError`).
 pub(all) struct SyntaxErrorInfo {
-  offset : Int
+  offset : Int32
   filename : String
   line : String
-  lineno : Int
+  lineno : Int32
   msg : String
   notes : Array[String]
 }
 
 ///|
 pub fn SyntaxErrorInfo::new(
-  offset~ : Int,
+  offset~ : Int32,
   filename~ : String,
   line~ : String,
-  lineno~ : Int,
+  lineno~ : Int32,
   msg~ : String,
-  notes? : Array[String] = [],
+  notes~ : Array[String] = [],
 ) -> SyntaxErrorInfo {
   { offset, filename, line, lineno, msg, notes, }
 }
@@ -80,11 +80,11 @@ pub fn Stack::new(
   exc_type : String,
   exc_value : String,
   syntax_error? : SyntaxErrorInfo,
-  is_cause? : Bool = false,
-  frames? : Array[Frame] = [],
-  notes? : Array[String] = [],
-  is_group? : Bool = false,
-  exceptions? : Array[Trace] = [],
+  is_cause~ : Bool = false,
+  frames~ : Array[Frame] = [],
+  notes~ : Array[String] = [],
+  is_group~ : Bool = false,
+  exceptions~ : Array[Trace] = [],
 ) -> Stack {
   {
     exc_type,
@@ -116,8 +116,8 @@ pub fn Trace::new(stacks : Array[Stack]) -> Trace {
 /// output.
 pub fn Trace::from_error(
   error : Error,
-  exc_type? : String = "Error",
-  frames? : Array[Frame] = [],
+  exc_type~ : String = "Error",
+  frames~ : Array[Frame] = [],
 ) -> Trace {
   { stacks: [Stack::new(exc_type, "\{error}", frames~)], }
 }
@@ -144,7 +144,7 @@ fn json_string(j : Json, what : String) -> String raise @rich.RichError {
 }
 
 ///|
-fn json_int(j : Json, what : String) -> Int raise @rich.RichError {
+fn json_int(j : Json, what : String) -> Int32 raise @rich.RichError {
   match j {
     Number(n, ..) => n.to_int()
     Null => 0
@@ -187,7 +187,7 @@ fn json_object(
 }
 
 ///|
-fn json_position(j : Json) -> (Int, Int) raise @rich.RichError {
+fn json_position(j : Json) -> (Int32, Int32) raise @rich.RichError {
   match json_array(j, "position") {
     [a, b] => (json_int(a, "line"), json_int(b, "column"))
     _ => raise bad("position should be [line, column]")
@@ -233,20 +233,20 @@ fn node_from_json(j : Json) -> @pretty.Node raise @rich.RichError {
 ///|
 fn node_to_json(node : @pretty.Node) -> Json {
   {
-    "key_repr": node.key_repr.to_json(),
-    "value_repr": node.value_repr.to_json(),
-    "open_brace": node.open_brace.to_json(),
-    "close_brace": node.close_brace.to_json(),
-    "empty": node.empty.to_json(),
-    "last": node.last.to_json(),
-    "is_tuple": node.is_tuple.to_json(),
-    "is_namedtuple": node.is_namedtuple.to_json(),
+    "key_repr": Json(node.key_repr),
+    "value_repr": Json(node.value_repr),
+    "open_brace": Json(node.open_brace),
+    "close_brace": Json(node.close_brace),
+    "empty": Json(node.empty),
+    "last": Json(node.last),
+    "is_tuple": Json(node.is_tuple),
+    "is_namedtuple": Json(node.is_namedtuple),
     "children": match node.children {
       None => Json::null()
       Some(c) => Json::array(c.map(node_to_json))
     },
-    "key_separator": node.key_separator.to_json(),
-    "separator": node.separator.to_json(),
+    "key_separator": Json(node.key_separator),
+    "separator": Json(node.separator),
   }
 }
 
@@ -352,13 +352,13 @@ pub impl ToJson for Frame with fn to_json(self) {
   }
   let last_instruction : Json = match self.last_instruction {
     None => Json::null()
-    Some(((l1, c1), (l2, c2))) => [[l1, c1], [l2, c2]].to_json()
+    Some(((l1, c1), (l2, c2))) => Json([[l1, c1], [l2, c2]])
   }
   {
-    "filename": self.filename.to_json(),
-    "lineno": self.lineno.to_json(),
-    "name": self.name.to_json(),
-    "line": self.line.to_json(),
+    "filename": Json(self.filename),
+    "lineno": Json(self.lineno),
+    "name": Json(self.name),
+    "line": Json(self.line),
     "locals": locals,
     "last_instruction": last_instruction,
   }
@@ -367,33 +367,33 @@ pub impl ToJson for Frame with fn to_json(self) {
 ///|
 pub impl ToJson for SyntaxErrorInfo with fn to_json(self) {
   {
-    "offset": self.offset.to_json(),
-    "filename": self.filename.to_json(),
-    "line": self.line.to_json(),
-    "lineno": self.lineno.to_json(),
-    "msg": self.msg.to_json(),
-    "notes": self.notes.to_json(),
+    "offset": Json(self.offset),
+    "filename": Json(self.filename),
+    "line": Json(self.line),
+    "lineno": Json(self.lineno),
+    "msg": Json(self.msg),
+    "notes": Json(self.notes),
   }
 }
 
 ///|
 pub impl ToJson for Stack with fn to_json(self) {
   {
-    "exc_type": self.exc_type.to_json(),
-    "exc_value": self.exc_value.to_json(),
+    "exc_type": Json(self.exc_type),
+    "exc_value": Json(self.exc_value),
     "syntax_error": match self.syntax_error {
       None => Json::null()
-      Some(s) => ToJson::to_json(s)
+      Some(s) => Json(s)
     },
-    "is_cause": self.is_cause.to_json(),
-    "frames": self.frames.to_json(),
-    "notes": self.notes.to_json(),
-    "is_group": self.is_group.to_json(),
-    "exceptions": self.exceptions.to_json(),
+    "is_cause": Json(self.is_cause),
+    "frames": Json(self.frames),
+    "notes": Json(self.notes),
+    "is_group": Json(self.is_group),
+    "exceptions": Json(self.exceptions),
   }
 }
 
 ///|
 pub impl ToJson for Trace with fn to_json(self) {
-  { "stacks": self.stacks.to_json() }
+  { "stacks": Json(self.stacks) }
 }

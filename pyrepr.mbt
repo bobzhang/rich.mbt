@@ -62,7 +62,7 @@ pub fn py_float_repr(d : Double) -> String {
 ///|
 /// Shortest round-trip digits of a finite non-zero double, as
 /// `(negative, digits, decpt)` meaning `0.digits × 10^decpt`.
-fn shortest_digits(d : Double) -> (Bool, String, Int) {
+fn shortest_digits(d : Double) -> (Bool, String, Int32) {
   let s = d.to_string()
   let (negative, s) = match s.strip_prefix("-") {
     Some(rest) => (true, rest.to_owned())
@@ -106,7 +106,7 @@ fn shortest_digits(d : Double) -> (Bool, String, Int) {
 ///|
 /// Decompose a finite double into `(negative, mantissa, exponent)` with
 /// `|d| = mantissa * 2^exponent`.
-fn decompose(d : Double) -> (Bool, UInt64, Int) {
+fn decompose(d : Double) -> (Bool, UInt64, Int32) {
   let bits = d.reinterpret_as_uint64()
   let negative = bits >> 63 != 0UL
   let exp_bits = ((bits >> 52) & 0x7ffUL).to_int()
@@ -119,18 +119,22 @@ fn decompose(d : Double) -> (Bool, UInt64, Int) {
 }
 
 ///|
-fn big(n : Int) -> @bigint.BigInt {
+fn big(n : Int32) -> @bigint.BigInt {
   @bigint.BigInt::from_int(n)
 }
 
 ///|
-fn pow_big(base : Int, exp : Int) -> @bigint.BigInt {
+fn pow_big(base : Int32, exp : Int32) -> @bigint.BigInt {
   big(base).pow(big(exp))
 }
 
 ///|
 /// `round_half_even(mantissa * 2^exponent / 10^k)` computed exactly.
-fn exact_round(mantissa : UInt64, exponent : Int, k : Int) -> @bigint.BigInt {
+fn exact_round(
+  mantissa : UInt64,
+  exponent : Int32,
+  k : Int32,
+) -> @bigint.BigInt {
   let mut num = @bigint.BigInt::from_uint64(mantissa)
   let mut den = big(1)
   if exponent >= 0 {
@@ -156,7 +160,7 @@ fn exact_round(mantissa : UInt64, exponent : Int, k : Int) -> @bigint.BigInt {
 ///|
 /// Python `format(d, ".{precision}f")`: fixed-point, correctly rounded
 /// (round half to even on the exact binary value).
-pub fn py_format_fixed(d : Double, precision : Int) -> String {
+pub fn py_format_fixed(d : Double, precision : Int32) -> String {
   if d.is_nan() {
     return "nan"
   }
@@ -189,7 +193,7 @@ pub fn py_format_fixed(d : Double, precision : Int) -> String {
 ///|
 /// Round to `sig` significant digits: `(negative, digits, x)` meaning
 /// `d.ddd × 10^x` with `digits.length() == sig`.
-fn round_significant(d : Double, sig : Int) -> (Bool, String, Int) {
+fn round_significant(d : Double, sig : Int32) -> (Bool, String, Int32) {
   let (negative, mantissa, exponent) = decompose(d)
   let (_, _, decpt) = shortest_digits(d)
   let mut x = decpt - 1
@@ -208,7 +212,7 @@ fn round_significant(d : Double, sig : Int) -> (Bool, String, Int) {
 }
 
 ///|
-fn exp_suffix(x : Int, upper : Bool) -> String {
+fn exp_suffix(x : Int32, upper : Bool) -> String {
   let e = x.abs()
   (if upper { "E" } else { "e" }) +
   (if x < 0 { "-" } else { "+" }) +
@@ -234,8 +238,8 @@ fn non_finite(d : Double, upper : Bool) -> String? {
 /// rounded).
 pub fn py_format_exp(
   d : Double,
-  precision : Int,
-  upper? : Bool = false,
+  precision : Int32,
+  upper~ : Bool = false,
 ) -> String {
   if non_finite(d, upper) is Some(s) {
     return s
@@ -262,9 +266,9 @@ pub fn py_format_exp(
 /// trailing zeros like `%#g`).
 pub fn py_format_general(
   d : Double,
-  precision? : Int = 6,
-  upper? : Bool = false,
-  alternate? : Bool = false,
+  precision~ : Int32 = 6,
+  upper~ : Bool = false,
+  alternate~ : Bool = false,
 ) -> String {
   if non_finite(d, upper) is Some(s) {
     return s

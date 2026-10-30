@@ -18,7 +18,7 @@ pub(all) enum JsonValue {
 ///|
 priv struct JsonParser {
   src : String
-  mut pos : Int
+  mut pos : Int32
 }
 
 ///|
@@ -147,7 +147,7 @@ fn JsonParser::value(self : JsonParser) -> JsonValue raise RichError {
 fn JsonParser::number(self : JsonParser) -> JsonValue raise RichError {
   let start = self.pos
   let n = self.src.length()
-  fn is_digit(i : Int) -> Bool {
+  fn is_digit(i : Int32) -> Bool {
     i < n && self.src[i] >= '0' && self.src[i] <= '9'
   }
 
@@ -337,7 +337,7 @@ fn json_encode_string(s : String, ensure_ascii : Bool) -> String {
 
 ///|
 /// Compare strings like Python: lexicographically by code point.
-fn py_str_compare(a : String, b : String) -> Int {
+fn py_str_compare(a : String, b : String) -> Int32 {
   let ai = a.iter()
   let bi = b.iter()
   for ;; {
@@ -355,10 +355,10 @@ fn py_str_compare(a : String, b : String) -> Int {
 /// single line); `sort_keys` sorts object keys.
 pub fn JsonValue::dumps(
   self : JsonValue,
-  indent? : Int? = None,
+  indent~ : Int32? = None,
   indent_str? : String,
-  ensure_ascii? : Bool = true,
-  sort_keys? : Bool = false,
+  ensure_ascii~ : Bool = true,
+  sort_keys~ : Bool = false,
 ) -> String {
   let buf = StringBuilder()
   // Python accepts an int (spaces) or a string as the indent
@@ -367,7 +367,7 @@ pub fn JsonValue::dumps(
     None => indent.map(n => " ".repeat(n))
   }
   let item_sep = if unit is None { ", " } else { "," }
-  fn go(v : JsonValue, level : Int) -> Unit {
+  fn go(v : JsonValue, level : Int32) -> Unit {
     match v {
       JNull => buf.write_string("null")
       JBool(b) => buf.write_string(if b { "true" } else { "false" })
@@ -455,11 +455,11 @@ pub struct JSON {
 /// Pretty print a JSON string.
 pub fn JSON::new(
   json : String,
-  indent? : Int? = Some(2),
+  indent~ : Int32? = Some(2),
   indent_str? : String,
-  highlight? : Bool = true,
-  ensure_ascii? : Bool = false,
-  sort_keys? : Bool = false,
+  highlight~ : Bool = true,
+  ensure_ascii~ : Bool = false,
+  sort_keys~ : Bool = false,
 ) -> JSON raise {
   let data = JsonValue::parse(json)
   JSON::from_value(
@@ -476,11 +476,11 @@ pub fn JSON::new(
 /// Pretty print a MoonBit `Json` value.
 pub fn JSON::from_data(
   data : Json,
-  indent? : Int? = Some(2),
+  indent~ : Int32? = Some(2),
   indent_str? : String,
-  highlight? : Bool = true,
-  ensure_ascii? : Bool = false,
-  sort_keys? : Bool = false,
+  highlight~ : Bool = true,
+  ensure_ascii~ : Bool = false,
+  sort_keys~ : Bool = false,
 ) -> JSON raise {
   JSON::from_value(
     JsonValue::from_json(data),
@@ -496,11 +496,11 @@ pub fn JSON::from_data(
 /// Pretty print a `JsonValue`.
 pub fn JSON::from_value(
   data : JsonValue,
-  indent? : Int? = Some(2),
+  indent~ : Int32? = Some(2),
   indent_str? : String,
-  highlight? : Bool = true,
-  ensure_ascii? : Bool = false,
-  sort_keys? : Bool = false,
+  highlight~ : Bool = true,
+  ensure_ascii~ : Bool = false,
+  sort_keys~ : Bool = false,
 ) -> JSON raise {
   let json = data.dumps(indent~, indent_str?, ensure_ascii~, sort_keys~)
   let highlighter : &Highlighter = if highlight {

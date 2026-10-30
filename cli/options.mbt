@@ -18,7 +18,7 @@ priv enum ParamType {
   Str
   Integer
   /// `click.IntRange(min=...)`.
-  IntRange(Int)
+  IntRange(Int32)
   Choice(Array[String])
 }
 
@@ -60,7 +60,7 @@ fn option(
   opts : Array[String],
   metavar : String,
   help : String,
-  type_? : ParamType = Str,
+  type_~ : ParamType = Str,
 ) -> Param {
   { name, opts, type_, metavar: Some(metavar), help, }
 }
@@ -220,8 +220,8 @@ pub(all) struct Options {
   mut ipynb : Bool
   mut syntax : Bool
   mut inspect : Bool
-  mut head : Int?
-  mut tail : Int?
+  mut head : Int32?
+  mut tail : Int32?
   mut emoji : Bool
   mut left : Bool
   mut right : Bool
@@ -232,8 +232,8 @@ pub(all) struct Options {
   mut text_full : Bool
   mut soft : Bool
   mut expand : Bool
-  mut width : Int
-  mut max_width : Int
+  mut width : Int32
+  mut max_width : Int32
   mut style : String
   mut rule_style : String
   mut rule_char : String
@@ -258,7 +258,7 @@ pub(all) struct Options {
 ///|
 /// The defaults of every option. `theme` defaults to `$RICH_THEME`, else
 /// `ansi_dark`.
-pub fn Options::default(theme? : String = "ansi_dark") -> Options {
+pub fn Options::default(theme~ : String = "ansi_dark") -> Options {
   {
     resource: "",
     print: false,
@@ -362,7 +362,7 @@ fn Options::set_string(self : Options, name : String, value : String) -> Unit {
 
 ///|
 /// Set an integer option by destination name.
-fn Options::set_int(self : Options, name : String, value : Int) -> Unit {
+fn Options::set_int(self : Options, name : String, value : Int32) -> Unit {
   match name {
     "head" => self.head = Some(value)
     "tail" => self.tail = Some(value)

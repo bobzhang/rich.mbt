@@ -4,7 +4,7 @@
 ///|
 fn render(
   renderable : &@rich.Renderable,
-  no_wrap? : Bool = false,
+  no_wrap~ : Bool = false,
 ) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
@@ -237,7 +237,7 @@ test "syntax_highlight_ranges" {
     line_numbers=true,
     word_wrap=false,
   )
-  let stylized_ranges : Array[(@rich.Style, (Int, Int), (Int, Int))] = [
+  let stylized_ranges : Array[(@rich.Style, (Int32, Int32), (Int32, Int32))] = [
     // overline the 2nd char of the 1st line:
     (@rich.Style::new(overline=true), (1, 1), (1, 2)),
     (

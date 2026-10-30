@@ -1,5 +1,5 @@
 ///|
-fn pad2(n : Int) -> String {
+fn pad2(n : Int32) -> String {
   if n < 10 {
     "0\{n}"
   } else {

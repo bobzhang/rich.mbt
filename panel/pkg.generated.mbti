@@ -21,13 +21,13 @@ pub(all) struct Panel {
   mut expand : Bool
   mut style : @rich.StyleType
   mut border_style : @rich.StyleType
-  mut width : Int?
-  mut height : Int?
-  mut padding : Array[Int]
+  mut width : Int32?
+  mut height : Int32?
+  mut padding : Array[Int32]
   mut highlight : Bool
 }
-pub fn Panel::fit(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int, height? : Int, padding? : ArrayView[Int], highlight? : Bool) -> Self
-pub fn Panel::new(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, expand? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int, height? : Int, padding? : ArrayView[Int], highlight? : Bool) -> Self
+pub fn Panel::fit(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int32, height? : Int32, padding? : ArrayView[Int32], highlight? : Bool) -> Self
+pub fn Panel::new(&@rich.Renderable, box_? : @rich.Box, title? : &@rich.IntoText, title_align? : @rich.AlignMethod, subtitle? : &@rich.IntoText, subtitle_align? : @rich.AlignMethod, safe_box? : Bool, expand? : Bool, style? : &@rich.IntoStyle, border_style? : &@rich.IntoStyle, width? : Int32, height? : Int32, padding? : ArrayView[Int32], highlight? : Bool) -> Self
 pub impl @rich.Renderable for Panel
 
 // Type aliases

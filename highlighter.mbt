@@ -43,7 +43,7 @@ pub struct RegexHighlighter {
 /// Create a highlighter from regular expressions (Python `re` syntax).
 pub fn RegexHighlighter::new(
   highlights : Array[String],
-  base_style? : String = "",
+  base_style~ : String = "",
 ) -> RegexHighlighter raise @regex.RegexError {
   let compiled = []
   for pattern in highlights {

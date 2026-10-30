@@ -15,7 +15,7 @@ pub(all) struct Token {
   /// HTML tag, e.g. `p`, `h1`, `em`, `code`, `img`.
   tag : String
   /// 1 for opening tokens, -1 for closing tokens, 0 for self-closing.
-  nesting : Int
+  nesting : Int32
   /// Text content (text, code, html, raw image label, ...).
   content : String
   /// Fence info string.
@@ -29,10 +29,10 @@ pub(all) struct Token {
 fn Token::make(
   type_ : String,
   tag : String,
-  nesting : Int,
-  content? : String = "",
-  info? : String = "",
-  attrs? : Map[String, String] = {},
+  nesting : Int32,
+  content~ : String = "",
+  info~ : String = "",
+  attrs~ : Map[String, String] = {},
 ) -> Token {
   { type_, tag, nesting, content, info, attrs, }
 }

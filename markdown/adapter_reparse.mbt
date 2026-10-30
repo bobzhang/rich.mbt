@@ -20,7 +20,7 @@ fn Converter::blocks(self : Converter, blocks : Array[@cmark.Block]) -> Unit {
 ///|
 /// Start of the content of source line `l`: after blanks and the block
 /// quote markers of the enclosing quotes.
-fn Converter::content_start(self : Converter, l : Int) -> Int {
+fn Converter::content_start(self : Converter, l : Int32) -> Int32 {
   let start = self.line_starts[l - 1]
   let end = self.line_end(start)
   let mut pos = start
@@ -39,7 +39,7 @@ fn Converter::content_start(self : Converter, l : Int) -> Int {
 }
 
 ///|
-fn block_first_line(b : @cmark.Block) -> Int? {
+fn block_first_line(b : @cmark.Block) -> Int32? {
   let loc = b.meta().loc
   if loc.is_none() {
     None
@@ -49,7 +49,7 @@ fn block_first_line(b : @cmark.Block) -> Int? {
 }
 
 ///|
-fn block_last_line(b : @cmark.Block) -> Int {
+fn block_last_line(b : @cmark.Block) -> Int32 {
   let loc = b.meta().loc
   if loc.is_none() {
     -1
@@ -63,8 +63,8 @@ fn block_last_line(b : @cmark.Block) -> Int {
 /// quotes removed; indentation is relative to the quote content.
 fn Converter::source_lines(
   self : Converter,
-  first : Int,
-  last : Int,
+  first : Int32,
+  last : Int32,
 ) -> Array[Line] {
   let lines : Array[Line] = []
   for l in first..<=last {
@@ -101,7 +101,7 @@ fn Converter::source_lines(
 fn Converter::table_takes_over(
   self : Converter,
   blocks : Array[@cmark.Block],
-  i : Int,
+  i : Int32,
 ) -> Bool {
   let b = blocks[i]
   let first = match b {
@@ -146,7 +146,7 @@ fn Converter::table_takes_over(
 fn Converter::after_link_definition(
   self : Converter,
   blocks : Array[@cmark.Block],
-  i : Int,
+  i : Int32,
 ) -> Bool {
   guard blocks[i] is LinkRefDefinition(def) &&
     blocks.get(i + 1) is Some(next) &&

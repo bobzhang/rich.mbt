@@ -9,8 +9,8 @@ pub struct Align {
   style : StyleType?
   vertical : VerticalAlignMethod?
   pad : Bool
-  width : Int?
-  height : Int?
+  width : Int32?
+  height : Int32?
 }
 
 ///|
@@ -19,9 +19,9 @@ pub fn Align::new(
   align : AlignMethod,
   style? : &IntoStyle,
   vertical? : VerticalAlignMethod,
-  pad? : Bool = true,
-  width? : Int,
-  height? : Int,
+  pad~ : Bool = true,
+  width? : Int32,
+  height? : Int32,
 ) -> Align {
   { renderable, align, style: style_opt(style), vertical, pad, width, height, }
 }
@@ -32,9 +32,9 @@ pub fn Align::left(
   renderable : &Renderable,
   style? : &IntoStyle,
   vertical? : VerticalAlignMethod,
-  pad? : Bool = true,
-  width? : Int,
-  height? : Int,
+  pad~ : Bool = true,
+  width? : Int32,
+  height? : Int32,
 ) -> Align {
   Align::new(renderable, Left, style?, vertical?, pad~, width?, height?)
 }
@@ -45,9 +45,9 @@ pub fn Align::center(
   renderable : &Renderable,
   style? : &IntoStyle,
   vertical? : VerticalAlignMethod,
-  pad? : Bool = true,
-  width? : Int,
-  height? : Int,
+  pad~ : Bool = true,
+  width? : Int32,
+  height? : Int32,
 ) -> Align {
   Align::new(renderable, Center, style?, vertical?, pad~, width?, height?)
 }
@@ -58,9 +58,9 @@ pub fn Align::right(
   renderable : &Renderable,
   style? : &IntoStyle,
   vertical? : VerticalAlignMethod,
-  pad? : Bool = true,
-  width? : Int,
-  height? : Int,
+  pad~ : Bool = true,
+  width? : Int32,
+  height? : Int32,
 ) -> Align {
   Align::new(renderable, Right, style?, vertical?, pad~, width?, height?)
 }
@@ -149,7 +149,7 @@ pub impl Renderable for Align with fn rich_console(self, console, options) {
   } else {
     Segment::new("\n")
   }
-  fn blank_lines(count : Int) -> Array[Segment] {
+  fn blank_lines(count : Int32) -> Array[Segment] {
     let out = []
     for _ in 0..<count {
       out.push(blank_line)
@@ -287,13 +287,13 @@ pub impl Renderable for Styled with fn rich_measure(self, console, options) {
 /// Constrain the width of a renderable to a given number of characters.
 pub struct Constrain {
   renderable : &Renderable
-  width : Int?
+  width : Int32?
 }
 
 ///|
 pub fn Constrain::new(
   renderable : &Renderable,
-  width? : Int? = Some(80),
+  width~ : Int32? = Some(80),
 ) -> Constrain {
   { renderable, width, }
 }
@@ -323,10 +323,10 @@ pub impl Renderable for Constrain with fn rich_measure(self, console, options) {
 ///|
 /// Defines a rectangular region of the screen.
 pub(all) struct Region {
-  x : Int
-  y : Int
-  width : Int
-  height : Int
+  x : Int32
+  y : Int32
+  width : Int32
+  height : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -341,7 +341,7 @@ pub struct Screen {
 pub fn Screen::new(
   renderables : Array[&Renderable],
   style? : &IntoStyle,
-  application_mode? : Bool = false,
+  application_mode~ : Bool = false,
 ) -> Screen {
   {
     renderable: Group::new(renderables),

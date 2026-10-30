@@ -59,7 +59,7 @@ async fn read_text(path : String) -> Result[String, String] {
 }
 
 ///|
-async fn run(args : Array[String]) -> Int {
+async fn run(args : Array[String]) -> Int32 {
   let stdout_isatty = @term.isatty(1)
   let stderr_isatty = @term.isatty(2)
   let command = @cli.parse_args(args)

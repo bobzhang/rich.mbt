@@ -1,5 +1,5 @@
 ///|
-fn render(panel : &@rich.Renderable, width? : Int = 50) -> String raise {
+fn render(panel : &@rich.Renderable, width~ : Int32 = 50) -> String raise {
   let file = @rich.StringIO::new()
   let console = @rich.Console::new(
     file~,

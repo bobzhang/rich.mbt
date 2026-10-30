@@ -8,7 +8,7 @@ pub(all) struct ColumnState {
   /// Minimum time (seconds) between re-renders of a task that has not
   /// completed any steps, or `None` to always re-render.
   mut max_refresh : Double?
-  priv renderable_cache : Map[Int, (Double, &@rich.Renderable)]
+  priv renderable_cache : Map[Int32, (Double, &@rich.Renderable)]
 }
 
 ///|
@@ -93,7 +93,7 @@ pub(all) struct RenderableColumn {
 
 ///|
 pub fn RenderableColumn::new(
-  renderable? : &@rich.Renderable = "",
+  renderable~ : &@rich.Renderable = "",
   table_column? : @rich.Column,
 ) -> RenderableColumn {
   { renderable, state: ColumnState::new(table_column?), }
@@ -124,10 +124,10 @@ pub(all) struct SpinnerColumn {
 /// Create a spinner column. `finished_text` (a string is parsed as markup)
 /// is shown when the task is finished.
 pub fn SpinnerColumn::new(
-  spinner_name? : String = "dots",
-  style? : &@rich.IntoStyle = "progress.spinner",
-  speed? : Double = 1.0,
-  finished_text? : &@rich.IntoText = " ",
+  spinner_name~ : String = "dots",
+  style~ : &@rich.IntoStyle = "progress.spinner",
+  speed~ : Double = 1.0,
+  finished_text~ : &@rich.IntoText = " ",
   table_column? : @rich.Column,
 ) -> SpinnerColumn raise @rich.RichError {
   let spinner = @spinner.Spinner::new(spinner_name, style~, speed~)
@@ -143,8 +143,8 @@ pub fn SpinnerColumn::new(
 pub fn SpinnerColumn::set_spinner(
   self : SpinnerColumn,
   spinner_name : String,
-  spinner_style? : &@rich.IntoStyle = "progress.spinner",
-  speed? : Double = 1.0,
+  spinner_style~ : &@rich.IntoStyle = "progress.spinner",
+  speed~ : Double = 1.0,
 ) -> Unit raise @rich.RichError {
   self.spinner = @spinner.Spinner::new(
     spinner_name,
@@ -187,9 +187,9 @@ pub(all) struct TextColumn {
 ///|
 pub fn TextColumn::new(
   text_format : String,
-  style? : &@rich.IntoStyle = "none",
-  justify? : @rich.JustifyMethod = Left,
-  markup? : Bool = true,
+  style~ : &@rich.IntoStyle = "none",
+  justify~ : @rich.JustifyMethod = Left,
+  markup~ : Bool = true,
   highlighter? : &@rich.Highlighter,
   table_column? : @rich.Column,
 ) -> TextColumn {
@@ -250,7 +250,7 @@ pub impl ProgressColumn for TextColumn with fn column_state(self) {
 /// Renders a visual progress bar.
 pub(all) struct BarColumn {
   /// Width of the bar, or `None` for full width.
-  mut bar_width : Int?
+  mut bar_width : Int32?
   /// Style for the bar background.
   mut style : @rich.StyleType
   /// Style for the completed bar.
@@ -266,11 +266,11 @@ pub(all) struct BarColumn {
 ///|
 /// Create a bar column. `bar_width=None` renders a full width bar.
 pub fn BarColumn::new(
-  bar_width? : Int? = Some(40),
-  style? : &@rich.IntoStyle = "bar.back",
-  complete_style? : &@rich.IntoStyle = "bar.complete",
-  finished_style? : &@rich.IntoStyle = "bar.finished",
-  pulse_style? : &@rich.IntoStyle = "bar.pulse",
+  bar_width~ : Int32? = Some(40),
+  style~ : &@rich.IntoStyle = "bar.back",
+  complete_style~ : &@rich.IntoStyle = "bar.complete",
+  finished_style~ : &@rich.IntoStyle = "bar.finished",
+  pulse_style~ : &@rich.IntoStyle = "bar.pulse",
   table_column? : @rich.Column,
 ) -> BarColumn {
   {
@@ -405,14 +405,14 @@ pub(all) struct TaskProgressColumn {
 
 ///|
 pub fn TaskProgressColumn::new(
-  text_format? : String = "[progress.percentage]{task.percentage:>3.0f}%",
-  text_format_no_percentage? : String = "",
-  style? : &@rich.IntoStyle = "none",
-  justify? : @rich.JustifyMethod = Left,
-  markup? : Bool = true,
+  text_format~ : String = "[progress.percentage]{task.percentage:>3.0f}%",
+  text_format_no_percentage~ : String = "",
+  style~ : &@rich.IntoStyle = "none",
+  justify~ : @rich.JustifyMethod = Left,
+  markup~ : Bool = true,
   highlighter? : &@rich.Highlighter,
   table_column? : @rich.Column,
-  show_speed? : Bool = false,
+  show_speed~ : Bool = false,
 ) -> TaskProgressColumn {
   {
     text_format,
@@ -499,8 +499,8 @@ pub(all) struct TimeRemainingColumn {
 
 ///|
 pub fn TimeRemainingColumn::new(
-  compact? : Bool = false,
-  elapsed_when_finished? : Bool = false,
+  compact~ : Bool = false,
+  elapsed_when_finished~ : Bool = false,
   table_column? : @rich.Column,
 ) -> TimeRemainingColumn {
   {
@@ -649,7 +649,7 @@ pub(all) struct MofNCompleteColumn {
 
 ///|
 pub fn MofNCompleteColumn::new(
-  separator? : String = "/",
+  separator~ : String = "/",
   table_column? : @rich.Column,
 ) -> MofNCompleteColumn {
   { separator, state: ColumnState::new(table_column?), }
@@ -699,7 +699,7 @@ pub(all) struct DownloadColumn {
 
 ///|
 pub fn DownloadColumn::new(
-  binary_units? : Bool = false,
+  binary_units~ : Bool = false,
   table_column? : @rich.Column,
 ) -> DownloadColumn {
   { binary_units, state: ColumnState::new(table_column?), }

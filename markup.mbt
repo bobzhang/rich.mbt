@@ -74,8 +74,8 @@ pub fn escape(markup : String) -> String {
 /// An item of parsed markup (upstream `_parse` yields
 /// `(position, text, tag)` tuples): text or a tag, at a position.
 pub(all) enum MarkupItem {
-  PlainText(Int, String)
-  TagAt(Int, Tag)
+  PlainText(Int32, String)
+  TagAt(Int32, Tag)
 } derive(Eq, Debug)
 
 ///|
@@ -164,7 +164,7 @@ pub fn parse_markup(markup : String) -> Array[MarkupItem] {
 
 ///|
 /// `[a-z#/@]`: the first character of a markup tag.
-fn is_tag_start(c : Int) -> Bool {
+fn is_tag_start(c : Int32) -> Bool {
   (c >= 'a' && c <= 'z') || c == '#' || c == '/' || c == '@'
 }
 
@@ -172,8 +172,8 @@ fn is_tag_start(c : Int) -> Bool {
 /// Render console markup in to a Text instance.
 pub fn render_markup(
   markup : String,
-  style? : StyleType = Def(""),
-  emoji? : Bool = true,
+  style~ : StyleType = Def(""),
+  emoji~ : Bool = true,
   emoji_variant? : EmojiVariant,
 ) -> Text raise RichError {
   if !markup.contains_char('[') {
@@ -190,7 +190,7 @@ pub fn render_markup(
     )
   }
   let text = Text::new(style~)
-  let style_stack : Array[(Int, Tag)] = []
+  let style_stack : Array[(Int32, Tag)] = []
   let spans : Array[Span] = []
   let items = parse_markup(markup)
   for item in items {

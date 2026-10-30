@@ -5,12 +5,12 @@
 
 ///|
 fn test_console(
-  width? : Int = 80,
-  record? : Bool = false,
+  width~ : Int32 = 80,
+  record~ : Bool = false,
   file? : @rich.StringIO,
-  markup? : Bool = true,
-  emoji? : Bool = true,
-  color_system? : String? = None,
+  markup~ : Bool = true,
+  emoji~ : Bool = true,
+  color_system~ : String? = None,
   force_terminal? : Bool,
 ) -> @rich.Console raise {
   @rich.Console::new(
@@ -27,7 +27,7 @@ fn test_console(
 }
 
 ///|
-fn span(start : Int, end : Int, style : &@rich.IntoStyle) -> @rich.Span {
+fn span(start : Int32, end : Int32, style : &@rich.IntoStyle) -> @rich.Span {
   @rich.Span::new(start, end, style)
 }
 
@@ -777,7 +777,7 @@ test "tabs_to_spaces" {
 
 ///|
 test "tabs_to_spaces_spans" {
-  let cases : Array[(String, Int, String, Array[@rich.Span])] = [
+  let cases : Array[(String, Int32, String, Array[@rich.Span])] = [
     ("", 4, "", []),
     ("\t", 4, "    ", []),
     ("\tbar", 4, "    bar", []),

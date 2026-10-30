@@ -10,7 +10,7 @@ fn log_table() -> @rich.Table raise {
 ///|
 /// Compare with the expected output of case `index` (times are rendered
 /// in UTC by the oracle and in local time here; link ids are random).
-fn check_log(output : String, index : Int) -> Unit raise {
+fn check_log(output : String, index : Int32) -> Unit raise {
   let (expected, fmt, times) = log_expected[index]
   let expected = replace_times(
     expected,

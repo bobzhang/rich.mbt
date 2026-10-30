@@ -333,12 +333,12 @@ pub impl Renderable for TextType with fn text_kind(self) {
 /// Stores the minimum and maximum widths (in cells) required to render an
 /// object.
 pub(all) struct Measurement {
-  minimum : Int
-  maximum : Int
+  minimum : Int32
+  maximum : Int32
 } derive(Eq, Debug)
 
 ///|
-pub fn Measurement::new(minimum : Int, maximum : Int) -> Measurement {
+pub fn Measurement::new(minimum : Int32, maximum : Int32) -> Measurement {
   { minimum, maximum, }
 }
 
@@ -351,7 +351,7 @@ pub impl Show for Measurement with fn output(self, logger) {
 
 ///|
 /// Difference between maximum and minimum.
-pub fn Measurement::span(self : Measurement) -> Int {
+pub fn Measurement::span(self : Measurement) -> Int32 {
   self.maximum - self.minimum
 }
 
@@ -370,7 +370,7 @@ pub fn Measurement::normalize(self : Measurement) -> Measurement {
 /// Get a measurement where the widths are <= width.
 pub fn Measurement::with_maximum(
   self : Measurement,
-  width : Int,
+  width : Int32,
 ) -> Measurement {
   {
     minimum: @cmp.minimum(self.minimum, width),
@@ -382,7 +382,7 @@ pub fn Measurement::with_maximum(
 /// Get a measurement where the widths are >= width.
 pub fn Measurement::with_minimum(
   self : Measurement,
-  width : Int,
+  width : Int32,
 ) -> Measurement {
   let width = @cmp.maximum(0, width)
   {
@@ -395,8 +395,8 @@ pub fn Measurement::with_minimum(
 /// Clamp a measurement within the specified range.
 pub fn Measurement::clamp(
   self : Measurement,
-  min_width? : Int,
-  max_width? : Int,
+  min_width? : Int32,
+  max_width? : Int32,
 ) -> Measurement {
   let mut m = self
   if min_width is Some(w) {
@@ -473,8 +473,8 @@ pub fn measure_renderables(
 ///|
 /// Size of the terminal.
 pub(all) struct ConsoleDimensions {
-  width : Int
-  height : Int
+  width : Int32
+  height : Int32
 } derive(Eq, Debug)
 
 ///|
@@ -485,15 +485,15 @@ pub(all) struct ConsoleOptions {
   /// Flag for legacy windows.
   mut legacy_windows : Bool
   /// Minimum width of renderable.
-  mut min_width : Int
+  mut min_width : Int32
   /// Maximum width of renderable.
-  mut max_width : Int
+  mut max_width : Int32
   /// True if the target is a terminal.
   mut is_terminal : Bool
   /// Encoding of terminal.
   mut encoding : String
   /// Height of container (starts as terminal).
-  mut max_height : Int
+  mut max_height : Int32
   /// Justify value override for renderable.
   mut justify : JustifyMethod?
   /// Overflow value override for renderable.
@@ -505,7 +505,7 @@ pub(all) struct ConsoleOptions {
   /// Enable markup when rendering strings.
   mut markup : Bool?
   /// Height available, if fixed.
-  mut height : Int?
+  mut height : Int32?
 }
 
 ///|
@@ -525,15 +525,15 @@ pub fn ConsoleOptions::copy(self : ConsoleOptions) -> ConsoleOptions {
 /// (upstream `NO_CHANGE`); `Some(None)`-style values reset an option.
 pub fn ConsoleOptions::update(
   self : ConsoleOptions,
-  width? : Int,
-  min_width? : Int,
-  max_width? : Int,
+  width? : Int32,
+  min_width? : Int32,
+  max_width? : Int32,
   justify? : JustifyMethod?,
   overflow? : OverflowMethod?,
   no_wrap? : Bool?,
   highlight? : Bool?,
   markup? : Bool?,
-  height? : Int?,
+  height? : Int32?,
 ) -> ConsoleOptions {
   let options = self.copy()
   if width is Some(w) {
@@ -577,7 +577,7 @@ pub fn ConsoleOptions::update(
 /// Update just the width (sets both min_width and max_width).
 pub fn ConsoleOptions::update_width(
   self : ConsoleOptions,
-  width : Int,
+  width : Int32,
 ) -> ConsoleOptions {
   let options = self.copy()
   options.min_width = @cmp.maximum(0, width)
@@ -589,7 +589,7 @@ pub fn ConsoleOptions::update_width(
 /// Update the height.
 pub fn ConsoleOptions::update_height(
   self : ConsoleOptions,
-  height : Int,
+  height : Int32,
 ) -> ConsoleOptions {
   let options = self.copy()
   options.max_height = height
@@ -609,8 +609,8 @@ pub fn ConsoleOptions::reset_height(self : ConsoleOptions) -> ConsoleOptions {
 /// Update the width and height.
 pub fn ConsoleOptions::update_dimensions(
   self : ConsoleOptions,
-  width : Int,
-  height : Int,
+  width : Int32,
+  height : Int32,
 ) -> ConsoleOptions {
   let options = self.copy()
   options.min_width = @cmp.maximum(0, width)

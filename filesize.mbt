@@ -5,7 +5,7 @@ fn filesize_to_str(
   size : Int64,
   suffixes : Array[String],
   base : Int64,
-  precision : Int,
+  precision : Int32,
   separator : String,
 ) -> String {
   if size == 1L {
@@ -56,8 +56,8 @@ pub fn pick_unit_and_suffix(
 /// `30.0 kB`.
 pub fn filesize_decimal(
   size : Int64,
-  precision? : Int = 1,
-  separator? : String = " ",
+  precision~ : Int32 = 1,
+  separator~ : String = " ",
 ) -> String {
   filesize_to_str(
     size,
