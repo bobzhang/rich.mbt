@@ -16,10 +16,10 @@ test "renderable" {
 ///|
 test "position_cursor" {
   let live_render = live_render()
-  assert_eq(live_render.position_cursor().to_string(), "")
+  assert_eq(Show::to_string(live_render.position_cursor()), "")
   live_render.shape = Some((80, 2))
   assert_eq(
-    live_render.position_cursor().to_string(),
+    Show::to_string(live_render.position_cursor()),
     "\r\u{1b}[2K\u{1b}[1A\u{1b}[2K",
   )
 }
@@ -27,10 +27,10 @@ test "position_cursor" {
 ///|
 test "restore_cursor" {
   let live_render = live_render()
-  assert_eq(live_render.restore_cursor().to_string(), "")
+  assert_eq(Show::to_string(live_render.restore_cursor()), "")
   live_render.shape = Some((80, 2))
   assert_eq(
-    live_render.restore_cursor().to_string(),
+    Show::to_string(live_render.restore_cursor()),
     "\r\u{1b}[1A\u{1b}[2K\u{1b}[1A\u{1b}[2K",
   )
 }

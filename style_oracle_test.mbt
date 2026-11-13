@@ -707,7 +707,7 @@ test "style add oracle cases" {
   for case in cases {
     let (a, b, expected) = case
     assert_eq(
-      (@rich.Style::parse(a) + @rich.Style::parse(b)).to_string(),
+      Show::to_string(@rich.Style::parse(a) + @rich.Style::parse(b)),
       expected,
       msg="\{a} + \{b}",
     )

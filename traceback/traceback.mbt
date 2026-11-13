@@ -310,7 +310,7 @@ pub fn PathHighlighter::new() -> PathHighlighter {
 
 ///|
 pub impl @rich.Highlighter for PathHighlighter with fn highlight(self, text) {
-  self.inner.highlight(text)
+  @rich.Highlighter::highlight(self.inner, text)
 }
 
 ///|

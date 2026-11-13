@@ -112,14 +112,16 @@ test "test_init_append_column" {
 test "test_rich_measure" {
   let console = @rich.Console::new(width=80, environ={})
   assert_eq(
-    @rich.Table::new(headers=["test_header"], width=-1).rich_measure(
+    @rich.Renderable::rich_measure(
+      @rich.Table::new(headers=["test_header"], width=-1),
       console,
       console.options(),
     ),
     Some(@rich.Measurement::new(0, 0)),
   )
   assert_eq(
-    @rich.Table::new(headers=["test_header"]).rich_measure(
+    @rich.Renderable::rich_measure(
+      @rich.Table::new(headers=["test_header"]),
       console,
       console.options().update_width(10),
     ),
@@ -133,7 +135,11 @@ test "test_min_width" {
   table.add_row(["bar"])
   let console = @rich.Console::new(width=80, environ={})
   assert_eq(
-    table.rich_measure(console, console.options().update_width(100)),
+    @rich.Renderable::rich_measure(
+      table,
+      console,
+      console.options().update_width(100),
+    ),
     Some(@rich.Measurement::new(30, 30)),
   )
   let console = @rich.Console::new(color_system=None, width=80, environ={})

@@ -56,7 +56,8 @@ fn text_method(markup : String, op : String) -> String raise {
     }
     "measure" => {
       let console = oracle_console()
-      guard t.rich_measure(console, console.options()) is Some(m) else {
+      guard @rich.Renderable::rich_measure(t, console, console.options())
+        is Some(m) else {
         fail("no measurement")
       }
       "\{m.minimum},\{m.maximum}"

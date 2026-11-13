@@ -387,9 +387,9 @@ test "json round trip" {
       ),
     ),
   ])
-  let json = trace.to_json()
+  let json = Json(trace)
   let again = @traceback.Trace::from_json(json)
-  assert_eq(again.to_json().stringify(), json.stringify())
+  assert_eq(Json(again).stringify(), json.stringify())
   assert_eq(
     print_to_string(
       @traceback.Traceback::new(again, source_reader=read_source),

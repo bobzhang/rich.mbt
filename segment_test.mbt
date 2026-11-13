@@ -206,14 +206,19 @@ fn render_items(items : Array[@rich.RenderItem]) -> Array[@rich.Segment] {
 test "segments_renderable" {
   let console = @rich.Console::new()
   let segments = @rich.Segments::new([seg("foo")])
-  assert_eq(render_items(segments.rich_console(console, console.options())), [
-    seg("foo"),
-  ])
+  assert_eq(
+    render_items(
+      @rich.Renderable::rich_console(segments, console, console.options()),
+    ),
+    [seg("foo")],
+  )
   let segments = @rich.Segments::new([seg("foo")], new_lines=true)
-  assert_eq(render_items(segments.rich_console(console, console.options())), [
-    seg("foo"),
-    @rich.Segment::line(),
-  ])
+  assert_eq(
+    render_items(
+      @rich.Renderable::rich_console(segments, console, console.options()),
+    ),
+    [seg("foo"), @rich.Segment::line()],
+  )
 }
 
 ///|
@@ -397,12 +402,16 @@ test "segment_lines_renderable" {
   let lines = [[seg("hello"), seg(" "), seg("world")], [seg("foo")]]
   let segment_lines = @rich.SegmentLines::new(lines)
   assert_eq(
-    render_items(segment_lines.rich_console(console, console.options())),
+    render_items(
+      @rich.Renderable::rich_console(segment_lines, console, console.options()),
+    ),
     [seg("hello"), seg(" "), seg("world"), seg("foo")],
   )
   let segment_lines = @rich.SegmentLines::new(lines, new_lines=true)
   assert_eq(
-    render_items(segment_lines.rich_console(console, console.options())),
+    render_items(
+      @rich.Renderable::rich_console(segment_lines, console, console.options()),
+    ),
     [seg("hello"), seg(" "), seg("world"), seg("\n"), seg("foo"), seg("\n")],
   )
 }

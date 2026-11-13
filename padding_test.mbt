@@ -60,7 +60,8 @@ test "test_rich_console" {
     @rich.Segment::new(" ".repeat(20 - renderable.length()), style~),
     @rich.Segment::new("\n"),
   ]
-  let items = @rich.Padding::new(renderable, style~).rich_console(
+  let items = @rich.Renderable::rich_console(
+    @rich.Padding::new(renderable, style~),
     @rich.Console::new(),
     options,
   )

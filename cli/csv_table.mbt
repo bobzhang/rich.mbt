@@ -60,7 +60,7 @@ fn Context::render_csv(
     caption_justify=Right,
   ) catch {
     e => {
-      self.on_error("unable to create table", error=e.to_string())
+      self.on_error("unable to create table", error=Show::to_string(e))
       return ""
     }
   }

@@ -208,7 +208,7 @@ fn write_error(
       let text = @rich.Text::new(text=message)
       text.stylize("bold red")
       let detail = @rich.Text::new(text=error)
-      @rich.ReprHighlighter::new().highlight(detail) catch {
+      @rich.Highlighter::highlight(@rich.ReprHighlighter::new(), detail) catch {
         _ => ()
       }
       text.append_text(@rich.Text::new(text=": ")).append_text(detail)
@@ -272,20 +272,20 @@ pub fn execute(
   match command {
     UsageError(message, usage~) => {
       if usage {
-        err.write(
-          "Usage: rich [OPTIONS] <PATH or TEXT or '-'>\nTry 'rich --help' for help.\n\n",
+        @rich.ConsoleFile::write(
+          err, "Usage: rich [OPTIONS] <PATH or TEXT or '-'>\nTry 'rich --help' for help.\n\n",
         ) catch {
           _ => ()
         }
       }
-      err.write("Error: \{message}\n") catch {
+      @rich.ConsoleFile::write(err, "Error: \{message}\n") catch {
         _ => ()
       }
       output(2, [], None)
     }
     Help => {
       render_help(out, environ) catch {
-        e => err.write("\{e}\n") catch { _ => () }
+        e => @rich.ConsoleFile::write(err, "\{e}\n") catch { _ => () }
       }
       output(0, [], None)
     }
@@ -518,7 +518,7 @@ fn Context::main(
 ) -> Int32 raise Exit {
   let opts = self.options
   if opts.version {
-    self.out.write("\{VERSION}\n") catch {
+    @rich.ConsoleFile::write(self.out, "\{VERSION}\n") catch {
       _ => ()
     }
     return 0
@@ -531,7 +531,7 @@ fn Context::main(
     legacy_windows=false,
     environ?=self.environ,
   ) catch {
-    e => self.on_error("failed to create console", error=e.to_string())
+    e => self.on_error("failed to create console", error=Show::to_string(e))
   }
   let mut expand = opts.expand
   if opts.width > 0 {
@@ -578,13 +578,20 @@ fn Context::main(
       }
       let text = @rich.Text::from_markup(source, justify~, emoji=opts.emoji) catch {
         e =>
-          self.on_error("unable to parse console markup", error=e.to_string())
+          self.on_error(
+            "unable to parse console markup",
+            error=Show::to_string(e),
+          )
       }
       text.no_wrap = Some(opts.no_wrap)
       renderable = text
       if opts.rule {
         let rule_style = @rich.Style::parse(opts.rule_style) catch {
-          e => self.on_error("unable to parse rule style", error=e.to_string())
+          e =>
+            self.on_error(
+              "unable to parse rule style",
+              error=Show::to_string(e),
+            )
         }
         let align : @rich.AlignMethod = match justify {
           Left => Left
@@ -597,7 +604,7 @@ fn Context::main(
           characters=if opts.rule_char == "" { "─" } else { opts.rule_char },
           align~,
         ) catch {
-          e => self.on_error("unable to create rule", error=e.to_string())
+          e => self.on_error("unable to create rule", error=Show::to_string(e))
         }
       }
     }
@@ -653,12 +660,13 @@ fn Context::main(
   }
   if print_padding.length() > 0 {
     renderable = @rich.Padding::new(renderable, pad=print_padding, expand~) catch {
-      e => self.on_error("unable to pad", error=e.to_string())
+      e => self.on_error("unable to pad", error=Show::to_string(e))
     }
   }
   if opts.panel != "none" {
     let border_style = @rich.Style::parse(opts.panel_style) catch {
-      e => self.on_error("unable to parse panel style", error=e.to_string())
+      e =>
+        self.on_error("unable to parse panel style", error=Show::to_string(e))
     }
     let box_ = match opts.panel {
       "ascii" => @rich.box_ascii
@@ -689,7 +697,7 @@ fn Context::main(
   }
   if opts.style != "" {
     let text_style = @rich.Style::parse(opts.style) catch {
-      e => self.on_error("unable to parse style", error=e.to_string())
+      e => self.on_error("unable to parse style", error=Show::to_string(e))
     }
     renderable = @rich.Styled::new(renderable, text_style)
   }
@@ -725,13 +733,13 @@ fn Context::main(
       )
       console.print(PagerLines(lines), width~)
     }) catch {
-      e => self.on_error("failed to print resource", error=e.to_string())
+      e => self.on_error("failed to print resource", error=Show::to_string(e))
     }
     self.pager = Some(text)
   } else {
     let width = if opts.max_width <= 0 { None } else { Some(opts.max_width) }
     console.print(renderable, width?, soft_wrap=opts.soft, justify~) catch {
-      e => self.on_error("failed to print resource", error=e.to_string())
+      e => self.on_error("failed to print resource", error=Show::to_string(e))
     }
   }
   if opts.export_html != "" {
@@ -788,7 +796,7 @@ fn Context::make_syntax(
     word_wrap=!opts.no_wrap,
     line_range?,
   ) catch {
-    e => self.on_error("unable to read file", error=e.to_string())
+    e => self.on_error("unable to read file", error=Show::to_string(e))
   }
 }
 
@@ -798,7 +806,7 @@ fn Context::make_syntax(
 fn json_error(e : Error, data : String) -> String {
   let message = match e {
     @rich.RichError::ValueError(m) => m
-    _ => return e.to_string()
+    _ => return Show::to_string(e)
   }
   guard message.rev_find(": char ") is Some(i) else { return message }
   let msg = message[:i].to_owned()

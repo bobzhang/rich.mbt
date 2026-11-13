@@ -21,7 +21,7 @@ fn highlight_spans(
     ISO8601 => (@rich.ISO8601Highlighter::new() : &@rich.Highlighter)
   }
   highlighter.highlight(text)
-  text.spans().map(span => (span.start, span.end, span.style.to_string()))
+  text.spans().map(span => (span.start, span.end, Show::to_string(span.style)))
 }
 
 ///|

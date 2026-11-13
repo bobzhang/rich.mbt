@@ -18,9 +18,11 @@ test "test_styled" {
 test "test_width_of_none" {
   let console = @rich.Console::new()
   let constrain = @rich.Constrain::new(@rich.Text::new(text="foo"), width=None)
-  let m = constrain
-    .rich_measure(console, console.options().update_width(80))
-    .unwrap()
+  let m = @rich.Renderable::rich_measure(
+    constrain,
+    console,
+    console.options().update_width(80),
+  ).unwrap()
   assert_eq(m.minimum, 3)
   assert_eq(m.maximum, 3)
 }

@@ -101,7 +101,7 @@ test "eq" {
 
 ///|
 test "hash" {
-  let _ : Int32 = @rich.Style::new().hash()
+  let _ : Int32 = Hash::hash(@rich.Style::new())
 }
 
 ///|
@@ -161,7 +161,7 @@ test "parse errors" {
   // messages (checked against the Python oracle)
   fn msg(s : String) -> String {
     try parse_style(s) catch {
-      e => e.to_string()
+      e => Show::to_string(e)
     } noraise {
       _ => "no error"
     }

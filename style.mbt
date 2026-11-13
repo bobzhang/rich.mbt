@@ -505,7 +505,7 @@ pub fn Style::repr(self : Style) -> String {
 fn color_key(c : @color.Color?) -> Int32 {
   match c {
     None => 0
-    Some(c) => c.hash()
+    Some(c) => Hash::hash(c)
   }
 }
 
