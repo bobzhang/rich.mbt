@@ -8,7 +8,7 @@ priv enum Kind {
   CodeBlock(
     String,
     String,
-    ((String, String, String) -> &@rich.Renderable raise)?
+    ((String, String, String) -> &@rich.Renderable raise)?,
   )
   BlockQuote
   HorizontalRule

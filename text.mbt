@@ -4,11 +4,12 @@
 
 ///|
 /// A marked up region in some text.
+#derive(Eq, Hash)
 pub(all) struct Span {
   start : Int32
   end : Int32
   style : StyleType
-} derive(Eq, Hash)
+}
 
 ///|
 pub fn Span::new(start : Int32, end : Int32, style : &IntoStyle) -> Span {

@@ -35,18 +35,20 @@ pub fn unicode_decimal_value(Char) -> Int32?
 pub let windows_palette : Palette
 
 // Errors
+#derive(@debug.Debug)
 pub suberror ColorParseError {
   ColorParseError(String)
-} derive(@debug.Debug)
+}
 pub impl Show for ColorParseError
 
 // Types and methods
+#derive(Eq, Hash, @debug.Debug)
 pub(all) struct Color {
   name : String
   type_ : ColorType
   number : Int32?
   triplet : ColorTriplet?
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn Color::default() -> Self
 pub fn Color::downgrade(Self, ColorSystem) -> Self
 pub fn Color::from_ansi(Int32) -> Self
@@ -61,33 +63,36 @@ pub fn Color::parse(String) -> Self raise ColorParseError
 pub fn Color::system(Self) -> ColorSystem
 pub impl Show for Color
 
+#derive(Compare, Eq, Hash, @debug.Debug)
 pub(all) enum ColorSystem {
   Standard
   EightBit
   Truecolor
   Windows
-} derive(Compare, Eq, Hash, @debug.Debug)
+}
 pub fn ColorSystem::to_int(Self) -> Int32
 pub impl Show for ColorSystem
 
+#derive(Compare, Eq, Hash, @debug.Debug)
 pub(all) struct ColorTriplet {
   red : Int32
   green : Int32
   blue : Int32
-} derive(Compare, Eq, Hash, @debug.Debug)
+}
 pub fn ColorTriplet::hex(Self) -> String
 pub fn ColorTriplet::new(Int32, Int32, Int32) -> Self
 pub fn ColorTriplet::normalized(Self) -> (Double, Double, Double)
 pub fn ColorTriplet::rgb(Self) -> String
 pub impl Show for ColorTriplet
 
+#derive(Compare, Eq, Hash, @debug.Debug)
 pub(all) enum ColorType {
   Default
   Standard
   EightBit
   Truecolor
   Windows
-} derive(Compare, Eq, Hash, @debug.Debug)
+}
 pub fn ColorType::name(Self) -> String
 pub fn ColorType::to_int(Self) -> Int32
 pub impl Show for ColorType

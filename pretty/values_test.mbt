@@ -113,11 +113,12 @@ test "json" {
 }
 
 ///|
+#derive(Debug)
 #warnings("-unused_constructor")
 enum Color {
   Red
   Rgb(Int32, Int32, Int32)
-} derive(Debug)
+}
 
 ///|
 impl Show for Color with fn output(self, logger) {

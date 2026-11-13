@@ -2,6 +2,7 @@
 
 ///|
 /// Errors raised by Rich. Constructors mirror the upstream exception classes.
+#derive(Debug)
 pub(all) suberror RichError {
   /// The style definition could not be parsed.
   StyleSyntaxError(String)
@@ -23,7 +24,7 @@ pub(all) suberror RichError {
   NoEmoji(String)
   /// An invalid argument (upstream `ValueError`/`TypeError`).
   ValueError(String)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for RichError with fn output(self, logger) {

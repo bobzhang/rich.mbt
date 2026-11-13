@@ -207,6 +207,7 @@ let params : Array[Param] = [
 
 ///|
 /// Parsed command line options (the parameters of rich-cli's `main`).
+#derive(Debug)
 pub(all) struct Options {
   /// `<PATH or TEXT or '-'>`: a path, console markup / rule title, or `-`
   /// for standard input.
@@ -253,7 +254,7 @@ pub(all) struct Options {
   mut export_svg : String
   mut pager : Bool
   mut version : Bool
-} derive(Debug)
+}
 
 ///|
 /// The defaults of every option. `theme` defaults to `$RICH_THEME`, else

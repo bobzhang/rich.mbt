@@ -2,6 +2,7 @@
 
 ///|
 /// Non-printable control codes which typically translate to ANSI codes.
+#derive(Eq, Hash, Debug)
 pub(all) enum ControlType {
   Bell
   CarriageReturn
@@ -19,7 +20,7 @@ pub(all) enum ControlType {
   CursorMoveTo
   EraseInLine
   SetWindowTitle
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn ControlType::to_int(self : ControlType) -> Int32 {
@@ -45,22 +46,24 @@ pub fn ControlType::to_int(self : ControlType) -> Int32 {
 
 ///|
 /// A control code with its parameters.
+#derive(Eq, Hash, Debug)
 pub(all) enum ControlCode {
   Code(ControlType)
   CodeInt(ControlType, Int32)
   CodeStr(ControlType, String)
   CodeXY(ControlType, Int32, Int32)
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 /// A piece of text with associated style. Segments are produced by the
 /// Console render process and are ultimately converted in to strings to be
 /// written to the terminal.
+#derive(Eq)
 pub(all) struct Segment {
   text : String
   style : Style?
   control : Array[ControlCode]?
-} derive(Eq)
+}
 
 ///|
 pub fn Segment::new(

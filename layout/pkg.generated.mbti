@@ -12,11 +12,12 @@ import {
 pub fn splitter_by_name(String) -> &Splitter raise LayoutError
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror LayoutError {
   LayoutError(String)
   NoSplitter(String)
   KeyError(String)
-} derive(@debug.Debug)
+}
 pub impl Show for LayoutError
 
 // Types and methods

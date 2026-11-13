@@ -2,12 +2,13 @@
 
 ///|
 /// A tag in console markup.
+#derive(Eq, Debug)
 pub(all) struct Tag {
   /// The tag name, e.g. `"bold"`.
   name : String
   /// Any additional parameters after the name.
   parameters : String?
-} derive(Eq, Debug)
+}
 
 ///|
 /// Upstream `str(tag)`.
@@ -73,10 +74,11 @@ pub fn escape(markup : String) -> String {
 ///|
 /// An item of parsed markup (upstream `_parse` yields
 /// `(position, text, tag)` tuples): text or a tag, at a position.
+#derive(Eq, Debug)
 pub(all) enum MarkupItem {
   PlainText(Int32, String)
   TagAt(Int32, Tag)
-} derive(Eq, Debug)
+}
 
 ///|
 /// Parse markup in to a list of text and tag items (upstream
@@ -314,10 +316,11 @@ pub fn render_markup(
 
 ///|
 /// Emoji variants.
+#derive(Eq, Debug)
 pub(all) enum EmojiVariant {
   Emoji
   Text
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn EmojiVariant::to_string(self : EmojiVariant) -> String {

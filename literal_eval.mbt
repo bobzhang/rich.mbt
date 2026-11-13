@@ -3,6 +3,7 @@
 
 ///|
 /// A Python literal value (as parsed by `ast.literal_eval`).
+#derive(Eq, Debug)
 pub(all) enum PyValue {
   PyNone
   PyBool(Bool)
@@ -14,7 +15,7 @@ pub(all) enum PyValue {
   PyList(Array[PyValue])
   PySet(Array[PyValue])
   PyDict(Array[(PyValue, PyValue)])
-} derive(Eq, Debug)
+}
 
 ///|
 /// Convert to JSON: tuples, lists and sets become arrays, dicts objects

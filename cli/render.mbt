@@ -3,6 +3,7 @@
 
 ///|
 /// What the command reads (rich-cli's `read_resource` / `sys.stdin.read()`).
+#derive(Debug, Eq)
 pub(all) enum Input {
   /// Nothing to read.
   NoInput
@@ -10,10 +11,11 @@ pub(all) enum Input {
   Stdin
   /// A file.
   File(String)
-} derive(Debug, Eq)
+}
 
 ///|
 /// The result of running the command.
+#derive(Debug)
 pub(all) struct Output {
   /// Text written to standard output.
   stdout : String
@@ -28,10 +30,11 @@ pub(all) struct Output {
   /// With `--pager`: the rendered lines to show in a pager (`stdout` is
   /// then empty).
   pager : String?
-} derive(Debug)
+}
 
 ///|
 /// An exported file.
+#derive(Debug, Eq)
 pub(all) struct Export {
   /// The path given on the command line.
   path : String
@@ -40,7 +43,7 @@ pub(all) struct Export {
   /// `"HTML"` or `"SVG"` (for the error message if saving fails: `failed to
   /// save HTML`).
   format : String
-} derive(Debug, Eq)
+}
 
 ///|
 /// The resource format (`AUTO`, `SYNTAX`, ...).

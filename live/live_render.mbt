@@ -2,11 +2,12 @@
 
 ///|
 /// How to handle a renderable that is too tall for the console.
+#derive(Eq, Debug)
 pub(all) enum VerticalOverflowMethod {
   Crop
   Ellipsis
   Visible
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn VerticalOverflowMethod::to_string(

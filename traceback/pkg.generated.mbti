@@ -5,6 +5,7 @@ import {
   "bobzhang/rich",
   "bobzhang/rich/pretty",
   "bobzhang/rich/syntax",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -28,7 +29,7 @@ pub(all) struct Frame {
   last_instruction : ((Int32, Int32), (Int32, Int32))?
 }
 pub fn Frame::new(String, Int32, String, line? : String, locals? : Map[String, @pretty.Node], last_instruction? : ((Int32, Int32), (Int32, Int32))) -> Self
-pub impl ToJson for Frame
+pub impl @json.ToJson for Frame
 
 pub struct PathHighlighter {
   // private fields
@@ -47,7 +48,7 @@ pub(all) struct Stack {
   exceptions : Array[Trace]
 }
 pub fn Stack::new(String, String, syntax_error? : SyntaxErrorInfo, is_cause? : Bool, frames? : Array[Frame], notes? : Array[String], is_group? : Bool, exceptions? : Array[Trace]) -> Self
-pub impl ToJson for Stack
+pub impl @json.ToJson for Stack
 
 pub(all) struct SyntaxErrorInfo {
   offset : Int32
@@ -58,15 +59,15 @@ pub(all) struct SyntaxErrorInfo {
   notes : Array[String]
 }
 pub fn SyntaxErrorInfo::new(offset~ : Int32, filename~ : String, line~ : String, lineno~ : Int32, msg~ : String, notes? : Array[String]) -> Self
-pub impl ToJson for SyntaxErrorInfo
+pub impl @json.ToJson for SyntaxErrorInfo
 
 pub(all) struct Trace {
   stacks : Array[Stack]
 }
 pub fn Trace::from_error(Error, exc_type? : String, frames? : Array[Frame]) -> Self
-pub fn Trace::from_json(Json) -> Self raise @rich.RichError
+pub fn Trace::from_json(@json.Json) -> Self raise @rich.RichError
 pub fn Trace::new(Array[Stack]) -> Self
-pub impl ToJson for Trace
+pub impl @json.ToJson for Trace
 
 pub(all) struct Traceback {
   mut trace : Trace

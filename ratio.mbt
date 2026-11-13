@@ -2,11 +2,12 @@
 
 ///|
 /// An edge for `ratio_resolve`.
+#derive(Eq, Debug)
 pub(all) struct Edge {
   size : Int32?
   ratio : Int32
   minimum_size : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// A rational number p/q with q > 0.

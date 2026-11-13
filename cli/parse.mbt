@@ -3,6 +3,7 @@
 
 ///|
 /// The result of parsing the command line.
+#derive(Debug)
 pub(all) enum Command {
   /// Render with these options.
   Run(Options)
@@ -11,7 +12,7 @@ pub(all) enum Command {
   /// A usage error (exit code 2). With `usage`, the message is preceded by
   /// the usage line and a hint to use `--help` (click's `UsageError.show`).
   UsageError(String, usage~ : Bool)
-} derive(Debug)
+}
 
 ///|
 priv suberror ParseError {

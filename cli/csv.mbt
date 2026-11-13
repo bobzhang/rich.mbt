@@ -293,11 +293,12 @@ fn sniff(sample : String, delimiters? : String) -> Dialect raise CsvError {
 }
 
 ///|
+#derive(Eq)
 priv enum ColumnType {
   Unknown
   Complex
   Length(Int32)
-} derive(Eq)
+}
 
 ///|
 /// `Sniffer().has_header(sample)`.
@@ -347,6 +348,7 @@ fn has_header(sample : String) -> Bool raise CsvError {
 }
 
 ///|
+#derive(Eq)
 priv enum ParserState {
   StartRecord
   StartField
@@ -354,7 +356,7 @@ priv enum ParserState {
   InQuotedField
   QuoteInQuotedField
   EatCrnl
-} derive(Eq)
+}
 
 ///|
 /// `list(csv.reader(io.StringIO(text), dialect))`.

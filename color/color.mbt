@@ -3,12 +3,13 @@
 
 ///|
 /// One of the color systems supported by terminals.
+#derive(Eq, Hash, Compare, Debug)
 pub(all) enum ColorSystem {
   Standard
   EightBit
   Truecolor
   Windows
-} derive(Eq, Hash, Compare, Debug)
+}
 
 ///|
 /// Upstream `int(ColorSystem.X)`.
@@ -36,13 +37,14 @@ pub impl Show for ColorSystem with fn output(self, logger) {
 
 ///|
 /// Type of color stored in `Color`.
+#derive(Eq, Hash, Compare, Debug)
 pub(all) enum ColorType {
   Default
   Standard
   EightBit
   Truecolor
   Windows
-} derive(Eq, Hash, Compare, Debug)
+}
 
 ///|
 pub fn ColorType::to_int(self : ColorType) -> Int32 {
@@ -74,11 +76,12 @@ pub impl Show for ColorType with fn output(self, logger) {
 
 ///|
 /// The red, green, and blue components of a color (0–255 each).
+#derive(Eq, Hash, Compare, Debug)
 pub(all) struct ColorTriplet {
   red : Int32
   green : Int32
   blue : Int32
-} derive(Eq, Hash, Compare, Debug)
+}
 
 ///|
 pub fn ColorTriplet::new(
@@ -271,9 +274,10 @@ pub fn TerminalTheme::new(
 
 ///|
 /// Error raised when a color definition can not be parsed.
+#derive(Debug)
 pub suberror ColorParseError {
   ColorParseError(String)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for ColorParseError with fn output(self, logger) {
@@ -284,6 +288,7 @@ pub impl Show for ColorParseError with fn output(self, logger) {
 
 ///|
 /// Terminal color definition.
+#derive(Eq, Hash, Debug)
 pub(all) struct Color {
   /// The name of the color (typically the input to `Color::parse`).
   name : String
@@ -293,7 +298,7 @@ pub(all) struct Color {
   number : Int32?
   /// A triplet of color components, if an RGB color.
   triplet : ColorTriplet?
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn Color::new(

@@ -3,6 +3,7 @@
 ///|
 /// Layout related errors (upstream `LayoutError`, `NoSplitter`, and the
 /// `KeyError` raised by `layout[name]`).
+#derive(Debug)
 pub(all) suberror LayoutError {
   /// Layout related error.
   LayoutError(String)
@@ -10,7 +11,7 @@ pub(all) suberror LayoutError {
   NoSplitter(String)
   /// No layout with the requested name.
   KeyError(String)
-} derive(Debug)
+}
 
 ///|
 pub impl Show for LayoutError with fn output(self, logger) {
