@@ -353,15 +353,15 @@ test "console_width" {
   let options = console.options()
   let t = text("Hello World!\nfoobarbaz")
   assert_eq(
-    t.rich_measure(console, options),
+    @rich.Renderable::rich_measure(t, console, options),
     Some(@rich.Measurement::new(9, 12)),
   )
   assert_eq(
-    text(" ".repeat(4)).rich_measure(console, options),
+    @rich.Renderable::rich_measure(text(" ".repeat(4)), console, options),
     Some(@rich.Measurement::new(4, 4)),
   )
   assert_eq(
-    text(" \n  \n   ").rich_measure(console, options),
+    @rich.Renderable::rich_measure(text(" \n  \n   "), console, options),
     Some(@rich.Measurement::new(3, 3)),
   )
 }

@@ -219,7 +219,11 @@ test "color triplet" {
 ///|
 test "parse unicode whitespace and digits (oracle)" {
   fn p(s : String) -> String {
-    (@color.Color::parse(s) catch { e => abort(e.to_string()) }).to_string()
+    Show::to_string(
+      @color.Color::parse(s) catch {
+        e => abort(Show::to_string(e))
+      },
+    )
   }
 
   inspect(p(" red "), content="Color('red', ColorType.STANDARD, number=1)")

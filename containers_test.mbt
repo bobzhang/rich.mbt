@@ -10,7 +10,11 @@ test "renderables_measure" {
   let console = containers_console()
   let text = @rich.Text::new(text="foo")
   let renderables = @rich.Renderables::new(renderables=[text])
-  let result = renderables.rich_measure(console, console.options())
+  let result = @rich.Renderable::rich_measure(
+    renderables,
+    console,
+    console.options(),
+  )
   assert_eq(result, Some(@rich.Measurement::new(3, 3)))
   inspect(renderables.renderables.length(), content="1")
   match renderables.renderables[0].text_kind() {
@@ -23,7 +27,11 @@ test "renderables_measure" {
 test "renderables_empty" {
   let console = containers_console()
   let renderables = @rich.Renderables::new()
-  let result = renderables.rich_measure(console, console.options())
+  let result = @rich.Renderable::rich_measure(
+    renderables,
+    console,
+    console.options(),
+  )
   assert_eq(result, Some(@rich.Measurement::new(1, 1)))
 }
 
@@ -31,7 +39,7 @@ test "renderables_empty" {
 test "lines_rich_console" {
   let console = containers_console()
   let lines = @rich.Lines::new([@rich.Text::new(text="foo")])
-  let result = lines.rich_console(console, console.options())
+  let result = @rich.Renderable::rich_console(lines, console, console.options())
   inspect(result.length(), content="1")
   match result[0] {
     Child(r) =>

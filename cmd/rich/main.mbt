@@ -80,7 +80,7 @@ async fn run(args : Array[String]) -> Int32 {
     @stdio.stderr.write(output.stderr)
   }
   if output.pager is Some(text) {
-    @richlib.SystemPager::new().show(text)
+    @richlib.Pager::show(@richlib.SystemPager::new(), text)
   }
   for exported in output.exports {
     @fs.write_file(

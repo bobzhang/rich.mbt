@@ -55,7 +55,7 @@ struct AsciiFile {
 
 ///|
 impl @rich.ConsoleFile for AsciiFile with fn write(self, s) {
-  self.io.write(s)
+  @rich.ConsoleFile::write(self.io, s)
 }
 
 ///|

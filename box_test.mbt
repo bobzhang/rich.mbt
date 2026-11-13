@@ -3,7 +3,7 @@
 ///|
 test "test_str" {
   assert_eq(
-    @rich.box_ascii.to_string(),
+    Show::to_string(@rich.box_ascii),
     "+--+\n| ||\n|-+|\n| ||\n|-+|\n|-+|\n| ||\n+--+\n",
   )
 }

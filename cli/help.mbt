@@ -107,5 +107,5 @@ fn render_help(
     style="bold",
   )
   // click echoes the (empty) formatter output
-  file.write("\n")
+  @rich.ConsoleFile::write(file, "\n")
 }

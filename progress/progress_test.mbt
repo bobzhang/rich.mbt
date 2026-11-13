@@ -122,7 +122,7 @@ test "time_remaining_column" {
   let task = @progress.Task::new(1, "test", Some(100.0), 20.0, get_time=() => {
     1.0
   })
-  let text = column.call(task)
+  let text = @progress.ProgressColumn::call(column, task)
   assert_eq(plain(text), "-:--:--")
   // time_remaining = 60
   let clock = MockClock::new(auto=false)
@@ -137,7 +137,7 @@ test "time_remaining_column" {
   progress.advance(task_id, advance=20.0)
   let task = progress.get_task(task_id)
   assert_eq(task.time_remaining(), Some(60.0))
-  let text = column.call(task)
+  let text = @progress.ProgressColumn::call(column, task)
   assert_eq(plain(text), "0:01:00")
 }
 

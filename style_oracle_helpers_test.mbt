@@ -29,7 +29,7 @@ fn describe_style(definition : String) -> Array[String] {
     e => return ["error: \{e}"]
   }
   let out = [
-    style.to_string(),
+    Show::to_string(style),
     style.repr(),
     if style.to_bool() {
       "True"

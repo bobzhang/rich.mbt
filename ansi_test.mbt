@@ -18,7 +18,7 @@ fn ansi_text_repr(t : @rich.Text) -> String {
   let spans = t
     .spans()
     .map(s => {
-      "Span(\{s.start}, \{s.end}, \{@rich.py_repr(s.style.to_string())})"
+      "Span(\{s.start}, \{s.end}, \{@rich.py_repr(Show::to_string(s.style))})"
     })
   "\{@rich.py_repr(t.plain())} [\{spans.join(", ")}]"
 }

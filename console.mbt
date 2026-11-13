@@ -427,7 +427,7 @@ fn Console::getenv(self : Console, name : String) -> String? {
 /// Upstream `repr(console)`.
 pub fn Console::repr(self : Console) -> String {
   let cs = match self.color_system_ {
-    Some(c) => c.to_string()
+    Some(c) => Show::to_string(c)
     None => "None"
   }
   "<console width=\{self.width()} \{cs}>"

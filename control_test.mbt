@@ -3,7 +3,7 @@
 ///|
 test "test_control" {
   let control = @rich.Control::new([Code(Bell)])
-  assert_eq(control.to_string(), "\u{07}")
+  assert_eq(Show::to_string(control), "\u{07}")
 }
 
 ///|
