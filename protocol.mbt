@@ -85,13 +85,14 @@ pub impl Renderable for String with fn text_kind(self) {
 
 ///|
 /// Justify methods.
+#derive(Eq, Hash, Debug)
 pub(all) enum JustifyMethod {
   Default
   Left
   Center
   Right
   Full
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn JustifyMethod::to_string(self : JustifyMethod) -> String {
@@ -119,12 +120,13 @@ pub fn JustifyMethod::parse(s : String) -> JustifyMethod? {
 
 ///|
 /// Overflow methods.
+#derive(Eq, Hash, Debug)
 pub(all) enum OverflowMethod {
   Fold
   Crop
   Ellipsis
   Ignore
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn OverflowMethod::to_string(self : OverflowMethod) -> String {
@@ -150,11 +152,12 @@ pub fn OverflowMethod::parse(s : String) -> OverflowMethod? {
 
 ///|
 /// Horizontal alignment.
+#derive(Eq, Hash, Debug)
 pub(all) enum AlignMethod {
   Left
   Center
   Right
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn AlignMethod::to_string(self : AlignMethod) -> String {
@@ -167,11 +170,12 @@ pub fn AlignMethod::to_string(self : AlignMethod) -> String {
 
 ///|
 /// Vertical alignment.
+#derive(Eq, Hash, Debug)
 pub(all) enum VerticalAlignMethod {
   Top
   Middle
   Bottom
-} derive(Eq, Hash, Debug)
+}
 
 ///|
 pub fn VerticalAlignMethod::to_string(self : VerticalAlignMethod) -> String {
@@ -185,10 +189,11 @@ pub fn VerticalAlignMethod::to_string(self : VerticalAlignMethod) -> String {
 ///|
 /// A style definition (looked up in the theme, then parsed, at render
 /// time) or a `Style` (upstream `StyleType = Union[str, Style]`).
+#derive(Eq, Hash)
 pub(all) enum StyleType {
   Def(String)
   Style(Style)
-} derive(Eq, Hash)
+}
 
 ///|
 /// Upstream `bool(style)`: a non-empty definition or a non-null style.
@@ -332,10 +337,11 @@ pub impl Renderable for TextType with fn text_kind(self) {
 ///|
 /// Stores the minimum and maximum widths (in cells) required to render an
 /// object.
+#derive(Eq, Debug)
 pub(all) struct Measurement {
   minimum : Int32
   maximum : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 pub fn Measurement::new(minimum : Int32, maximum : Int32) -> Measurement {
@@ -472,10 +478,11 @@ pub fn measure_renderables(
 
 ///|
 /// Size of the terminal.
+#derive(Eq, Debug)
 pub(all) struct ConsoleDimensions {
   width : Int32
   height : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// Options for `Renderable::rich_console`.

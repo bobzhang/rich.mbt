@@ -8,6 +8,7 @@ import {
   "moonbitlang/core/deque",
   "moonbitlang/core/hashmap",
   "moonbitlang/core/hashset",
+  "moonbitlang/core/json",
   "moonbitlang/core/set",
 }
 
@@ -156,12 +157,12 @@ pub impl PrettyRepr for @rich.JsonValue
 pub impl PrettyRepr for @bigint.BigInt
 pub impl[T : PrettyRepr] PrettyRepr for Array[T]
 pub impl[T : PrettyRepr] PrettyRepr for ArrayView[T]
-pub impl PrettyRepr for Json
 pub impl[K : PrettyRepr, V : PrettyRepr] PrettyRepr for Map[K, V]
 pub impl[T : PrettyRepr, E : PrettyRepr] PrettyRepr for Result[T, E]
 pub impl[T : PrettyRepr] PrettyRepr for @deque.Deque[T]
 pub impl[K : PrettyRepr, V : PrettyRepr] PrettyRepr for @hashmap.HashMap[K, V]
 pub impl[T : PrettyRepr] PrettyRepr for @hashset.HashSet[T]
+pub impl PrettyRepr for @json.Json
 pub impl[T : PrettyRepr] PrettyRepr for @set.Set[T]
 pub impl[A : PrettyRepr, B : PrettyRepr] PrettyRepr for (A, B)
 pub impl[A : PrettyRepr, B : PrettyRepr, C : PrettyRepr] PrettyRepr for (A, B, C)

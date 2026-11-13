@@ -7,6 +7,7 @@ import {
   "bobzhang/rich/progress_bar",
   "bobzhang/rich/spinner",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -67,7 +68,7 @@ pub(all) struct Progress {
   get_time : () -> Double
   // private fields
 }
-pub fn Progress::add_task(Self, String, start? : Bool, total? : Double?, completed? : Double, visible? : Bool, fields? : Map[String, Json]) -> Int32 raise
+pub fn Progress::add_task(Self, String, start? : Bool, total? : Double?, completed? : Double, visible? : Bool, fields? : Map[String, @json.Json]) -> Int32 raise
 pub fn Progress::advance(Self, Int32, advance? : Double) -> Unit raise
 pub fn Progress::console(Self) -> @rich.Console
 pub fn Progress::finished(Self) -> Bool
@@ -79,7 +80,7 @@ pub fn Progress::make_tasks_table(Self, Array[Task]) -> @rich.Table raise
 pub fn Progress::new(columns? : Array[&ProgressColumn], console? : @rich.Console, auto_refresh? : Bool, refresh_per_second? : Double, speed_estimate_period? : Double, transient? : Bool, redirect_stdout? : Bool, redirect_stderr? : Bool, get_time? : () -> Double, disable? : Bool, expand? : Bool) -> Self
 pub fn Progress::refresh(Self) -> Unit raise
 pub fn Progress::remove_task(Self, Int32) -> Unit
-pub fn Progress::reset(Self, Int32, start? : Bool, total? : Double, completed? : Double, visible? : Bool, description? : String, fields? : Map[String, Json]) -> Unit raise
+pub fn Progress::reset(Self, Int32, start? : Bool, total? : Double, completed? : Double, visible? : Bool, description? : String, fields? : Map[String, @json.Json]) -> Unit raise
 pub fn Progress::run(Self, () -> Unit raise) -> Unit raise
 pub fn Progress::start(Self) -> Unit raise
 pub fn Progress::start_task(Self, Int32) -> Unit raise
@@ -88,13 +89,14 @@ pub fn Progress::stop_task(Self, Int32) -> Unit raise
 pub fn Progress::task_ids(Self) -> Array[Int32]
 pub fn Progress::tasks(Self) -> Array[Task]
 pub fn[T] Progress::track(Self, Iter[T], (T) -> Unit raise, total? : Double, completed? : Double, task_id? : Int32, description? : String, update_period? : Double) -> Unit raise
-pub fn Progress::update(Self, Int32, total? : Double, completed? : Double, advance? : Double, description? : String, visible? : Bool, refresh? : Bool, fields? : Map[String, Json]) -> Unit raise
+pub fn Progress::update(Self, Int32, total? : Double, completed? : Double, advance? : Double, description? : String, visible? : Bool, refresh? : Bool, fields? : Map[String, @json.Json]) -> Unit raise
 pub impl @rich.Renderable for Progress
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ProgressSample {
   timestamp : Double
   completed : Double
-} derive(Eq, @debug.Debug)
+}
 
 pub(all) struct RenderableColumn {
   mut renderable : &@rich.Renderable
@@ -119,7 +121,7 @@ pub(all) struct Task {
   mut completed : Double
   mut finished_time : Double?
   mut visible : Bool
-  mut fields : Map[String, Json]
+  mut fields : Map[String, @json.Json]
   mut start_time : Double?
   mut stop_time : Double?
   mut finished_speed : Double?
@@ -128,7 +130,7 @@ pub(all) struct Task {
 pub fn Task::elapsed(Self) -> Double?
 pub fn Task::finished(Self) -> Bool
 pub fn Task::get_time(Self) -> Double
-pub fn Task::new(Int32, String, Double?, Double, get_time~ : () -> Double, finished_time? : Double, visible? : Bool, fields? : Map[String, Json]) -> Self
+pub fn Task::new(Int32, String, Double?, Double, get_time~ : () -> Double, finished_time? : Double, visible? : Bool, fields? : Map[String, @json.Json]) -> Self
 pub fn Task::percentage(Self) -> Double
 pub fn Task::remaining(Self) -> Double?
 pub fn Task::samples(Self) -> Array[ProgressSample]

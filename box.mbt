@@ -11,6 +11,7 @@
 ///     ├─┼┤ foot_row
 ///     │ ││ foot
 ///     └─┴┘ bottom
+#derive(Eq, Debug)
 pub struct Box {
   /// Name of a built-in box (used for substitutions), or "".
   name : String
@@ -45,7 +46,7 @@ pub struct Box {
   bottom : String
   bottom_divider : String
   bottom_right : String
-} derive(Eq, Debug)
+}
 
 ///|
 /// Create a box from 8 lines of 4 characters.
@@ -173,12 +174,13 @@ pub fn Box::get_top(self : Box, widths : ArrayView[Int32]) -> String {
 
 ///|
 /// Row levels for `Box::get_row`.
+#derive(Eq, Debug)
 pub(all) enum RowLevel {
   Head
   Row
   Foot
   Mid
-} derive(Eq, Debug)
+}
 
 ///|
 /// Get the top of a simple box.

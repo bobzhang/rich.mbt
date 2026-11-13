@@ -2,12 +2,13 @@
 
 ///|
 /// Sample of progress for a given time.
+#derive(Eq, Debug)
 pub(all) struct ProgressSample {
   /// Timestamp of sample.
   timestamp : Double
   /// Number of steps completed.
   completed : Double
-} derive(Eq, Debug)
+}
 
 ///|
 /// Maximum number of progress samples kept per task (upstream

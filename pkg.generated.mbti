@@ -5,6 +5,7 @@ import {
   "bobzhang/pygments/regex",
   "bobzhang/rich/color",
   "moonbitlang/core/debug",
+  "moonbitlang/core/json",
 }
 
 // Values
@@ -92,7 +93,7 @@ pub fn pick_unit_and_suffix(Int64, Array[String], Int64) -> (Int64, String)
 
 pub fn print(&Renderable, end? : String, file? : &ConsoleFile) -> Unit raise
 
-pub fn print_json(json? : String, data? : Json, indent? : Int32?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn print_json(json? : String, data? : @json.Json, indent? : Int32?, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
 
 pub fn print_many(ArrayView[&Renderable], sep? : String, end? : String, file? : &ConsoleFile) -> Unit raise
 
@@ -110,7 +111,7 @@ pub fn py_format_general(Double, precision? : Int32, upper? : Bool, alternate? :
 
 pub fn py_group_thousands(String) -> String
 
-pub fn py_json_repr(Json) -> String
+pub fn py_json_repr(@json.Json) -> String
 
 pub fn py_repr(String) -> String
 
@@ -135,6 +136,7 @@ pub fn unpack_padding(ArrayView[Int32]) -> (Int32, Int32, Int32, Int32) raise Ri
 pub fn words(String) -> Array[(Int32, Int32, String)]
 
 // Errors
+#derive(@debug.Debug)
 pub(all) suberror RichError {
   StyleSyntaxError(String)
   MissingStyle(String)
@@ -146,7 +148,7 @@ pub(all) suberror RichError {
   WriteError(String)
   NoEmoji(String)
   ValueError(String)
-} derive(@debug.Debug)
+}
 pub impl Show for RichError
 
 // Types and methods
@@ -165,11 +167,12 @@ pub fn Align::new(&Renderable, AlignMethod, style? : &IntoStyle, vertical? : Ver
 pub fn Align::right(&Renderable, style? : &IntoStyle, vertical? : VerticalAlignMethod, pad? : Bool, width? : Int32, height? : Int32) -> Self
 pub impl Renderable for Align
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum AlignMethod {
   Left
   Center
   Right
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn AlignMethod::to_string(Self) -> String
 
 pub struct AnsiDecoder {
@@ -179,6 +182,7 @@ pub fn AnsiDecoder::decode(Self, String) -> Array[Text]
 pub fn AnsiDecoder::decode_line(Self, String) -> Text
 pub fn AnsiDecoder::new() -> Self
 
+#derive(Eq, @debug.Debug)
 pub struct Box {
   name : String
   box_ : String
@@ -212,7 +216,7 @@ pub struct Box {
   bottom : String
   bottom_divider : String
   bottom_right : String
-} derive(Eq, @debug.Debug)
+}
 pub fn Box::get_bottom(Self, ArrayView[Int32]) -> String
 pub fn Box::get_plain_headed_box(Self) -> Self
 pub fn Box::get_row(Self, ArrayView[Int32], level? : RowLevel, edge? : Bool) -> String
@@ -300,7 +304,7 @@ pub fn Console::pager(Self, () -> Unit raise, pager? : &Pager, styles? : Bool, l
 pub fn Console::pop_render_hook(Self) -> Unit
 pub fn Console::pop_theme(Self) -> Unit raise RichError
 pub fn Console::print(Self, &Renderable, sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int32, height? : Int32, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
-pub fn Console::print_json(Self, json? : String, data? : Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
+pub fn Console::print_json(Self, json? : String, data? : @json.Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Unit raise
 pub fn Console::print_many(Self, ArrayView[&Renderable], sep? : String, end? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, emoji? : Bool, markup? : Bool, highlight? : Bool, width? : Int32, height? : Int32, crop? : Bool, soft_wrap? : Bool, new_line_start? : Bool) -> Unit raise
 pub fn Console::push_render_hook(Self, &RenderHook) -> Unit
 pub fn Console::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
@@ -328,10 +332,11 @@ pub fn Console::update_screen_lines(Self, Array[Array[Segment]], x? : Int32, y? 
 pub fn Console::use_theme(Self, Theme, () -> Unit raise, inherit_styles? : Bool) -> Unit raise
 pub fn Console::width(Self) -> Int32
 
+#derive(Eq, @debug.Debug)
 pub(all) struct ConsoleDimensions {
   width : Int32
   height : Int32
-} derive(Eq, @debug.Debug)
+}
 
 pub(all) struct ConsoleOptions {
   mut size : ConsoleDimensions
@@ -379,13 +384,15 @@ pub fn Control::title(String) -> Self
 pub impl Renderable for Control
 pub impl Show for Control
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum ControlCode {
   Code(ControlType)
   CodeInt(ControlType, Int32)
   CodeStr(ControlType, String)
   CodeXY(ControlType, Int32, Int32)
-} derive(Eq, Hash, @debug.Debug)
+}
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum ControlType {
   Bell
   CarriageReturn
@@ -403,14 +410,15 @@ pub(all) enum ControlType {
   CursorMoveTo
   EraseInLine
   SetWindowTitle
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn ControlType::to_int(Self) -> Int32
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Edge {
   size : Int32?
   ratio : Int32
   minimum_size : Int32
-} derive(Eq, @debug.Debug)
+}
 
 pub struct Emoji {
   name : String
@@ -425,10 +433,11 @@ pub impl Renderable for Emoji
 pub impl Show for Emoji
 pub impl @debug.Debug for Emoji
 
+#derive(Eq, @debug.Debug)
 pub(all) enum EmojiVariant {
   Emoji
   Text
-} derive(Eq, @debug.Debug)
+}
 pub fn EmojiVariant::to_string(Self) -> String
 
 pub struct Group {
@@ -447,7 +456,7 @@ pub impl Highlighter for ISO8601Highlighter
 pub struct JSON {
   text : Text
 }
-pub fn JSON::from_data(Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
+pub fn JSON::from_data(@json.Json, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
 pub fn JSON::from_value(JsonValue, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
 pub fn JSON::new(String, indent? : Int32?, indent_str? : String, highlight? : Bool, ensure_ascii? : Bool, sort_keys? : Bool) -> Self raise
 pub impl Renderable for JSON
@@ -457,6 +466,7 @@ pub struct JSONHighlighter {
 pub fn JSONHighlighter::new() -> Self
 pub impl Highlighter for JSONHighlighter
 
+#derive(Eq, @debug.Debug)
 pub(all) enum JsonValue {
   JNull
   JBool(Bool)
@@ -465,18 +475,19 @@ pub(all) enum JsonValue {
   JString(String)
   JArray(Array[JsonValue])
   JObject(Array[(String, JsonValue)])
-} derive(Eq, @debug.Debug)
+}
 pub fn JsonValue::dumps(Self, indent? : Int32?, indent_str? : String, ensure_ascii? : Bool, sort_keys? : Bool) -> String
-pub fn JsonValue::from_json(Json) -> Self
+pub fn JsonValue::from_json(@json.Json) -> Self
 pub fn JsonValue::parse(String) -> Self raise RichError
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum JustifyMethod {
   Default
   Left
   Center
   Right
   Full
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn JustifyMethod::parse(String) -> Self?
 pub fn JustifyMethod::to_string(Self) -> String
 
@@ -509,15 +520,17 @@ pub struct LogRender {
 pub fn LogRender::new(show_time? : Bool, show_level? : Bool, show_path? : Bool, time_format? : String, time_formatter? : (Double) -> Text, omit_repeated_times? : Bool, level_width? : Int32?) -> Self
 pub fn LogRender::render(Self, Console, Array[&Renderable], log_time? : Double, time_format? : String, level? : &IntoText, path? : String, line_no? : Int32, link_path? : String) -> Table raise
 
+#derive(Eq, @debug.Debug)
 pub(all) enum MarkupItem {
   PlainText(Int32, String)
   TagAt(Int32, Tag)
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Measurement {
   minimum : Int32
   maximum : Int32
-} derive(Eq, @debug.Debug)
+}
 pub fn Measurement::clamp(Self, min_width? : Int32, max_width? : Int32) -> Self
 pub fn Measurement::get(Console, ConsoleOptions, &Renderable) -> Self raise
 pub fn Measurement::new(Int32, Int32) -> Self
@@ -543,12 +556,13 @@ pub struct NullHighlighter {
 pub fn NullHighlighter::new() -> Self
 pub impl Highlighter for NullHighlighter
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum OverflowMethod {
   Fold
   Crop
   Ellipsis
   Ignore
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn OverflowMethod::parse(String) -> Self?
 pub fn OverflowMethod::to_string(Self) -> String
 
@@ -566,6 +580,7 @@ pub fn Padding::new(&Renderable, pad? : ArrayView[Int32], style? : &IntoStyle, e
 pub fn Padding::repr(Self) -> String
 pub impl Renderable for Padding
 
+#derive(Eq, @debug.Debug)
 pub(all) enum PyValue {
   PyNone
   PyBool(Bool)
@@ -577,9 +592,9 @@ pub(all) enum PyValue {
   PyList(Array[PyValue])
   PySet(Array[PyValue])
   PyDict(Array[(PyValue, PyValue)])
-} derive(Eq, @debug.Debug)
+}
 pub fn PyValue::repr(Self) -> String
-pub impl ToJson for PyValue
+pub impl @json.ToJson for PyValue
 
 pub struct RegexHighlighter {
   highlights : Array[@regex.Regex]
@@ -588,12 +603,13 @@ pub struct RegexHighlighter {
 pub fn RegexHighlighter::new(Array[String], base_style? : String) -> Self raise @regex.RegexError
 pub impl Highlighter for RegexHighlighter
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Region {
   x : Int32
   y : Int32
   width : Int32
   height : Int32
-} derive(Eq, @debug.Debug)
+}
 
 pub(all) enum RenderItem {
   Seg(Segment)
@@ -619,12 +635,13 @@ pub(all) struct Row {
   mut end_section : Bool
 }
 
+#derive(Eq, @debug.Debug)
 pub(all) enum RowLevel {
   Head
   Row
   Foot
   Mid
-} derive(Eq, @debug.Debug)
+}
 
 pub struct Rule {
   title : TextType
@@ -663,11 +680,12 @@ pub struct ScreenUpdate {
 pub fn ScreenUpdate::new(Array[Array[Segment]], Int32, Int32) -> Self
 pub impl Renderable for ScreenUpdate
 
+#derive(Eq)
 pub(all) struct Segment {
   text : String
   style : Style?
   control : Array[ControlCode]?
-} derive(Eq)
+}
 pub fn Segment::adjust_line_length(Array[Self], Int32, style? : Style, pad? : Bool) -> Array[Self]
 pub fn Segment::align_bottom(Array[Array[Self]], Int32, Int32, Style?, new_lines? : Bool) -> Array[Array[Self]]
 pub fn Segment::align_middle(Array[Array[Self]], Int32, Int32, Style?, new_lines? : Bool) -> Array[Array[Self]]
@@ -710,11 +728,12 @@ pub struct Segments {
 pub fn Segments::new(Array[Segment], new_lines? : Bool) -> Self
 pub impl Renderable for Segments
 
+#derive(Eq, Hash)
 pub(all) struct Span {
   start : Int32
   end : Int32
   style : StyleType
-} derive(Eq, Hash)
+}
 pub fn Span::extend_(Self, Int32) -> Self
 pub fn Span::move_(Self, Int32) -> Self
 pub fn Span::new(Int32, Int32, &IntoStyle) -> Self
@@ -758,17 +777,17 @@ pub fn Style::dim(Self) -> Bool?
 pub fn Style::encircle(Self) -> Bool?
 pub fn Style::frame(Self) -> Bool?
 pub fn Style::from_color(color? : @color.Color, bgcolor? : @color.Color) -> Self
-pub fn Style::from_meta(Map[String, Json]?) -> Self
+pub fn Style::from_meta(Map[String, @json.Json]?) -> Self
 pub fn Style::get_html_style(Self, theme? : @color.TerminalTheme) -> String
 pub fn Style::is_null(Self) -> Bool
 pub fn Style::italic(Self) -> Bool?
 pub fn Style::link(Self) -> String?
 pub fn Style::link_id(Self) -> String
-pub fn Style::meta(Self) -> Map[String, Json]
-pub fn Style::new(color? : @color.Color, bgcolor? : @color.Color, bold? : Bool, dim? : Bool, italic? : Bool, underline? : Bool, blink? : Bool, blink2? : Bool, reverse? : Bool, conceal? : Bool, strike? : Bool, underline2? : Bool, frame? : Bool, encircle? : Bool, overline? : Bool, link? : String, meta? : Map[String, Json]) -> Self
+pub fn Style::meta(Self) -> Map[String, @json.Json]
+pub fn Style::new(color? : @color.Color, bgcolor? : @color.Color, bold? : Bool, dim? : Bool, italic? : Bool, underline? : Bool, blink? : Bool, blink2? : Bool, reverse? : Bool, conceal? : Bool, strike? : Bool, underline2? : Bool, frame? : Bool, encircle? : Bool, overline? : Bool, link? : String, meta? : Map[String, @json.Json]) -> Self
 pub fn Style::normalize(String) -> String
 pub fn Style::null() -> Self
-pub fn Style::on(meta? : Map[String, Json], handlers? : Map[String, Json]) -> Self
+pub fn Style::on(meta? : Map[String, @json.Json], handlers? : Map[String, @json.Json]) -> Self
 pub fn Style::overline(Self) -> Bool?
 pub fn Style::parse(String) -> Self raise RichError
 pub fn Style::pick_first(ArrayView[StyleType?]) -> StyleType raise RichError
@@ -798,10 +817,11 @@ pub fn StyleStack::pop(Self) -> Style
 pub fn StyleStack::push(Self, Style) -> Unit
 pub fn StyleStack::repr(Self) -> String
 
+#derive(Eq, Hash)
 pub(all) enum StyleType {
   Def(String)
   Style(Style)
-} derive(Eq, Hash)
+}
 pub fn StyleType::repr(Self) -> String
 pub fn StyleType::to_bool(Self) -> Bool
 pub impl IntoStyle for StyleType
@@ -862,10 +882,11 @@ pub fn Table::set_expand(Self, Bool) -> Unit
 pub fn Table::set_padding(Self, ArrayView[Int32]) -> Unit raise RichError
 pub impl Renderable for Table
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Tag {
   name : String
   parameters : String?
-} derive(Eq, @debug.Debug)
+}
 pub fn Tag::markup(Self) -> String
 pub impl Show for Tag
 
@@ -883,8 +904,8 @@ pub fn Text::append(Self, &IntoText, style? : &IntoStyle) -> Self raise RichErro
 pub fn Text::append_str(Self, String, style? : &IntoStyle) -> Self
 pub fn Text::append_text(Self, Self) -> Self
 pub fn Text::append_tokens(Self, ArrayView[(String, StyleType?)]) -> Self
-pub fn Text::apply_meta(Self, Map[String, Json], start? : Int32, end? : Int32) -> Unit
-pub fn Text::assemble(ArrayView[&TextPart], style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32, meta? : Map[String, Json]) -> Self
+pub fn Text::apply_meta(Self, Map[String, @json.Json], start? : Int32, end? : Int32) -> Unit
+pub fn Text::assemble(ArrayView[&TextPart], style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32, meta? : Map[String, @json.Json]) -> Self
 pub fn Text::at(Self, Int32) -> Self
 pub fn Text::blank_copy(Self, plain? : String) -> Self
 pub fn Text::cell_len(Self) -> Int32
@@ -907,7 +928,7 @@ pub fn Text::join(Self, ArrayView[Self]) -> Self
 pub fn Text::length(Self) -> Int32
 pub fn Text::markup(Self) -> String
 pub fn Text::new(text? : String, style? : &IntoStyle, justify? : JustifyMethod, overflow? : OverflowMethod, no_wrap? : Bool, end? : String, tab_size? : Int32, spans? : Array[Span]) -> Self
-pub fn Text::on(Self, meta? : Map[String, Json], handlers? : Map[String, Json]) -> Self
+pub fn Text::on(Self, meta? : Map[String, @json.Json], handlers? : Map[String, @json.Json]) -> Self
 pub fn Text::pad(Self, Int32, character? : Char) -> Unit
 pub fn Text::pad_left(Self, Int32, character? : Char) -> Unit
 pub fn Text::pad_right(Self, Int32, character? : Char) -> Unit
@@ -969,11 +990,12 @@ pub fn ThemeStack::new(Theme) -> Self
 pub fn ThemeStack::pop_theme(Self) -> Unit raise RichError
 pub fn ThemeStack::push_theme(Self, Theme, inherit_styles? : Bool) -> Unit
 
+#derive(Eq, Hash, @debug.Debug)
 pub(all) enum VerticalAlignMethod {
   Top
   Middle
   Bottom
-} derive(Eq, Hash, @debug.Debug)
+}
 pub fn VerticalAlignMethod::to_string(Self) -> String
 
 pub struct VerticalCenter {

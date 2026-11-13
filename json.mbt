@@ -4,6 +4,7 @@
 ///|
 /// A JSON value that keeps object key order and the text of numbers (so
 /// that `1` and `1.0` are printed back as Python would).
+#derive(Eq, Debug)
 pub(all) enum JsonValue {
   JNull
   JBool(Bool)
@@ -13,7 +14,7 @@ pub(all) enum JsonValue {
   JString(String)
   JArray(Array[JsonValue])
   JObject(Array[(String, JsonValue)])
-} derive(Eq, Debug)
+}
 
 ///|
 priv struct JsonParser {

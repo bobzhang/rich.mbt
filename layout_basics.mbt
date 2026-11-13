@@ -322,12 +322,13 @@ pub impl Renderable for Constrain with fn rich_measure(self, console, options) {
 
 ///|
 /// Defines a rectangular region of the screen.
+#derive(Eq, Debug)
 pub(all) struct Region {
   x : Int32
   y : Int32
   width : Int32
   height : Int32
-} derive(Eq, Debug)
+}
 
 ///|
 /// A renderable that fills the terminal screen and crops excess.

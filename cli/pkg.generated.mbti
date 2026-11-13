@@ -19,24 +19,28 @@ pub fn run(ArrayView[String], files? : Map[String, String], stdin? : String, env
 // Errors
 
 // Types and methods
+#derive(@debug.Debug)
 pub(all) enum Command {
   Run(Options)
   Help
   UsageError(String, usage~ : Bool)
-} derive(@debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Export {
   path : String
   contents : String
   format : String
-} derive(Eq, @debug.Debug)
+}
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Input {
   NoInput
   Stdin
   File(String)
-} derive(Eq, @debug.Debug)
+}
 
+#derive(@debug.Debug)
 pub(all) struct Options {
   mut resource : String
   mut print : Bool
@@ -81,17 +85,18 @@ pub(all) struct Options {
   mut export_svg : String
   mut pager : Bool
   mut version : Bool
-} derive(@debug.Debug)
+}
 pub fn Options::default(theme? : String) -> Self
 pub fn Options::input(Self) -> Input
 
+#derive(@debug.Debug)
 pub(all) struct Output {
   stdout : String
   stderr : String
   exit_code : Int32
   exports : Array[Export]
   pager : String?
-} derive(@debug.Debug)
+}
 
 // Type aliases
 
