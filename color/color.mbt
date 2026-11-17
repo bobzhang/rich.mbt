@@ -127,7 +127,7 @@ pub fn ColorTriplet::hex(self : ColorTriplet) -> String {
   let { red, green, blue, } = self
   if (red | green | blue) >= 0 && (red | green | blue) < 256 {
     // the usual case: components in 0..=255
-    let buf = StringBuilder(size_hint=7)
+    let buf = StringBuilder(capacity=7)
     buf.write_char('#')
     buf.write_char(hex_digit(red >> 4))
     buf.write_char(hex_digit(red & 15))

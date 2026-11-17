@@ -239,7 +239,7 @@ fn render_joined_lines(
         raw_string_view(plain, a - base, b - base).to_owned()
       }
     }
-    let buf = StringBuilder(size_hint=(b - a) * 2)
+    let buf = StringBuilder(capacity=(b - a) * 2)
     buf.write_view(raw_string_view(plain, a - base, plain.length()))
     let mut pos = line_end
     let mut index = cursor
