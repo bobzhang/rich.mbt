@@ -3,7 +3,7 @@
 // standard input/output) with `moonbitlang/async`, on native and wasm.
 
 ///|
-async fn main {
+async fn main_async() -> Unit {
   let code = run(@env.args()[1:].to_owned()) catch {
     e => {
       @stdio.stderr.write("rich: \{e}\n")
@@ -101,4 +101,9 @@ async fn run(args : Array[String]) -> Int32 {
     }
   }
   output.exit_code
+}
+
+///|
+fn main {
+  @async.run_async_main(main_async)
 }
