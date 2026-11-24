@@ -1,8 +1,8 @@
 import {
+  "moonbitlang/async",
   "bobzhang/rich" @richlib,
   "bobzhang/rich/cli",
   "bobzhang/rich/internal/term",
-  "moonbitlang/async",
   "moonbitlang/async/fs",
   "moonbitlang/async/os_error",
   "moonbitlang/async/stdio",
