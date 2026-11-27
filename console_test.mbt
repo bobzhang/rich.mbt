@@ -536,7 +536,7 @@ test "test_export_svg_specified_unique_id" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm"))
+#cfg(target="native")
 fn temp_path(name : String) -> String {
   let dir = match @env.get_env_var("TMPDIR") {
     Some(d) if d != "" => d
@@ -547,7 +547,7 @@ fn temp_path(name : String) -> String {
 }
 
 ///|
-#cfg(any(target="native", target="llvm"))
+#cfg(target="native")
 test "test_save_svg" {
   let console = record_console()
   console.print(
@@ -559,7 +559,7 @@ test "test_save_svg" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm"))
+#cfg(target="native")
 test "test_save_text" {
   let console = record_console()
   console.print("foo")
@@ -569,7 +569,7 @@ test "test_save_text" {
 }
 
 ///|
-#cfg(any(target="native", target="llvm"))
+#cfg(target="native")
 test "test_save_html" {
   let expected = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"UTF-8\">\n<style>\n\nbody {\n    color: #000000;\n    background-color: #ffffff;\n}\n</style>\n</head>\n<body>\n    <pre style=\"font-family:Menlo,'DejaVu Sans Mono',consolas,'Courier New',monospace\"><code style=\"font-family:inherit\">foo\n</code></pre>\n</body>\n</html>\n"
   let console = record_console()
